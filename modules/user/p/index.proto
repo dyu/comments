@@ -32,7 +32,7 @@ enum AuthFilter { NONE = 1 [ f0 = Role.NONE ]; }
 
 // ==================================================
 
-message ParamLong { required uint64 p = 1; }
+message ParamLong { @Min(value = 1) required int64 p = 1; }
 
 // ==================================================
 
