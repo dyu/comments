@@ -39,7 +39,7 @@ message ParamLong { required uint64 p = 1; }
 @Entity(kind = 10, seq = true, tx_create = true)
 message Comment {
 
-  option stgs = "_stg_ops, _stg_qform";
+  option stgs = "_stg_ops";
 
   service ForUser {
 
@@ -58,21 +58,21 @@ message Comment {
 
   // ==================================================
 
-  @Config(link = SI, service = UserServices.ForUser)
+  /*@Config(link = SI, service = UserServices.ForUser)
   @Include(client = true)
   @int8 enum Q {
 
     POST_ID = 1 [
       f0 = "post_id"
     ];
-  }
+  }*/
 
   // ==================================================
 
   @Config(link = Tags)
   @Exclude @uint8 enum SI {
 
-    POST_ID = 224 [gen_kb = true];
+    //POST_ID = 224 [gen_kb = true];
     POST_ID__KEY_CHAIN = 225;
   }
 
