@@ -2,8 +2,11 @@
 
 package comments.user;
 
-import com.dyuproject.protostuff.RpcHeader;
-import com.dyuproject.protostuffdb.Datastore;
+import static com.dyuproject.protostuffdb.SerializedValueUtil.readByteArrayOffsetWithTypeAsSize;
+
+import com.dyuproject.protostuffdb.DSRuntimeExceptions;
+import com.dyuproject.protostuffdb.EntityMetadata;
+import com.dyuproject.protostuffdb.OpChain;
 import com.dyuproject.protostuffdb.WriteContext;
 
 /**
@@ -13,10 +16,38 @@ public final class CommentOps
 {
     private CommentOps() {}
 
-    static String validateAndProvide(Comment req, long now,
-            Datastore store, WriteContext context, RpcHeader header)
+    static byte[] append(byte[] data, int offset, int len, byte[] suffix)
     {
-        // TODO
-        return null;
+        byte[] buf = new byte[len+suffix.length];
+        
+        System.arraycopy(data, offset, buf, 0, len);
+        
+        System.arraycopy(suffix, 0, buf, len, suffix.length);
+        
+        return buf;
+    }
+
+    static Comment validateAndProvide(Comment param, long now, OpChain chain)
+    {
+        byte[] parentKey = param.parentKey;
+        if (parentKey.length == 0)
+        {
+            param.parentKey = EntityMetadata.ZERO_KEY;
+            return param.provide(now, EntityMetadata.ZERO_KEY, 0);
+        }
+        
+        final WriteContext context = chain.context;
+        
+        final byte[] parentValue = chain.vs().get(parentKey, Comment.EM, null);
+        if (parentValue == null)
+            throw DSRuntimeExceptions.operationFailure("Parent comment does not exist!");
+        
+        int offset = readByteArrayOffsetWithTypeAsSize(Comment.FN_KEY_CHAIN, parentValue, context),
+                size = context.type,
+                depth = size / 9;
+        
+        return param.provide(now, 
+                append(parentValue, offset, size, parentKey), 
+                depth);
     }
 }

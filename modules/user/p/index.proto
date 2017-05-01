@@ -11,7 +11,7 @@ option link = UserServices;
 @Config(link = AuthFilter)
 @Exclude @uint8 enum UserServices {
 
-  ForUser = 1 [ f0 = AuthFilter.NONE ];
+  ForUser = 3 [ f0 = AuthFilter.NONE ];
 }
 
 // ==================================================
@@ -32,7 +32,7 @@ enum AuthFilter { NONE = 1 [ f0 = Role.NONE ]; }
 
 // ==================================================
 
-@Entity(kind = 10, seq = true)
+@Entity(kind = 10, seq = true, tx_create = true)
 message Comment {
 
   option stgs = "_stg_ops, _stg_qform";
@@ -86,8 +86,10 @@ message Comment {
   @Min(value = 1)
   required uint64 post_id = 6;
   
+  optional int8 depth = 7 [default = 0, provided = true, immutable = true];
+  
   @Key(entity = Comment)
-  optional bytes parent_key = 7 [default = "", immutable = true];
+  optional bytes parent_key = 8 [default = "", immutable = true];
 
   message PList { repeated Comment p = 1; }
 }
