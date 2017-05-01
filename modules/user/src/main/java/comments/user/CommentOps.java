@@ -46,6 +46,9 @@ public final class CommentOps
                 size = context.type,
                 depth = size / 9;
         
+        if (depth > 127)
+            throw DSRuntimeExceptions.operationFailure("The nested replies are too deep and have exceeded the limit.");
+        
         return param.provide(now, 
                 append(parentValue, offset, size, parentKey), 
                 depth);
