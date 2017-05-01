@@ -1,0 +1,94 @@
+package comments.user;
+
+import "ds/prk.proto"; // Param* types, loaded from classpath
+
+// ==================================================
+
+option stgs = "_stg_service_all";
+option link = UserServices;
+
+@ServiceGroup
+@Config(link = AuthFilter)
+@Exclude @uint8 enum UserServices {
+
+  ForUser = 1 [ f0 = AuthFilter.NONE ];
+}
+
+// ==================================================
+// placeholders
+
+@Exclude
+@int8
+enum Tags { NONE = 1; }
+
+@Exclude
+@uint32(bit_flags = true)
+enum Role { NONE = 1; }
+
+@Config(link = Role)
+@Exclude
+@int8
+enum AuthFilter { NONE = 1 [ f0 = Role.NONE ]; }
+
+// ==================================================
+
+@Entity(kind = 10, seq = true)
+message Comment {
+
+  option stgs = "_stg_ops, _stg_qform";
+
+  service ForUser {
+
+    @ListV
+    rpc list(ParamRangeKey) returns (Comment.PList);
+
+    @X
+    rpc create(Comment) returns (Comment.PList);
+
+    //@X
+    //rpc update(ParamUpdate) returns (void);
+
+  }
+
+  // ==================================================
+
+  @Config(link = SI, service = UserServices.ForUser)
+  @Include(client = true)
+  @int8 enum Q {
+
+    POST_ID = 1 [
+      f0 = "post_id"
+    ];
+  }
+
+  // ==================================================
+
+  @Config(link = Tags)
+  @Exclude @uint8 enum SI {
+
+    POST_ID = 224 [gen_kb = true];
+    POST_ID__KEY_CHAIN = 225;
+  }
+
+  // ==================================================
+
+  optional bytes key = 1 [provided = true, immutable = true];
+  optional uint64 ts = 2 [provided = true, immutable = true, datetime = true];
+
+  optional bytes key_chain = 3 [provided = true, immutable = true, default = ""];
+
+  @Length(min = 1, max = 127)
+  required string name = 4 [json_escape = true];
+
+  @Length(min = 1, max = 1024)
+  required string content = 5 [json_escape = true];
+  
+  @Min(value = 1)
+  required uint64 post_id = 6;
+  
+  @Key(entity = Comment)
+  optional bytes parent_key = 7 [default = "", immutable = true];
+
+  message PList { repeated Comment p = 1; }
+}
+
