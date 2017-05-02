@@ -1,6 +1,7 @@
 <div>
-  <div>{{ item['4'] }}  <span class="timeago">{{ timeago(item['2']) }}</span></div>
+  <span class="name">{{ item['4'] }}</span><span class="timeago">{{ timeago(item['2']) }}</span>
   <div>{{ item['5'] }}</div>
+  <button class="outlined">Reply</button>
   {{#if item.children.length}}
   <dd class='children'>
     {{#each item.children as child, i}}

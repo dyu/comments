@@ -4,6 +4,7 @@
 #comments {
 
 font-family: $base-font-family;
+color: #333;
 
 @import "./normalize";
 @import "./base";
@@ -60,9 +61,37 @@ div.inline {
   color: $error-color;
 }
 
+.name {
+  font-size: 1.3em;
+  color: $primary-color;
+}
 .timeago {
   color: $alt-color;
-  font-size: 0.85em;
+  font-size: 0.9em;
+  padding-top: 0.25em;
+  padding-left: 0.8em;
+}
+
+dl {
+  margin-top: 0.3em;
+  padding: 0.5em 0.8em;
+  border: 1px solid $soft-gray;
+
+  > div {
+    > span {
+      vertical-align: top;
+      display: inline-block;
+    }
+    
+    > div {
+      margin: 0.4em 0 1em;
+    }
+
+    > button {
+      font-size: 0.9em;
+      padding: 0.25rem 0.5rem;
+    }
+  }
 }
 
 } // end #comments
