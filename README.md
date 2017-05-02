@@ -23,6 +23,7 @@ wget -O target/fbsgen-ds.jar https://repo1.maven.org/maven2/com/dyuproject/fbsge
 ./modules/codegen.sh
 mvn install
 
+npm install -g http-server clean-css-cli
 cd comments-ts
 yarn install
 ```

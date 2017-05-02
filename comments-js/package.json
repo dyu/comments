@@ -4,7 +4,7 @@
   "author": "dyu",
   "private": true,
   "scripts": {
-    "build": "rollup -c --environment production",
+    "build": "rollup -c --environment production && cleancss -O2 removeDuplicateRules:on dist/build.css > dist/build.min.css && mv dist/build.min.css dist/build.css",
     "dev": "rollup -c -w",
     "start": "http-server . & npm run dev & open http://127.0.0.1:8080"
   },
