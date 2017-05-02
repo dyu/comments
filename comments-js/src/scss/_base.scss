@@ -1,0 +1,40 @@
+/**
+  * HTML tag properties
+  * REM size normal and small are set here for component sizing.
+  */
+
+/*html {
+    font-size: $remsize-small; // Small rem-size
+    @media(min-width: $size-switch) {
+        font-size: $remsize-normal; // Regular font-size
+    }
+}*/
+
+/**
+  * Body properties
+  * EM size is set here for typography elements.
+  */
+
+/*body {
+    font-family: $base-font-family;
+    font-weight: $base-font-weight;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-tap-highlight-color: transparent;
+    line-height: $base-line-height;
+    color: $body-copy-color;
+    font-size: $emsize-small; // Small font-size
+    @media(min-width: $size-switch) {
+        font-size: $emsize-normal; // Regular font-size
+    }
+}*/
+
+/**
+  * Border-box-sizing on all elements & pseudo elements
+  */
+
+*, *:before, *:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}

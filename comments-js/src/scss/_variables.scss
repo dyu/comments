@@ -1,0 +1,96 @@
+// Core variables
+
+$base-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+$body-font-family: $base-font-family;
+
+$base-line-height: 1.45; 
+$default-border-width: 1px; /* also used on horizontal rules */
+$default-border-radius: 4px;
+
+$size-switch: 540px + 70px;  /* Minimum screenwidth at which the EM & REM sizes switch from small to normal. */
+
+$alt-color: #737373;
+$success-color: #52A954;
+$success-bg-color: #DEFCD5;
+$error-color: #A95252;
+$error-bg-color: #F1D7D7;
+$warning-color: #96904D;
+$warning-bg-color: #F6F3D5;
+
+$soft-gray: #D9D9D9;
+$medium-gray: darken($soft-gray, 20%);
+$hard-gray: darken($medium-gray, 20%);
+
+// Core colors
+$primary-color: #0080ff;
+$primary-color-dark: darken($primary-color, 3%);
+$primary-color-light: lighten($primary-color, 3%);
+$secondary-color: lighten($primary-color, 40%);
+$secondary-color-dark: darken($secondary-color, 3%);
+$secondary-color-light: lighten($secondary-color, 3%);
+
+$link-color: $primary-color;
+$link-color-dark: darken($link-color, 10%);
+
+// Gray colors
+$dark-color: $hard-gray;
+$light-color: #fff;
+$gray-color: lighten($dark-color, 40%);
+$gray-color-dark: darken($gray-color, 20%);
+$gray-color-light: lighten($gray-color, 20%);
+
+$border-color: lighten($gray-color-light, 3%);
+$border-color-dark: darken($border-color, 15%);
+$bg-color: lighten($dark-color, 66%);
+$bg-color-dark: darken($bg-color, 3%);
+$bg-color-light: $light-color;
+
+// Global
+$html-font-size: 10px;
+$html-line-height: 1.428571429;
+$body-bg: $bg-color-light;
+$body-font-color: lighten($dark-color, 5%);
+$font-size: 1.4rem;
+$font-size-sm: 1.2rem;
+$font-size-lg: 1.6rem;
+
+// Fonts
+// Credit: https://www.smashingmagazine.com/2015/11/using-system-ui-fonts-practical-guide/
+//$base-font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto;
+//$fallback-font-family: "Helvetica Neue", sans-serif;
+//$cjk-font-family: $base-font-family, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Hiragino Kaku Gothic Pro", Meiryo, "Malgun Gothic", $fallback-font-family;
+//$body-font-family: $base-font-family, $fallback-font-family;
+
+// Sizes
+$layout-padding: 1rem;
+$layout-padding-lg: 1.5rem;
+$control-min-width: 18rem;
+$border-radius: .2rem;
+$border-width: .1rem;
+
+// Control colors
+$control-color-success: $success-color;
+$control-color-warning: $warning-color;
+$control-color-error: $error-color;
+
+// Other colors
+$code-color: #e06870;
+$highlight-color: #ffe9b3;
+
+// Responsive breakpoints
+$size-xs: 480px;
+$size-sm: 600px;
+$size-md: 840px;
+$size-lg: 960px;
+$size-xl: 1280px;
+$size-2x: 1440px;
+
+// Z-index
+$zindex-0: 1;
+$zindex-1: 100;
+$zindex-2: 200;
+$zindex-3: 300;
+$zindex-4: 400;
+
+
+

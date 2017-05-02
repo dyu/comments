@@ -1,0 +1,79 @@
+/**
+  * Container
+  */
+
+@mixin container {
+    margin: 0 auto;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    @media(min-width: $size-switch) {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+    &:before {
+        content: " ";
+        display: table;
+    }
+    &:after {
+        content: " ";
+        display: table;
+        clear: both;
+    }
+}
+
+/**
+  * Standard button
+  */
+
+@mixin button {
+    display: inline-block;
+    text-decoration: none !important;
+    font-family: inherit;
+    line-height: $base-line-height;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    border: $default-border-width solid transparent;
+    border-radius: $default-border-radius;
+    cursor: pointer;
+    &:focus {
+        outline: none;
+    }
+    &:active {
+        transform: scale(0.97);
+    }
+    &.h1,
+    &.h2,
+    &.h3,
+    &.h4,
+    &.h5,
+    &.h6 {
+        padding-left: 0.9em;
+        padding-right: 0.9em;
+    }
+}
+
+/**
+  * Clearfix
+  */
+
+@mixin clearfix {
+    &:before,
+    &:after {
+        content: " ";
+        display: table;
+    }
+    &:after {
+        clear: both;
+    }
+}
+
+// Component transition
+@mixin control-transition() {
+  transition: all .2s ease;
+}
+
+// Component focus shadow
+@mixin control-shadow($color: $primary-color) {
+  box-shadow: 0 0 0 0.2rem fade($color, 15%);
+}

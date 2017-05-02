@@ -1,0 +1,68 @@
+@import "./variables";
+@import "./mixins";
+
+#comments {
+
+font-family: $base-font-family;
+
+@import "./normalize";
+@import "./base";
+
+@import "./buttons";
+@import "../../node_modules/pavilion/scss/pavilion-parts/lists";
+ul {
+    text-decoration: none;
+    list-style-type: none;
+}
+@import "./forms";
+
+textarea.error,
+input[type="text"].error {
+    border: $default-border-width solid $error-color !important;
+}
+
+div.inline {
+  margin-top: 0.3em;
+  position: relative;
+  > input[type="text"] {
+    width: 59%;
+    margin: 0;
+    display: inline-block;
+    vertical-align: top;
+  }
+  > button {
+    position: absolute;
+    right: 0;
+    width: 40%;
+    margin: 0;
+    vertical-align: top;
+  }
+}
+
+.msg {
+  display: none;
+  position: relative;
+  background-color: $success-bg-color;
+  color: $success-color;
+  padding: 1em 0.3em 0.3em 0.3em;
+  > b {
+    position: absolute;
+    padding: 0.02em 0.3em;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+}
+.msg.error {
+  display: block;
+  background-color: $error-bg-color;
+  color: $error-color;
+}
+
+.timeago {
+  color: $alt-color;
+  font-size: 0.85em;
+}
+
+} // end #comments
