@@ -1,6 +1,6 @@
 <div>
   <span class="name">{{ item['4'] }}</span><span class="timeago">{{ timeago(item['2']) }}</span>
-  <div>{{ item['5'] }}</div>
+  <div ref:content></div>
   <button class="outlined">Reply</button>
   {{#if item.children.length}}
   <dd class='children'>
@@ -11,7 +11,7 @@
   {{/if}}
 </div>
 <script>
-import { POST_ID, context, timeago, append, extractMsg } from './util'
+import { POST_ID, context, timeago, append, extractMsg, toHTML } from './util'
 import * as rpc from './rpc'
 
 export default {
@@ -20,6 +20,9 @@ export default {
     }),
     helpers: {
         timeago
+    },
+    oncreate() {
+        this.refs.content.innerHTML = toHTML(this.get('item')['5'])
     }
 }
 </script>

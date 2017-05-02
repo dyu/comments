@@ -9,6 +9,7 @@
     "start": "http-server . & npm run dev & open http://127.0.0.1:8080"
   },
   "dependencies": {
+    "showdown": "^1.6.4",
     "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {

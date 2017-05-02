@@ -1,6 +1,11 @@
-const MINUTE = 60;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
+import showdown from 'showdown'
+
+const MINUTE = 60
+const HOUR = 60 * MINUTE
+const DAY = 24 * HOUR
+
+const converter = new showdown.Converter()
+converter.setFlavor('github')
 
 export const POST_ID = window['post_id']
 
@@ -12,6 +17,10 @@ function plural(num, unit) {
     num = ~~num;
     if (num !== 1) unit += 's';
     return `${num} ${unit}`;
+}
+
+export function toHTML(md) {
+    return converter.makeHtml(md)
 }
 
 export function timebetween(a, b) {
