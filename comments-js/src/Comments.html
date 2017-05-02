@@ -2,12 +2,12 @@
   <b>x</b>
   <span>{{ errmsg }}</span>
 </div>
-<textarea ref:top_content class="{{ !top_content_err ? '' : ' error' }}"></textarea>
+<textarea ref:top_content class="{{ !top_content_err ? '' : 'error' }}"></textarea>
 <div class="inline">
-  <input ref:top_name type="text" class="{{ !top_name_err ? '' : ' error' }}" placeholder="Name" />
+  <input ref:top_name type="text" class="{{ !top_name_err ? '' : 'error' }}" placeholder="Name" />
   <button class="primary" on:click="top_comment$$()" >Post comment</button>
 </div>
-<div class="{{ !errmsg ? 'msg' : 'msg is-error' }}">
+<div class="{{ !errmsg ? 'msg' : 'msg error' }}">
   <b>x</b>
   <span>{{ top_errmsg }}</span>
 </div>
