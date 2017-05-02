@@ -12,6 +12,7 @@
     "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {
+    "pavilion": "^2.0.3",
     "rollup": "^0.41.6",
     "rollup-plugin-buble": "^0.15.0",
     "rollup-plugin-closure-compiler-js": "^1.0.4",
