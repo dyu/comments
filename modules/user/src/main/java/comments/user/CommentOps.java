@@ -6,6 +6,7 @@ import static com.dyuproject.protostuffdb.EntityMetadata.ZERO_KEY;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.readByteArrayOffsetWithTypeAsSize;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.dyuproject.protostuff.KeyBuilder;
 import com.dyuproject.protostuff.Pipe;
@@ -13,8 +14,8 @@ import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
 import com.dyuproject.protostuffdb.DSRuntimeExceptions;
 import com.dyuproject.protostuffdb.Datastore;
-import com.dyuproject.protostuffdb.EntityMetadata;
 import com.dyuproject.protostuffdb.OpChain;
+import com.dyuproject.protostuffdb.ProtostuffPipe;
 import com.dyuproject.protostuffdb.RangeV;
 import com.dyuproject.protostuffdb.ValueUtil;
 import com.dyuproject.protostuffdb.WriteContext;
@@ -40,10 +41,10 @@ public final class CommentOps
     static Comment validateAndProvide(Comment param, long now, OpChain chain)
     {
         byte[] parentKey = param.parentKey;
-        if (parentKey.length == 0)
+        if (parentKey.length == 0 || Arrays.equals(parentKey, ZERO_KEY))
         {
-            param.parentKey = EntityMetadata.ZERO_KEY;
-            return param.provide(now, EntityMetadata.ZERO_KEY, 0);
+            param.parentKey = ZERO_KEY;
+            return param.provide(now, ZERO_KEY, 0);
         }
         
         final WriteContext context = chain.context;
@@ -70,7 +71,6 @@ public final class CommentOps
             RpcHeader header) throws IOException
     {
         final byte[] lastSeenKey = req.key, 
-                parentKey = req.parentKey,
                 key = new byte[9];
         
         if (!store.chain(null, XCommentOps.OP_NEW, req, 0, res.context, key))
@@ -78,7 +78,7 @@ public final class CommentOps
         
         req.key = key;
         
-        if (parentKey.length != 0)
+        if (req.parentKey != ZERO_KEY)
         {
             // user posted a reply
             final byte[] startKey;
@@ -107,10 +107,19 @@ public final class CommentOps
                     .$append8(0xFF)
                     .$push();
             
-            store.visitRange(false, -1, false, kb.copy(-2), res.context, 
-                    RangeV.RES_PV, res, 
-                    kb.buf(), kb.offset(-1), kb.len(-1), 
-                    kb.buf(), kb.offset(), kb.len());
+            final ProtostuffPipe pipe = res.context.pipe.init(
+                    Comment.EM, Comment.getPipeSchema(), Comment.PList.FN_P, true);
+            try
+            {
+                store.visitRange(false, -1, false, kb.copy(-2), res.context, 
+                        RangeV.RES_PV, res, 
+                        kb.buf(), kb.offset(-1), kb.len(-1), 
+                        kb.buf(), kb.offset(), kb.len());
+            }
+            finally
+            {
+                pipe.clear();
+            }
         }
         else if (lastSeenKey != null)
         {
@@ -131,10 +140,19 @@ public final class CommentOps
                     .$append8(0xFF)
                     .$push();
             
-            store.visitRange(false, -1, false, kb.copy(-2), res.context, 
-                    RangeV.RES_PV, res, 
-                    kb.buf(), kb.offset(-1), kb.len(-1), 
-                    kb.buf(), kb.offset(), kb.len());
+            final ProtostuffPipe pipe = res.context.pipe.init(
+                    Comment.EM, Comment.getPipeSchema(), Comment.PList.FN_P, true);
+            try
+            {
+                store.visitRange(false, -1, false, kb.copy(-2), res.context, 
+                        RangeV.RES_PV, res, 
+                        kb.buf(), kb.offset(-1), kb.len(-1), 
+                        kb.buf(), kb.offset(), kb.len());
+            }
+            finally
+            {
+                pipe.clear();
+            }
         }
         else
         {
