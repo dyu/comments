@@ -54,8 +54,8 @@ public final class CommentViews
             Visitor<V> visitor, V param)
     {
         return Visit.by8(Comment.IDX_POST_ID__KEY_CHAIN, postId,
-                Comment.EM, comments.user.Comment.PList.FN_P, ASC,
-                RangeV.Store.V, store, context,
+                Comment.EM, Comment.PList.FN_P, ASC,
+                visitorType, store, context,
                 visitor, param);
     }
 
@@ -72,7 +72,7 @@ public final class CommentViews
             Pipe.Schema<Comment.PList> resPipeSchema, RpcHeader header)
     {
         return Visit.by8(Comment.IDX_POST_ID__KEY_CHAIN, req,
-                Comment.EM, comments.user.Comment.PList.FN_P,
+                Comment.EM, Comment.PList.FN_P,
                 RangeV.Store.ENTITY_PV, store, res.context,
                 RangeV.RES_PV, res);
     }
