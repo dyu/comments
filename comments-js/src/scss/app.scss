@@ -83,13 +83,14 @@ dl {
       display: inline-block;
     }
     
-    > div {
-      margin: 0.4em 0 1em;
-    }
-
     > button {
-      font-size: 0.9em;
+      font-size: 0.85em;
       padding: 0.25rem 0.5rem;
+
+      /*&:hover {
+        color: #fff !important;
+        background-color: $primary-color;
+      }*/
     }
   }
 }
