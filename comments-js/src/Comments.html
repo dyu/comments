@@ -32,9 +32,11 @@ function toPayload(name, content, items) {
 function toTree(raw_items, items) {
     let last_item = !items.length ? null : items[items.length - 1],
         last_depth = !last_item ? 0 : last_item.depth,
+        item,
         depth
     
-    for (var item of raw_items) {
+    for (var i = 0, len = raw_items.length; i < len; i++) {
+        item = raw_items[i]
         item.parent = null
         item.children = []
         if (!(depth = item['7'])) {
