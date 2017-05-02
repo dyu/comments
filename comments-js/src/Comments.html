@@ -2,9 +2,9 @@
   <b>x</b>
   <span>{{ errmsg }}</span>
 </div>
-<textarea ref:top_content class="{{ append('form-input', !top_content_err ? '' : ' error') }}"></textarea>
+<textarea ref:top_content class="{{ !top_content_err ? '' : ' error' }}"></textarea>
 <div class="inline">
-  <input ref:top_name type="text" class="{{ append('form-input', !top_name_err ? '' : ' error') }}" placeholder="Name" />
+  <input ref:top_name type="text" class="{{ !top_name_err ? '' : ' error' }}" placeholder="Name" />
   <button class="primary" on:click="top_comment$$()" >Post comment</button>
 </div>
 <div class="{{ !errmsg ? 'msg' : 'msg is-error' }}">
@@ -142,11 +142,11 @@ export default {
                 m = this.m
             
             if (!content) {
-                this.set({ top_content_err: true })
+                this.set({ top_content_err: true, top_name_err: false })
                 return
             }
             if (!name) {
-                this.set({ top_name_err: true })
+                this.set({ top_content_err: false, top_name_err: true })
                 return
             }
 
