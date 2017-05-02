@@ -2,9 +2,9 @@
   <b>x</b>
   <span>{{ errmsg }}</span>
 </div>
-<textarea ref:top_content class="{{ append('form-input', !top_content_err ? '' : ' is-error') }}"></textarea>
+<textarea ref:top_content class="{{ append('form-input', !top_content_err ? '' : ' error') }}"></textarea>
 <div class="inline">
-  <input ref:top_name type="text" class="{{ append('form-input', !top_name_err ? '' : ' is-error') }}" />
+  <input ref:top_name type="text" class="{{ append('form-input', !top_name_err ? '' : ' error') }}" />
   <button class="primary" on:click="top_comment$$()" >Post comment</button>
 </div>
 <div class="{{ !errmsg ? 'msg' : 'msg is-error' }}">
@@ -12,9 +12,11 @@
   <span>{{ top_errmsg }}</span>
 </div>
 <div>
+<dl>
 {{#each items as item, i}}
 	<Comment item='{{ item }}' index='{{ i }}'/>
 {{/each}}
+</dl>
 </div>
 <script>
 import { append, extractMsg } from './util'

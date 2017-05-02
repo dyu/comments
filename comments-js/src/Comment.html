@@ -1,13 +1,13 @@
 <div>
-  <div>{{ item['4'] }}  <span class="alt">{{ timeago(item['2']) }}</span></div>
+  <div>{{ item['4'] }}  <span class="timeago">{{ timeago(item['2']) }}</span></div>
   <div>{{ item['5'] }}</div>
-    {{#if item.children.length}}
-        <ul class='children'>
-            {{#each item.children as child, i}}
-                <li><:Self item='{{ child }}' index="{{ i }}"  /></li>
-            {{/each}}
-        </ul>
-    {{/if}}
+  {{#if item.children.length}}
+  <dd class='children'>
+    {{#each item.children as child, i}}
+    <:Self item='{{ child }}' index="{{ i }}"  />
+    {{/each}}
+  </dd>
+  {{/if}}
 </div>
 <script>
 import { timeago, append, extractMsg } from './util'
