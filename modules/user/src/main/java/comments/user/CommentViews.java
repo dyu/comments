@@ -17,6 +17,7 @@ package comments.user;
 import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
+import com.dyuproject.protostuff.ds.P8;
 import com.dyuproject.protostuff.ds.ParamRangeKey;
 import com.dyuproject.protostuffdb.Datastore;
 import com.dyuproject.protostuffdb.RangeV;
@@ -58,12 +59,21 @@ public final class CommentViews
                 visitor, param);
     }
 
-    static boolean listByPostId(ParamLong req, Datastore store, RpcResponse res,
+    static boolean listAllByPostId(ParamLong req, Datastore store, RpcResponse res,
             Pipe.Schema<Comment.PList> resPipeSchema, RpcHeader header)
     {
         return visitByPostId(req.p,
                 store, res.context,
                 RangeV.Store.ENTITY_PV,
+                RangeV.RES_PV, res);
+    }
+
+    static boolean listByPostId(P8 req, Datastore store, RpcResponse res,
+            Pipe.Schema<Comment.PList> resPipeSchema, RpcHeader header)
+    {
+        return Visit.by8(Comment.IDX_POST_ID__KEY_CHAIN, req,
+                Comment.EM, comments.user.Comment.PList.FN_P,
+                RangeV.Store.ENTITY_PV, store, res.context,
                 RangeV.RES_PV, res);
     }
 
