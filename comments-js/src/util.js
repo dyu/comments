@@ -4,6 +4,10 @@ const DAY = 24 * HOUR;
 
 export const POST_ID = window['post_id']
 
+export const context = {
+    raw_items: []
+}
+
 function plural(num, unit) {
     num = ~~num;
     if (num !== 1) unit += 's';

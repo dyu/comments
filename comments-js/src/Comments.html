@@ -19,7 +19,7 @@
 </dl>
 </div>
 <script>
-import { POST_ID, append, extractMsg } from './util'
+import { POST_ID, context, append, extractMsg } from './util'
 import * as rpc from './rpc'
 
 import Comment from './Comment.html'
@@ -72,7 +72,6 @@ export default {
         loading: true, // fetch after this component is created
         errmg: '',
         items: [],
-        raw_items: [],
 
         top_content_err: false,
         top_name_err: false,
@@ -104,13 +103,15 @@ export default {
     methods: {
         fetch$$S(data) {
             let array = data['1']
+            
             if (!array || !array.length) {
                 this.set({ loading: false })
                 return
             }
+
+            context.raw_items = context.raw_items.concat(array)
             this.set({
                 loading: false,
-                raw_items: this.get('raw_items').concat(array),
                 items: toTree(array, this.get('items'))
             })
         },
@@ -118,13 +119,15 @@ export default {
             this.set({ loading: false, errmsg: extractMsg(err) })
         },
         top_comment$$S(data) {
-            this.refs.top_content.value = ''
-            this.refs.top_name.value = ''
+            let array = data['1'],
+                refs = this.refs
+            
+            refs.top_content.value = ''
+            refs.top_name.value = ''
 
-            let array = data['1']
+            context.raw_items = context.raw_items.concat(array)
             this.set({
                 loading: false,
-                raw_items: this.get('raw_items').concat(array),
                 items: toTree(array, this.get('items'))
             })
         },
