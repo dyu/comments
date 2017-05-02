@@ -3,7 +3,7 @@
   <div ref:content></div>
   <button class="outlined" on:click="reply$$(item)">Reply</button>
   {{#if item.children.length}}
-  <dd class='children'>
+  <dd>
     {{#each item.children as child, i}}
     <:Self item='{{ child }}' index="{{ i }}"  />
     {{/each}}
