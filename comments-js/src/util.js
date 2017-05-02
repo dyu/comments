@@ -2,6 +2,8 @@ const MINUTE = 60;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
+export const POST_ID = window['post_id']
+
 function plural(num, unit) {
     num = ~~num;
     if (num !== 1) unit += 's';

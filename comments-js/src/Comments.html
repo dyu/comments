@@ -1,10 +1,10 @@
-<div class="{{ !errmsg ? 'msg' : 'msg is-error' }}">
+<div class="{{ !errmsg ? 'msg' : 'msg error' }}">
   <b>x</b>
   <span>{{ errmsg }}</span>
 </div>
 <textarea ref:top_content class="{{ append('form-input', !top_content_err ? '' : ' error') }}"></textarea>
 <div class="inline">
-  <input ref:top_name type="text" class="{{ append('form-input', !top_name_err ? '' : ' error') }}" />
+  <input ref:top_name type="text" class="{{ append('form-input', !top_name_err ? '' : ' error') }}" placeholder="Name" />
   <button class="primary" on:click="top_comment$$()" >Post comment</button>
 </div>
 <div class="{{ !errmsg ? 'msg' : 'msg is-error' }}">
@@ -12,35 +12,33 @@
   <span>{{ top_errmsg }}</span>
 </div>
 <div>
-<dl>
+<dl class="{{ items.length ? '' : 'hide' }}">
 {{#each items as item, i}}
-	<Comment item='{{ item }}' index='{{ i }}'/>
+  <Comment item='{{ item }}' index='{{ i }}' />
 {{/each}}
 </dl>
 </div>
 <script>
-import { append, extractMsg } from './util'
+import { POST_ID, append, extractMsg } from './util'
 import * as rpc from './rpc'
 
 import Comment from './Comment.html'
 
-const POST_ID = window['post_id']
-
-function toPayload(name, content, postId) {
-    return `{"4":"${name}","5":"${content}","6":${postId}}`
+function toPayload(name, content, items) {
+    let prefix = !items.length ? '' : `"1":"${items[items.length - 1]['1']}",`
+    return `{${prefix}"4":"${name}","5":"${content}","6":${POST_ID}}`
 }
 
-function toTree(items) {
-    var array = [],
-        depth = 0,
-        last_depth = 0,
-        last_item
+function toTree(raw_items, items) {
+    let last_item = !items.length ? null : items[items.length - 1],
+        last_depth = !last_item ? 0 : last_item.depth,
+        depth
     
-    for (var item of items) {
+    for (var item of raw_items) {
         item.parent = null
         item.children = []
         if (!(depth = item['7'])) {
-            array.push(item)
+            items.push(item)
             last_item = item
             last_depth = depth
             continue
@@ -66,10 +64,8 @@ function toTree(items) {
         last_depth = depth
     }
 
-    return array
+    return items
 }
-
-var top_comment$$S, top_comment$$F
 
 export default {
     data: () => ({
@@ -91,35 +87,54 @@ export default {
         append
     },
     oncreate () {
-        rpc.post('/comments/user/Comment/listAllByPostId', `{"1":${POST_ID}}`)
-                .then(this.fetch$$S.bind(this)).then(undefined, this.fetch$$F.bind(this))
+        Object.defineProperty(this, 'm', {
+            enumerable: false,
+            value: {
+                fetch$$S: this.fetch$$S.bind(this),
+                fetch$$F: this.fetch$$F.bind(this),
+
+                top_comment$$S: this.top_comment$$S.bind(this),
+                top_comment$$F: this.top_comment$$F.bind(this)
+            }
+        })
         
-        top_comment$$S = this.top_comment$$S.bind(this)
-        top_comment$$F = this.top_comment$$F.bind(this)
+        rpc.post('/comments/user/Comment/listAllByPostId', `{"1":${POST_ID}}`)
+                .then(this.m.fetch$$S).then(undefined, this.m.fetch$$F)
     },
     methods: {
         fetch$$S(data) {
-            let raw_items = data['1']
-            this.raw_items = raw_items
-            this.set({ loading: false, items: toTree(raw_items) })
+            let array = data['1']
+            if (!array || !array.length) {
+                this.set({ loading: false })
+                return
+            }
+            this.set({
+                loading: false,
+                raw_items: this.get('raw_items').concat(array),
+                items: toTree(array, this.get('items'))
+            })
         },
         fetch$$F(err) {
-            console.log(typeof this)
             this.set({ loading: false, errmsg: extractMsg(err) })
         },
         top_comment$$S(data) {
             this.refs.top_content.value = ''
             this.refs.top_name.value = ''
-            let items = this.get('items')
-            items.push(data['1'][0])
-            this.set({ loading: false, items })
+
+            let array = data['1']
+            this.set({
+                loading: false,
+                raw_items: this.get('raw_items').concat(array),
+                items: toTree(array, this.get('items'))
+            })
         },
         top_comment$$F(err) {
             this.set({ loading: false, top_errmsg: extractMsg(err) })
         },
         top_comment$$() {
             let content = this.refs.top_content.value.trim(),
-                name = this.refs.top_name.value.trim()
+                name = this.refs.top_name.value.trim(),
+                m = this.m
             
             if (!content) {
                 this.set({ top_content_err: true })
@@ -130,10 +145,13 @@ export default {
                 return
             }
 
-            this.set({ loading: true, top_content_err: false, top_name_err: false })
+            this.set({
+                loading: true, errmsg: '',
+                top_content_err: false, top_name_err: false
+            })
 
-            rpc.post('/comments/user/Comment/create', toPayload(name, content, POST_ID))
-                    .then(top_comment$$S).then(undefined, top_comment$$F)
+            rpc.post('/comments/user/Comment/create', toPayload(name, content, this.get('items')))
+                    .then(m.top_comment$$S).then(undefined, m.top_comment$$F)
         }
     }
 }
