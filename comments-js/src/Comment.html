@@ -5,7 +5,7 @@
   {{#if item.children.length}}
   <dd>
     {{#each item.children as child, i}}
-    <:Self item='{{ child }}' index="{{ i }}"  />
+    <:Self item='{{ child }}' index="{{ i }}" />
     {{/each}}
   </dd>
   {{/if}}
