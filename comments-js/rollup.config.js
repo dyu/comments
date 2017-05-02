@@ -14,7 +14,7 @@ if ( process.env.production ) {
 	plugins.push(
 		buble(),
 		closure({
-			compilationLevel: 'ADVANCED'
+			compilationLevel: 'SIMPLE'
 		}),
 		filesize()
 	);
