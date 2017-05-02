@@ -49,8 +49,7 @@ message Comment {
     rpc listAllByPostId(ParamLong) returns (Comment.PList);
     
     rpc listByPostId(P8) returns (Comment.PList);
-
-    @X
+    
     rpc create(Comment) returns (Comment.PList);
 
     //@X
