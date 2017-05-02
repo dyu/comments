@@ -1,7 +1,7 @@
 <div>
   <span class="name">{{ item['4'] }}</span><span class="timeago">{{ timeago(item['2']) }}</span>
   <div ref:content></div>
-  <button class="outlined">Reply</button>
+  <button class="outlined" on:click="reply$$(item)">Reply</button>
   {{#if item.children.length}}
   <dd class='children'>
     {{#each item.children as child, i}}
@@ -22,7 +22,26 @@ export default {
         timeago
     },
     oncreate() {
+        Object.defineProperty(this, 'm', {
+            enumerable: false,
+            value: {
+                reply$$S: this.reply$$S.bind(this),
+                reply$$F: this.reply$$F.bind(this)
+            }
+        })
+
         this.refs.content.innerHTML = toHTML(this.get('item')['5'])
+    },
+    methods: {
+        reply$$S(data) {
+
+        },
+        reply$$F(err) {
+
+        },
+        reply$$(item) {
+            console.log('TODO: reply to ' + item['1'])
+        }
     }
 }
 </script>
