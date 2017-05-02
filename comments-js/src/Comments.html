@@ -1,0 +1,138 @@
+<div class="{{ !errmsg ? 'msg' : 'msg is-error' }}">
+  <b>x</b>
+  <span>{{ errmsg }}</span>
+</div>
+<textarea ref:top_content class="{{ append('form-input', !top_content_err ? '' : ' is-error') }}"></textarea>
+<div class="inline">
+  <input ref:top_name type="text" class="{{ append('form-input', !top_name_err ? '' : ' is-error') }}" />
+  <button class="primary" on:click="top_comment$$()" >Post comment</button>
+</div>
+<div class="{{ !errmsg ? 'msg' : 'msg is-error' }}">
+  <b>x</b>
+  <span>{{ top_errmsg }}</span>
+</div>
+<div>
+{{#each items as item, i}}
+	<Comment item='{{ item }}' index='{{ i }}'/>
+{{/each}}
+</div>
+<script>
+import { append, extractMsg } from './util'
+import * as rpc from './rpc'
+
+import Comment from './Comment.html'
+
+const POST_ID = window['post_id']
+
+function toPayload(name, content, postId) {
+    return `{"4":"${name}","5":"${content}","6":${postId}}`
+}
+
+function toTree(items) {
+    var array = [],
+        depth = 0,
+        last_depth = 0,
+        last_item
+    
+    for (var item of items) {
+        item.parent = null
+        item.children = []
+        if (!(depth = item['7'])) {
+            array.push(item)
+            last_item = item
+            last_depth = depth
+            continue
+        }
+        if (depth === last_depth) {
+            (item.parent = last_item.parent).children.push(item)
+            last_item = item
+            continue
+        }
+        if (depth > last_depth) {
+            (item.parent = last_item).children.push(item)
+            last_item = item
+            last_depth = depth
+            continue
+        }
+
+        while (depth !== last_item.parent.depth) {
+            last_item = last_item.parent
+        }
+
+        (item.parent = last_item.parent).children.push(item)
+        last_item = item
+        last_depth = depth
+    }
+
+    return array
+}
+
+var top_comment$$S, top_comment$$F
+
+export default {
+    data: () => ({
+        loading: true, // fetch after this component is created
+        errmg: '',
+        items: [],
+        raw_items: [],
+
+        top_content_err: false,
+        top_name_err: false,
+        top_errmsg: '',
+
+        reply_target: null
+    }),
+    components: {
+        Comment
+    },
+    helpers: {
+        append
+    },
+    oncreate () {
+        rpc.post('/comments/user/Comment/listAllByPostId', `{"1":${POST_ID}}`)
+                .then(this.fetch$$S.bind(this)).then(undefined, this.fetch$$F.bind(this))
+        
+        top_comment$$S = this.top_comment$$S.bind(this)
+        top_comment$$F = this.top_comment$$F.bind(this)
+    },
+    methods: {
+        fetch$$S(data) {
+            let raw_items = data['1']
+            this.raw_items = raw_items
+            this.set({ loading: false, items: toTree(raw_items) })
+        },
+        fetch$$F(err) {
+            console.log(typeof this)
+            this.set({ loading: false, errmsg: extractMsg(err) })
+        },
+        top_comment$$S(data) {
+            this.refs.top_content.value = ''
+            this.refs.top_name.value = ''
+            let items = this.get('items')
+            items.push(data['1'][0])
+            this.set({ loading: false, items })
+        },
+        top_comment$$F(err) {
+            this.set({ loading: false, top_errmsg: extractMsg(err) })
+        },
+        top_comment$$() {
+            let content = this.refs.top_content.value.trim(),
+                name = this.refs.top_name.value.trim()
+            
+            if (!content) {
+                this.set({ top_content_err: true })
+                return
+            }
+            if (!name) {
+                this.set({ top_name_err: true })
+                return
+            }
+
+            this.set({ loading: true, top_content_err: false, top_name_err: false })
+
+            rpc.post('/comments/user/Comment/create', toPayload(name, content, POST_ID))
+                    .then(top_comment$$S).then(undefined, top_comment$$F)
+        }
+    }
+}
+</script>

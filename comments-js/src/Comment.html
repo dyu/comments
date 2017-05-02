@@ -1,0 +1,24 @@
+<div>
+  <div>{{ item['4'] }}  <span class="alt">{{ timeago(item['2']) }}</span></div>
+  <div>{{ item['5'] }}</div>
+    {{#if item.children.length}}
+        <ul class='children'>
+            {{#each item.children as child, i}}
+                <li><:Self item='{{ child }}' index="{{ i }}"  /></li>
+            {{/each}}
+        </ul>
+    {{/if}}
+</div>
+<script>
+import { timeago, append, extractMsg } from './util'
+import * as rpc from './rpc'
+
+export default {
+    data: () => ({
+
+    }),
+    helpers: {
+        timeago
+    }
+}
+</script>
