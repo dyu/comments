@@ -8,17 +8,20 @@
 - [nwjs](https://nwjs.io/) [0.19.5](https://dl.nwjs.io/v0.19.5/) or higher
 
 ## Dev requirements
-- [protostuffdb](https://gitlab.com/dyu/protostuffdb)
-  * download the [binaries](https://1drv.ms/f/s!Ah8UGrNGpqlzeAVPYtkNffvNZBo) (protostuffdb and protostuffdb.exe) into the ```target/``` dir
 - [node](https://nodejs.org/en/download/) 6.9.0 or higher
 - yarn (npm install -g yarn)
 - jdk7 (at /usr/lib/jvm/java-7-oracle)
 - [maven](https://maven.apache.org/download.cgi)
+- [protostuffdb](https://gitlab.com/dyu/protostuffdb) (downloaded below)
 
 ## Setup
 ```sh
 mkdir -p target/data/main
 echo "Your data lives in user/ dir.  Feel free to back it up." > target/data/main/README.txt
+
+# download protostuffdb
+yarn add protostuffdb@0.10.2 && mv node_modules/protostuffdb/dist/* target/ && rm -f package.json yarn.lock && rm -r node_modules
+
 wget -O target/fbsgen-ds.jar https://repo1.maven.org/maven2/com/dyuproject/fbsgen/ds/fbsgen-ds-fatjar/1.0.5/fbsgen-ds-fatjar-1.0.5.jar
 ./modules/codegen.sh
 mvn install
