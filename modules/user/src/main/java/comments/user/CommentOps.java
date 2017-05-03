@@ -99,9 +99,9 @@ public final class CommentOps
                     .$append(req.postId)
                     .$append(startKey)
                     .$push()
-                    .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
+                    /*.begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                     .$append(req.postId)
-                    .$push()
+                    .$push()*/
                     .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                     .$append(req.postId)
                     .$append8(0xFF)
@@ -111,7 +111,7 @@ public final class CommentOps
                     Comment.EM, Comment.getPipeSchema(), Comment.PList.FN_P, true);
             try
             {
-                store.visitRange(false, -1, false, kb.copy(-2), res.context, 
+                store.visitRange(false, -1, false, null/*kb.copy(-2)*/, res.context, 
                         RangeV.RES_PV, res, 
                         kb.buf(), kb.offset(-1), kb.len(-1), 
                         kb.buf(), kb.offset(), kb.len());
@@ -132,9 +132,9 @@ public final class CommentOps
                     .$append(ZERO_KEY)
                     .$append(lastSeenKey)
                     .$push()
-                    .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
+                    /*.begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                     .$append(req.postId)
-                    .$push()
+                    .$push()*/
                     .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                     .$append(req.postId)
                     .$append8(0xFF)
@@ -144,7 +144,7 @@ public final class CommentOps
                     Comment.EM, Comment.getPipeSchema(), Comment.PList.FN_P, true);
             try
             {
-                store.visitRange(false, -1, false, kb.copy(-2), res.context, 
+                store.visitRange(false, -1, false, null/*kb.copy(-2)*/, res.context, 
                         RangeV.RES_PV, res, 
                         kb.buf(), kb.offset(-1), kb.len(-1), 
                         kb.buf(), kb.offset(), kb.len());
