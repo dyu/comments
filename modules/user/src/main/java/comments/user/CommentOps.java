@@ -3,6 +3,7 @@
 package comments.user;
 
 import static com.dyuproject.protostuffdb.EntityMetadata.ZERO_KEY;
+import static com.dyuproject.protostuffdb.SerializedValueUtil.asInt64;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.readByteArrayOffsetWithTypeAsSize;
 
 import java.io.IOException;
@@ -17,7 +18,6 @@ import com.dyuproject.protostuffdb.Datastore;
 import com.dyuproject.protostuffdb.OpChain;
 import com.dyuproject.protostuffdb.ProtostuffPipe;
 import com.dyuproject.protostuffdb.RangeV;
-import com.dyuproject.protostuffdb.ValueUtil;
 import com.dyuproject.protostuffdb.WriteContext;
 
 /**
@@ -53,6 +53,9 @@ public final class CommentOps
         if (parentValue == null)
             throw DSRuntimeExceptions.operationFailure("Parent comment does not exist!");
         
+        if (param.postId.longValue() != asInt64(Comment.VO_POST_ID, parentValue))
+            throw DSRuntimeExceptions.operationFailure("Invalid post id.");
+        
         int offset = readByteArrayOffsetWithTypeAsSize(Comment.FN_KEY_CHAIN, parentValue, context),
                 size = context.type,
                 depth = size / 9;
@@ -81,29 +84,31 @@ public final class CommentOps
         if (req.parentKey != ZERO_KEY)
         {
             // user posted a reply
-            final byte[] startKey;
+            final KeyBuilder kb = res.context.kb()
+                    .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
+                    .$append(req.postId);
+                    
+            final byte[] keyChain = req.keyChain,
+                    startKey;
             if (lastSeenKey == null)
             {
-                startKey = ValueUtil.copy(req.keyChain, 0, req.keyChain.length - 8);
+                // visit starting at the first child
+                startKey = new byte[keyChain.length + 1];
+                System.arraycopy(keyChain, 0, startKey, 0, keyChain.length);
             }
             else
             {
-                startKey = ValueUtil.copy(req.keyChain, 0, req.keyChain.length);
+                startKey = new byte[keyChain.length + 9];
+                System.arraycopy(keyChain, 0, startKey, 0, keyChain.length);
                 // visit starting the entry after the last seen one
                 lastSeenKey[lastSeenKey.length - 1] |= 0x02;
-                System.arraycopy(lastSeenKey, 0, startKey, startKey.length - 9, 9);
+                System.arraycopy(lastSeenKey, 0, startKey, keyChain.length, 9);
             }
             
-            KeyBuilder kb = res.context.kb()
+            kb.$append(startKey).$push()
                     .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                     .$append(req.postId)
-                    .$append(startKey)
-                    .$push()
-                    /*.begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
-                    .$append(req.postId)
-                    .$push()*/
-                    .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
-                    .$append(req.postId)
+                    .$append(keyChain)
                     .$append8(0xFF)
                     .$push();
             
@@ -111,7 +116,7 @@ public final class CommentOps
                     Comment.EM, Comment.getPipeSchema(), Comment.PList.FN_P, true);
             try
             {
-                store.visitRange(false, -1, false, null/*kb.copy(-2)*/, res.context, 
+                store.visitRange(false, -1, false, null, res.context, 
                         RangeV.RES_PV, res, 
                         kb.buf(), kb.offset(-1), kb.len(-1), 
                         kb.buf(), kb.offset(), kb.len());
