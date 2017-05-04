@@ -14,6 +14,10 @@
 
 package comments.user;
 
+import java.io.IOException;
+
+import com.dyuproject.protostuff.Input;
+import com.dyuproject.protostuff.Output;
 import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
@@ -41,6 +45,29 @@ public final class CommentViews
         ASC.limit = -1;
     }
     
+    static final Pipe.Schema<Comment> PS = new Pipe.Schema<Comment>(Comment.getSchema())
+    {
+        @Override
+        protected void transfer(Pipe pipe, Input input, Output output) throws IOException
+        {
+            for (int number = input.readFieldNumber(wrappedSchema);
+                    number != 0;
+                    number = input.readFieldNumber(wrappedSchema))
+            {
+                // exclude keychain
+                if (number == Comment.FN_KEY_CHAIN)
+                    input.handleUnknownField(number, wrappedSchema);
+                else
+                    Comment.transferField(number, pipe, input, output, wrappedSchema);
+            }
+        }
+    };
+    
+    static Pipe.Schema<Comment> psComment(RpcHeader header)
+    {
+        return PS;
+    }
+    
     static <V> boolean visitByPostId(long postId, 
             Datastore store, WriteContext context, 
             Visitor<V> visitor, V param)
@@ -62,19 +89,22 @@ public final class CommentViews
     static boolean listAllByPostId(ParamLong req, Datastore store, RpcResponse res,
             Pipe.Schema<Comment.PList> resPipeSchema, RpcHeader header)
     {
+        res.context.ps = PS;
+        
         return visitByPostId(req.p,
                 store, res.context,
-                RangeV.Store.ENTITY_PV,
+                RangeV.Store.CONTEXT_PV,
                 RangeV.RES_PV, res);
     }
 
     static boolean listByPostId(P8 req, Datastore store, RpcResponse res,
             Pipe.Schema<Comment.PList> resPipeSchema, RpcHeader header)
     {
+        res.context.ps = PS;
+        
         return Visit.by8(Comment.IDX_POST_ID__KEY_CHAIN, req,
                 Comment.EM, Comment.PList.FN_P,
-                RangeV.Store.ENTITY_PV, store, res.context,
+                RangeV.Store.CONTEXT_PV, store, res.context,
                 RangeV.RES_PV, res);
     }
-
 }

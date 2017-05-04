@@ -36,7 +36,7 @@ message ParamLong { @Min(value = 1) required int64 p = 1; }
 
 // ==================================================
 
-@Entity(kind = 10, seq = true, tx_create = true)
+@Entity(kind = 10, seq = true, custom_ps = true, tx_create = true)
 message Comment {
 
   option stgs = "_stg_ops";
