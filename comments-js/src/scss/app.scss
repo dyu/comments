@@ -1,7 +1,7 @@
 @import "./variables";
 @import "./mixins";
 
-#comments, #comments-popup {
+#comments {
 
 font-family: $base-font-family;
 color: #333;
@@ -110,6 +110,16 @@ dl {
   display: none;
 }
 
+.popup {
+  position: absolute;
+  z-index: 999999;
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
 } // end #comments
 
 #comments-reply-form {
@@ -130,15 +140,5 @@ dl {
       background-color: $primary-color;
       color: #fff;
     }
-  }
-}
-
-#comments-popup {
-  position: absolute;
-  z-index: 999999;
-  display: none;
-
-  &.active {
-    display: block;
   }
 }

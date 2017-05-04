@@ -30,6 +30,7 @@
   <Comment item='{{ item }}' index='{{ i }}' />
 {{/each}}
 </dl>
+<div id="comments-popup" class="popup">&nbsp;</div>
 <script>
 import { POST_ID, context, append, extractMsg, toTree, toPayload, getPopup, hidePopup, showPopup, visiblePopup } from './util'
 import * as rpc from './rpc'
