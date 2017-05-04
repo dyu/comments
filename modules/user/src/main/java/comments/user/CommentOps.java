@@ -38,34 +38,36 @@ public final class CommentOps
         return buf;
     }
 
-    static Comment validateAndProvide(Comment param, long now, OpChain chain)
+    static boolean validateAndProvide(Comment param, long now, 
+            Datastore store, WriteContext context, RpcResponse res) throws IOException
     {
         byte[] parentKey = param.parentKey;
         if (parentKey.length == 0 || Arrays.equals(parentKey, ZERO_KEY))
         {
             param.parentKey = ZERO_KEY;
-            return param.provide(now, ZERO_KEY, 0);
+            param.provide(now, ZERO_KEY, 0);
+            return true;
         }
         
-        final WriteContext context = chain.context;
-        
-        final byte[] parentValue = chain.vs().get(parentKey, Comment.EM, null);
+        final byte[] parentValue = store.get(parentKey, Comment.EM, null, context);
         if (parentValue == null)
-            throw DSRuntimeExceptions.operationFailure("Parent comment does not exist!");
+            return res.fail("Parent comment does not exist!");
         
         if (param.postId.longValue() != asInt64(Comment.VO_POST_ID, parentValue))
-            throw DSRuntimeExceptions.operationFailure("Invalid post id.");
+            return res.fail("Invalid post id.");
         
         int offset = readByteArrayOffsetWithTypeAsSize(Comment.FN_KEY_CHAIN, parentValue, context),
                 size = context.type,
                 depth = size / 9;
         
         if (depth > 127)
-            throw DSRuntimeExceptions.operationFailure("The nested replies are too deep and have exceeded the limit.");
+            return res.fail("The nested replies are too deep and have exceeded the limit.");
         
-        return param.provide(now, 
+        param.provide(now, 
                 append(parentValue, offset, size, parentKey), 
                 depth);
+        
+        return true;
     }
     
     static boolean create(Comment req, 
@@ -76,8 +78,16 @@ public final class CommentOps
         final byte[] lastSeenKey = req.key, 
                 key = new byte[9];
         
-        if (!store.chain(null, XCommentOps.OP_NEW, req, 0, res.context, key))
-            return res.fail("Could not create.");
+        final WriteContext context = res.context;
+        
+        final long now = context.ts(Comment.EM);
+        
+        if (!validateAndProvide(req, now, store, context, res))
+            return false;
+        
+        context.fillEntityKey(key, Comment.EM, now);
+        
+        store.insertWithKey(key, req, req.em(), null, context);
         
         req.key = key;
         

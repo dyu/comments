@@ -42,7 +42,7 @@ public class UserTest extends AbstractStoreTest
     {
         assertInitialized(message);
 
-        assertTrue(XCommentOps.create(message, store, res, 
+        assertTrue(CommentOps.create(message, store, res, 
                 Comment.PList.getPipeSchema(), header));
 
         assertNotNull(message.key);
