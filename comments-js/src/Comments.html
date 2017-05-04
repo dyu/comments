@@ -7,7 +7,7 @@
   <input ref:top_name type="text" class="{{ !top_name_err ? '' : 'error' }}" placeholder="Name" />
   <button class="primary" on:click="top_comment$$()" >Post comment</button>
 </div>
-<div class="{{ !errmsg ? 'msg' : 'msg error' }}">
+<div class="{{ !top_errmsg ? 'msg' : 'msg error' }}">
   <b>x</b>
   <span>{{ top_errmsg }}</span>
 </div>
