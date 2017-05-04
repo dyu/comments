@@ -1,5 +1,11 @@
 import showdown from 'showdown'
 
+const UA = window.navigator.userAgent.toLowerCase(), // browser sniffing from vuejs
+    isIE9 = UA && UA.indexOf('msie 9.0') > 0,
+    hasClassList = 'classList' in document.documentElement, 
+    createEvent = document['createEvent'], 
+    createEventObject = document['createEventObject']
+
 const MINUTE = 60
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
@@ -11,7 +17,9 @@ export const POST_ID = window['post_id']
 
 export const context = {
     raw_items: [],
-    items: []
+    items: [],
+    root: null,
+    reply_target: null
 }
 
 function plural(num, unit, suffix) {
@@ -113,3 +121,206 @@ export function toTree(raw_items, items, parent) {
 
     return items
 }
+
+// ==================================================
+// popup
+
+export function hasClass(el, cls) {
+    if (hasClassList)
+        return el.classList.contains(cls);
+    var str = ' ' + el.className + ' ';
+    return str.indexOf(' ' + cls + ' ') !== -1;
+}
+
+export function addClass(el, cls) {
+    if (el.classList) {
+        el.classList.add(cls);
+    }
+    else {
+        var cur = ' ' + getClass(el) + ' ';
+        if (cur.indexOf(' ' + cls + ' ') < 0) {
+            setClass(el, (cur + cls).trim());
+        }
+    }
+}
+
+export function removeClass(el, cls) {
+    var removed;
+    if (hasClassList) {
+        var classList = el.classList, len = classList.length;
+        classList.remove(cls);
+        removed = len > classList.length;
+        if (removed && len === 1)
+            el.removeAttribute('class');
+    }
+    else {
+        var cur = ' ' + el.className + ' ', tar = ' ' + cls + ' ';
+        removed = false;
+        while (cur.indexOf(tar) >= 0) {
+            cur = cur.replace(tar, ' ');
+            removed = true;
+        }
+        if (removed)
+            setClass(el, cur.trim());
+    }
+    return removed;
+}
+
+export function getAbsoluteLeft(el) {
+    var left = 0, curr = el;
+    // This intentionally excludes body which has a null offsetParent.    
+    while (curr.offsetParent) {
+        left -= curr.scrollLeft;
+        curr = curr.parentNode;
+    }
+    while (el) {
+        left += el.offsetLeft;
+        el = el.offsetParent;
+    }
+    return left;
+}
+
+export function getAbsoluteTop(el) {
+    var top = 0, curr = el;
+    // This intentionally excludes body which has a null offsetParent.    
+    while (curr.offsetParent) {
+        top -= curr.scrollTop;
+        curr = curr.parentNode;
+    }
+    while (el) {
+        top += el.offsetTop;
+        el = el.offsetParent;
+    }
+    return top;
+}
+
+var popup_;
+export function getPopup() {
+    return popup_ || (popup_ = document.getElementById('comments-popup'));
+}
+/**
+ * Returns true if the popup is visible.
+ */
+export function visiblePopup(popup) {
+    return hasClass(popup, 'active');
+}
+export function hidePopup(popup) {
+    return removeClass(popup, 'active');
+}
+export function showPopup(popup, contentEl, positionEl) {
+    var style = popup.style;
+    style.visibility = 'hidden';
+    popup.replaceChild(contentEl, popup.firstChild);
+    addClass(popup, 'active');
+    positionTo(positionEl, popup);
+    style.visibility = 'visible';
+}
+
+export function positionTo(relativeTarget, popup) {
+    // Calculate left position for the popup. The computation for
+    // the left position is bidi-sensitive.
+    var offsetWidth = popup.offsetWidth || 0, offsetHeight = popup.offsetHeight || 0, textBoxOffsetWidth = relativeTarget.offsetWidth || 0, 
+    // Compute the difference between the popup's width and the
+    // textbox's width
+    offsetWidthDiff = offsetWidth - textBoxOffsetWidth, left = getAbsoluteLeft(relativeTarget);
+    /*if (LocaleInfo.getCurrentLocale().isRTL()) { // RTL case
+
+        var textBoxAbsoluteLeft = relativeTarget.getAbsoluteLeft();
+
+        // Right-align the popup. Note that this computation is
+        // valid in the case where offsetWidthDiff is negative.
+        left = textBoxAbsoluteLeft - offsetWidthDiff;
+
+        // If the suggestion popup is not as wide as the text box, always
+        // align to the right edge of the text box. Otherwise, figure out whether
+        // to right-align or left-align the popup.
+        if (offsetWidthDiff > 0) {
+
+        // Make sure scrolling is taken into account, since
+        // box.getAbsoluteLeft() takes scrolling into account.
+        var windowRight = Window.getClientWidth() + Window.getScrollLeft();
+        var windowLeft = Window.getScrollLeft();
+
+        // Compute the left value for the right edge of the textbox
+        var textBoxLeftValForRightEdge = textBoxAbsoluteLeft
+            + textBoxOffsetWidth;
+
+        // Distance from the right edge of the text box to the right edge
+        // of the window
+        var distanceToWindowRight = windowRight - textBoxLeftValForRightEdge;
+
+        // Distance from the right edge of the text box to the left edge of the
+        // window
+        var distanceFromWindowLeft = textBoxLeftValForRightEdge - windowLeft;
+
+        // If there is not enough space for the overflow of the popup's
+        // width to the right of the text box and there IS enough space for the
+        // overflow to the right of the text box, then left-align the popup.
+        // However, if there is not enough space on either side, stick with
+        // right-alignment.
+        if (distanceFromWindowLeft < offsetWidth
+            && distanceToWindowRight >= offsetWidthDiff) {
+            // Align with the left edge of the text box.
+            left = textBoxAbsoluteLeft;
+        }
+        }
+    } else { // LTR case*/
+    // Left-align the popup.
+    // TODO this was moved to variable initialization
+    //left = relativeTarget.getAbsoluteLeft();
+    // If the suggestion popup is not as wide as the text box, always align to
+    // the left edge of the text box. Otherwise, figure out whether to
+    // left-align or right-align the popup.
+    if (offsetWidthDiff > 0) {
+        // Make sure scrolling is taken into account, since
+        // box.getAbsoluteLeft() takes scrolling into account.
+        var windowLeft = document['scrollLeft'] || 0, windowRight = windowLeft + (document['clientWidth'] || 0), 
+        // Distance from the left edge of the text box to the right edge
+        // of the window
+        distanceToWindowRight = windowRight - left, 
+        // Distance from the left edge of the text box to the left edge of the
+        // window
+        distanceFromWindowLeft = left - windowLeft;
+        // If there is not enough space for the overflow of the popup's
+        // width to the right of hte text box, and there IS enough space for the
+        // overflow to the left of the text box, then right-align the popup.
+        // However, if there is not enough space on either side, then stick with
+        // left-alignment.
+        if (distanceToWindowRight < offsetWidth && distanceFromWindowLeft >= offsetWidthDiff) {
+            // Align with the right edge of the text box.
+            left -= offsetWidthDiff;
+        }
+    }
+    //}
+    // Calculate top position for the popup
+    var top = getAbsoluteTop(relativeTarget), 
+    // Make sure scrolling is taken into account, since
+    // box.getAbsoluteTop() takes scrolling into account.
+    windowTop = document.documentElement.scrollTop || 0, windowBottom = windowTop + document.documentElement.clientHeight, 
+    // Distance from the top edge of the window to the top edge of the
+    // text box
+    distanceFromWindowTop = top - windowTop, 
+    // Distance from the bottom edge of the window to the bottom edge of
+    // the text box
+    rtOffsetHeight = relativeTarget.offsetHeight || 0, distanceToWindowBottom = windowBottom - (top + rtOffsetHeight);
+    // If there is not enough space for the popup's height below the text
+    // box and there IS enough space for the popup's height above the text
+    // box, then then position the popup above the text box. However, if there
+    // is not enough space on either side, then stick with displaying the
+    // popup below the text box.
+    if (distanceToWindowBottom < offsetHeight && distanceFromWindowTop >= offsetHeight) {
+        top -= offsetHeight;
+    }
+    else {
+        // Position above the text box
+        top += rtOffsetHeight;
+    }
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+}
+export function popTo(relativeTarget, popup) {
+    popup.style.visibility = 'hidden';
+    positionTo(relativeTarget, popup);
+    popup.style.visibility = 'visible';
+}
+

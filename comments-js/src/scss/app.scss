@@ -1,7 +1,7 @@
 @import "./variables";
 @import "./mixins";
 
-#comments {
+#comments, #comments-popup {
 
 font-family: $base-font-family;
 color: #333;
@@ -95,7 +95,24 @@ div.comment {
   }
 }
 
-div.reply {
+dl {
+  margin-top: 0.3em;
+  border-top: 1px solid $soft-gray;
+
+  > div.comment {
+    //border-left: 1px solid $soft-gray;
+    //border-right: 1px solid $soft-gray;
+    border-bottom: 1px solid $soft-gray;
+  }
+}
+
+.hide {
+  display: none;
+}
+
+} // end #comments
+
+#comments-reply-form {
   position: relative;
   > button {
     background: transparent;
@@ -116,19 +133,12 @@ div.reply {
   }
 }
 
-dl {
-  margin-top: 0.3em;
-  border-top: 1px solid $soft-gray;
+#comments-popup {
+  position: absolute;
+  z-index: 999999;
+  display: none;
 
-  > div.comment {
-    border-left: 1px solid $soft-gray;
-    border-right: 1px solid $soft-gray;
-    border-bottom: 1px solid $soft-gray;
+  &.active {
+    display: block;
   }
 }
-
-.hide {
-  display: none;
-}
-
-} // end #comments

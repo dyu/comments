@@ -1,19 +1,7 @@
 <div class="comment">
   <span class="name">{{ item['4'] }}</span><span class="timeago">{{ timeago(item['2']) }}</span>
   <div class="content" ref:content></div>
-  <button class="{{ append('outlined', !reply_active ? '' : 'hide') }}" on:click="reply$$show_form()">Reply</button>
-  <div class="{{ !reply_errmsg ? 'msg hide' : 'msg error' }}">
-    <b on:click="set({ reply_errmsg: '' })">x</b>
-    <span>{{ reply_errmsg }}</span>
-  </div>
-  <div class="{{ append('reply', reply_active ? '' : 'hide') }} ">
-    <button type="button" on:click="set({ reply_active: false })">x</button>
-    <textarea ref:reply_content class="{{ !reply_content_err ? '' : 'error' }}"></textarea>
-    <div class="inline">
-      <input ref:reply_name type="text" class="{{ !reply_name_err ? '' : 'error' }}" placeholder="Name" />
-      <button type="button" class="primary" on:click="reply$$(item)" >Post reply</button>
-    </div>
-  </div>
+  <button class="outlined" on:click="show_form()">Reply</button>
   {{#if item.children.length}}
   <dd>
     {{#each item.children as child, i}}
@@ -23,94 +11,25 @@
   {{/if}}
 </div>
 <script>
-import { POST_ID, timeago, append, extractMsg, toHTML, toPayload, toTree } from './util'
+import { POST_ID, context, timeago, append, extractMsg, toHTML, toPayload, toTree } from './util'
 import * as rpc from './rpc'
-
-function disable(val, reply_content, reply_name) {
-    reply_content.disabled = val
-    reply_name.disabled = val
-    // buttons
-    reply_content.previousElementSibling.disabled = val
-    reply_name.nextElementSibling.disabled = val
-}
 
 export default {
     data: () => ({
-        reply_active: false,
-        reply_content_err: false,
-        reply_name_err: false,
-        reply_errmsg: '',
-        loading: false
+        
     }),
     helpers: {
         timeago,
         append
     },
     oncreate() {
-        Object.defineProperty(this, 'm', {
-            enumerable: false,
-            value: {
-                reply$$S: this.reply$$S.bind(this),
-                reply$$F: this.reply$$F.bind(this)
-            }
-        })
-
         this.refs.content.innerHTML = toHTML(this.get('item')['5'])
     },
     methods: {
-        reply$$show_form() {
-            this.set({ reply_active: true })
-            this.refs.reply_content.focus()
-        },
-        reply$$S(data) {
-            let refs = this.refs,
-                reply_content = refs.reply_content,
-                reply_name = refs.reply_name,
-                array = data['1'],
-                item = this.get('item')
-            
-            reply_content.value = ''
-            reply_name.value = ''
-
-            toTree(array, item.children, item)
-
-            disable(false, reply_content, reply_name)
-            this.set({
-                loading: false,
-                reply_active: false,
-                item: item
-            })
-        },
-        reply$$F(err) {
-            let refs = this.refs
-            disable(false, refs.reply_content, refs.reply_name)
-            this.set({ loading: false, reply_errmsg: extractMsg(err) })
-        },
-        reply$$(item) {
-            let refs = this.refs,
-                reply_content = refs.reply_content,
-                reply_name = refs.reply_name,
-                content = reply_content.value.trim(),
-                name = reply_name.value.trim(),
-                m = this.m
-            
-            if (!content) {
-                this.set({ reply_content_err: true, reply_name_err: false })
-                return
-            }
-            if (!name) {
-                this.set({ reply_content_err: false, reply_name_err: true })
-                return
-            }
-
-            disable(true, reply_content, reply_name)
-            this.set({
-                loading: true, errmsg: '',
-                top_content_err: false, top_name_err: false
-            })
-
-            rpc.post('/comments/user/Comment/create', toPayload(name, content, item))
-                    .then(m.reply$$S).then(undefined, m.reply$$F)
+        show_form() {
+            let root = context.root
+            if (!root.get('loading'))
+                root.reply$$show_form(this, this.refs.content.nextElementSibling)
         }
     }
 }

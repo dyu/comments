@@ -11,15 +11,27 @@
   <b>x</b>
   <span>{{ comment_errmsg }}</span>
 </div>
-<div>
+<div style="display:none">
+  <div id="comments-reply-form">
+    <button type="button" on:click="reply$$hide_form()">x</button>
+    <textarea ref:reply_content class="{{ !reply_content_err ? '' : 'error' }}"></textarea>
+    <div class="{{ !reply_errmsg ? 'msg hide' : 'msg error' }}">
+      <b on:click="set({ reply_errmsg: '' })">x</b>
+      <span>{{ reply_errmsg }}</span>
+    </div>
+    <div class="inline">
+      <input ref:reply_name type="text" class="{{ !reply_name_err ? '' : 'error' }}" placeholder="Name" />
+      <button type="button" class="primary" on:click="reply$$()" ><b>+</b></button>
+    </div>
+  </div>
+</div>
 <dl class="{{ items.length ? '' : 'hide' }}">
 {{#each items as item, i}}
   <Comment item='{{ item }}' index='{{ i }}' />
 {{/each}}
 </dl>
-</div>
 <script>
-import { POST_ID, context, append, extractMsg, toTree, toPayload } from './util'
+import { POST_ID, context, append, extractMsg, toTree, toPayload, getPopup, hidePopup, showPopup, visiblePopup } from './util'
 import * as rpc from './rpc'
 
 import Comment from './Comment.html'
@@ -41,7 +53,8 @@ export default {
         comment_name_err: false,
         comment_errmsg: '',
 
-        reply_target: null
+        reply_content_err: false,
+        reply_name_err: false
     }),
     components: {
         Comment
@@ -50,6 +63,8 @@ export default {
         append
     },
     oncreate () {
+        context.root = this
+
         Object.defineProperty(this, 'm', {
             enumerable: false,
             value: {
@@ -57,7 +72,10 @@ export default {
                 fetch$$F: this.fetch$$F.bind(this),
 
                 comment$$S: this.comment$$S.bind(this),
-                comment$$F: this.comment$$F.bind(this)
+                comment$$F: this.comment$$F.bind(this),
+
+                reply$$S: this.reply$$S.bind(this),
+                reply$$F: this.reply$$F.bind(this)
             }
         })
 
@@ -133,6 +151,72 @@ export default {
 
             rpc.post('/comments/user/Comment/create', toPayload(name, content))
                     .then(m.comment$$S).then(undefined, m.comment$$F)
+        },
+        reply$$hide_form() {
+            hidePopup(getPopup())
+        },
+        reply$$show_form(reply_target, pop_target) {
+            let refs = this.refs,
+                popup = getPopup()
+
+            if (visiblePopup(popup)) {
+                refs.reply_content.focus()
+                return
+            }
+
+            context.reply_target = reply_target
+            
+            showPopup(popup, document.getElementById('comments-reply-form'), pop_target)
+            refs.reply_content.focus()
+        },
+        reply$$S(data) {
+            let refs = this.refs,
+                reply_content = refs.reply_content,
+                reply_name = refs.reply_name,
+                array = data['1'],
+                reply_target = context.reply_target,
+                item = reply_target.get('item')
+            
+            reply_content.value = ''
+            reply_name.value = ''
+
+            toTree(array, item.children, item)
+
+            disable(false, reply_content, reply_name)
+            this.set({ loading: false })
+            reply_target.set({ item: item })
+            hidePopup(getPopup())
+        },
+        reply$$F(err) {
+            let refs = this.refs
+            disable(false, refs.reply_content, refs.reply_name)
+            this.set({ loading: false, reply_errmsg: extractMsg(err) })
+        },
+        reply$$() {
+            let refs = this.refs,
+                reply_content = refs.reply_content,
+                reply_name = refs.reply_name,
+                content = reply_content.value.trim(),
+                name = reply_name.value.trim(),
+                m = this.m
+            
+            if (!content) {
+                this.set({ reply_content_err: true, reply_name_err: false })
+                return
+            }
+            if (!name) {
+                this.set({ reply_content_err: false, reply_name_err: true })
+                return
+            }
+
+            disable(true, reply_content, reply_name)
+            this.set({
+                loading: true, errmsg: '',
+                reply_content_err: false, reply_name_err: false
+            })
+
+            rpc.post('/comments/user/Comment/create', toPayload(name, content, context.reply_target.get('item')))
+                    .then(m.reply$$S).then(undefined, m.reply$$F)
         }
     }
 }
