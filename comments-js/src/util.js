@@ -37,8 +37,8 @@ export function timebetween(a, b) {
     }
 }
 
-export function append(a, b) {
-    return a + b
+export function append() {
+    return Array.prototype.slice.call(arguments).join(' ').trim()
 }
 
 export function timeago(ts) {

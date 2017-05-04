@@ -91,6 +91,19 @@ div.comment {
   }
 }
 
+div.reply {
+  position: relative;
+  > b {
+    color: $primary-color;
+    position: absolute;
+    padding: 0.02em 0.3em;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+}
+
 dl {
   margin-top: 0.3em;
   border-top: 1px solid $soft-gray;
@@ -102,7 +115,7 @@ dl {
   }
 }
 
-dl.hide {
+.hide {
   display: none;
 }
 

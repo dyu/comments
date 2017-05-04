@@ -1,7 +1,19 @@
 <div class="comment">
   <span class="name">{{ item['4'] }}</span><span class="timeago">{{ timeago(item['2']) }}</span>
-  <div ref:content></div>
-  <button class="outlined" on:click="reply$$(item)">Reply</button>
+  <div class="content" ref:content></div>
+  <button class="{{ append('outlined', !reply_active ? '' : 'hide') }}" on:click="set({ reply_active: true })">Reply</button>
+  <div class="{{ !reply_errmsg ? 'msg hide' : 'msg error' }}">
+    <b on:click="set({ reply_errmsg: '' })">x</b>
+    <span>{{ reply_errmsg }}</span>
+  </div>
+  <div class="{{ append('reply', reply_active ? '' : 'hide') }} ">
+    <b on:click="set({ reply_active: false })">x</b>
+    <textarea ref:reply_content class="{{ !reply_content_err ? '' : 'error' }}"></textarea>
+    <div class="inline">
+      <input ref:reply_name type="text" class="{{ !reply_name_err ? '' : 'error' }}" placeholder="Name" />
+      <button class="primary" on:click="reply$$(item)" >Post reply</button>
+    </div>
+  </div>
   {{#if item.children.length}}
   <dd>
     {{#each item.children as child, i}}
@@ -16,10 +28,15 @@ import * as rpc from './rpc'
 
 export default {
     data: () => ({
-
+        reply_active: false,
+        reply_content_err: false,
+        reply_name_err: false,
+        reply_errmsg: '',
+        loading: false
     }),
     helpers: {
-        timeago
+        timeago,
+        append
     },
     oncreate() {
         Object.defineProperty(this, 'm', {
@@ -40,6 +57,24 @@ export default {
 
         },
         reply$$(item) {
+            let content = this.refs.reply_content.value.trim(),
+                name = this.refs.reply_name.value.trim(),
+                m = this.m
+            
+            if (!content) {
+                this.set({ reply_content_err: true, reply_name_err: false })
+                return
+            }
+            if (!name) {
+                this.set({ reply_content_err: false, reply_name_err: true })
+                return
+            }
+
+            this.set({
+                loading: true, errmsg: '',
+                top_content_err: false, top_name_err: false
+            })
+
             console.log('TODO: reply to ' + item['1'])
         }
     }
