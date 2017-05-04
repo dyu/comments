@@ -160,7 +160,7 @@ export default {
             let refs = this.refs,
                 popup = getPopup()
 
-            if (visiblePopup(popup)) {
+            if (visiblePopup(popup) && reply_target === context.reply_target) {
                 refs.reply_content.focus()
                 return
             }
