@@ -7,11 +7,11 @@
     <span>{{ reply_errmsg }}</span>
   </div>
   <div class="{{ append('reply', reply_active ? '' : 'hide') }} ">
-    <b on:click="set({ reply_active: false })">x</b>
+    <button type="button" on:click="set({ reply_active: false })">x</button>
     <textarea ref:reply_content class="{{ !reply_content_err ? '' : 'error' }}"></textarea>
     <div class="inline">
       <input ref:reply_name type="text" class="{{ !reply_name_err ? '' : 'error' }}" placeholder="Name" />
-      <button class="primary" on:click="reply$$(item)" >Post reply</button>
+      <button type="button" class="primary" on:click="reply$$(item)" >Post reply</button>
     </div>
   </div>
   {{#if item.children.length}}
@@ -23,7 +23,7 @@
   {{/if}}
 </div>
 <script>
-import { POST_ID, context, timeago, append, extractMsg, toHTML } from './util'
+import { POST_ID, context, timeago, append, extractMsg, toHTML, toPayload } from './util'
 import * as rpc from './rpc'
 
 export default {
@@ -55,10 +55,21 @@ export default {
             this.refs.reply_content.focus()
         },
         reply$$S(data) {
+            let item = this.get('item'),
+                array = data['1'],
+                refs = this.refs,
+                name = refs.reply_name.value
+            
+            refs.reply_content.value = ''
+            refs.reply_name.value = ''
 
+            this.set({
+                loading: false,
+                items: toTree(array, this.get('items'))
+            })
         },
         reply$$F(err) {
-
+            this.set({ loading: false, reply_errmsg: extractMsg(err) })
         },
         reply$$(item) {
             let content = this.refs.reply_content.value.trim(),
@@ -79,7 +90,8 @@ export default {
                 top_content_err: false, top_name_err: false
             })
 
-            console.log('TODO: reply to ' + item['1'])
+            rpc.post('/comments/user/Comment/create', toPayload(name, content, item))
+                    .then(m.top_comment$$S).then(undefined, m.top_comment$$F)
         }
     }
 }

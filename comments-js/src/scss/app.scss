@@ -93,14 +93,21 @@ div.comment {
 
 div.reply {
   position: relative;
-  > b {
+  > button {
+    background-color: #FCFCFC;
+    line-height: 1em;
+    margin: 0;
     color: $primary-color;
     position: absolute;
-    padding: 0.02em 0.3em;
+    padding: 0 0.2em !important;
     right: 0;
     top: 0;
     cursor: pointer;
     font-size: 0.9rem;
+    &:focus {
+      background-color: $primary-color;
+      color: #fff;
+    }
   }
 }
 

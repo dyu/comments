@@ -5,7 +5,7 @@
 <textarea ref:top_content class="{{ !top_content_err ? '' : 'error' }}"></textarea>
 <div class="inline">
   <input ref:top_name type="text" class="{{ !top_name_err ? '' : 'error' }}" placeholder="Name" />
-  <button class="primary" on:click="top_comment$$()" >Post comment</button>
+  <button type="button" class="primary" on:click="top_comment$$()" >Post comment</button>
 </div>
 <div class="{{ !top_errmsg ? 'msg' : 'msg error' }}">
   <b>x</b>
@@ -19,61 +19,16 @@
 </dl>
 </div>
 <script>
-import { POST_ID, context, append, extractMsg } from './util'
+import { POST_ID, context, append, extractMsg, toTree, toPayload } from './util'
 import * as rpc from './rpc'
 
 import Comment from './Comment.html'
-
-function toPayload(name, content, items) {
-    let prefix = !items.length ? '' : `"1":"${items[items.length - 1]['1']}",`
-    return `{${prefix}"4":"${name}","5":"${content}","6":${POST_ID}}`
-}
-
-function toTree(raw_items, items) {
-    let last_item = !items.length ? null : items[items.length - 1],
-        last_depth = !last_item ? 0 : last_item.depth,
-        item,
-        depth
-    
-    for (var i = 0, len = raw_items.length; i < len; i++) {
-        item = raw_items[i]
-        item.parent = null
-        item.children = []
-        if (!(depth = item['7'])) {
-            items.push(item)
-            last_item = item
-            last_depth = depth
-            continue
-        }
-        if (depth === last_depth) {
-            (item.parent = last_item.parent).children.push(item)
-            last_item = item
-            continue
-        }
-        if (depth > last_depth) {
-            (item.parent = last_item).children.push(item)
-            last_item = item
-            last_depth = depth
-            continue
-        }
-
-        while (depth !== last_item.parent.depth) {
-            last_item = last_item.parent
-        }
-
-        (item.parent = last_item.parent).children.push(item)
-        last_item = item
-        last_depth = depth
-    }
-
-    return items
-}
 
 export default {
     data: () => ({
         loading: true, // fetch after this component is created
         errmg: '',
-        items: [],
+        items: context.items,
 
         top_content_err: false,
         top_name_err: false,
@@ -155,7 +110,7 @@ export default {
                 top_content_err: false, top_name_err: false
             })
 
-            rpc.post('/comments/user/Comment/create', toPayload(name, content, this.get('items')))
+            rpc.post('/comments/user/Comment/create', toPayload(name, content))
                     .then(m.top_comment$$S).then(undefined, m.top_comment$$F)
         }
     }
