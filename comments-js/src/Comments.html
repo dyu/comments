@@ -65,6 +65,8 @@ export default {
     oncreate () {
         context.root = this
 
+        let refs = this.refs
+
         Object.defineProperty(this, 'm', {
             enumerable: false,
             value: {
@@ -75,11 +77,12 @@ export default {
                 comment$$F: this.comment$$F.bind(this),
 
                 reply$$S: this.reply$$S.bind(this),
-                reply$$F: this.reply$$F.bind(this)
+                reply$$F: this.reply$$F.bind(this),
+
+                reply_form_parent: refs.reply_form.parentNode
             }
         })
-
-        let refs = this.refs
+        
         disable(true, refs.comment_content, refs.comment_name)
         rpc.post('/comments/user/Comment/listAllByPostId', `{"1":${POST_ID}}`)
                 .then(this.m.fetch$$S).then(undefined, this.m.fetch$$F)
@@ -153,7 +156,7 @@ export default {
                     .then(m.comment$$S).then(undefined, m.comment$$F)
         },
         reply$$hide_form() {
-            this.refs.reply_form.style.display = 'none'
+            this.m.reply_form_parent.appendChild(this.refs.reply_form)
         },
         reply$$show_form(reply_target, pop_target) {
             let refs = this.refs,
@@ -162,7 +165,6 @@ export default {
             context.reply_target = reply_target
 
             pop_target.parentNode.insertBefore(reply_form, pop_target)
-            reply_form.style.display = 'block'
             
             refs.reply_content.focus()
         },
@@ -179,7 +181,7 @@ export default {
 
             toTree(array, item.children, item)
 
-            refs.reply_form.style.display = 'none'
+            this.m.reply_form_parent.appendChild(refs.reply_form)
             disable(false, reply_content, reply_name)
             this.set({ loading: false })
             reply_target.set({ item: item })

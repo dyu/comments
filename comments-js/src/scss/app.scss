@@ -129,6 +129,9 @@ dl {
       color: #fff;
     }
   }
+  + button {
+    display: none;
+  }
 }
 
 } // end #comments
