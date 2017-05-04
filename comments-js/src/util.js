@@ -73,8 +73,9 @@ export function toPayload(name, content, reply) {
 }
 
 export function toTree(raw_items, items, parent) {
-    let last_item = !items.length ? null : items[items.length - 1],
-        last_depth = last_item ? last_item.depth : (!parent ? 0 : parent.depth),
+    let start_depth = !parent ? 0 : 1 + parent['7'],
+        last_item = !items.length ? null : items[items.length - 1],
+        last_depth = !last_item ? start_depth : last_item['7'],
         item,
         depth
     
@@ -82,12 +83,13 @@ export function toTree(raw_items, items, parent) {
         item = raw_items[i]
         item.parent = parent
         item.children = []
-        if (!(depth = item['7'])) {
+        if (start_depth === (depth = item['7'])) {
             items.push(item)
             last_item = item
             last_depth = depth
             continue
         }
+        
         if (depth === last_depth) {
             (item.parent = last_item.parent).children.push(item)
             last_item = item
@@ -100,7 +102,7 @@ export function toTree(raw_items, items, parent) {
             continue
         }
 
-        while (depth !== last_item.parent.depth) {
+        while (depth !== last_item.parent['7']) {
             last_item = last_item.parent
         }
 
