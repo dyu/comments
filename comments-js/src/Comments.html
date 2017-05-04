@@ -12,7 +12,7 @@
   <span>{{ comment_errmsg }}</span>
 </div>
 <div style="display:none">
-  <div id="comments-reply-form">
+  <div ref:reply_form class="reply-form">
     <button type="button" on:click="reply$$hide_form()">x</button>
     <textarea ref:reply_content class="{{ !reply_content_err ? '' : 'error' }}"></textarea>
     <div class="{{ !reply_errmsg ? 'msg hide' : 'msg error' }}">
@@ -30,9 +30,8 @@
   <Comment item='{{ item }}' index='{{ i }}' />
 {{/each}}
 </dl>
-<div id="comments-popup" class="popup">&nbsp;</div>
 <script>
-import { POST_ID, context, append, extractMsg, toTree, toPayload, getPopup, hidePopup, showPopup, visiblePopup } from './util'
+import { POST_ID, context, append, extractMsg, toTree, toPayload } from './util'
 import * as rpc from './rpc'
 
 import Comment from './Comment.html'
@@ -120,7 +119,7 @@ export default {
             //context.raw_items = context.raw_items.concat(array)
             disable(false, comment_content, comment_name)
             this.set({
-                loading: false,
+                loading: false, 
                 items: toTree(array, this.get('items'))
             })
         },
@@ -154,20 +153,17 @@ export default {
                     .then(m.comment$$S).then(undefined, m.comment$$F)
         },
         reply$$hide_form() {
-            hidePopup(getPopup())
+            this.refs.reply_form.style.display = 'none'
         },
         reply$$show_form(reply_target, pop_target) {
             let refs = this.refs,
-                popup = getPopup()
-
-            if (visiblePopup(popup) && reply_target === context.reply_target) {
-                refs.reply_content.focus()
-                return
-            }
+                reply_form = refs.reply_form
 
             context.reply_target = reply_target
+
+            pop_target.parentNode.insertBefore(reply_form, pop_target)
+            reply_form.style.display = 'block'
             
-            showPopup(popup, document.getElementById('comments-reply-form'), pop_target)
             refs.reply_content.focus()
         },
         reply$$S(data) {
@@ -183,10 +179,10 @@ export default {
 
             toTree(array, item.children, item)
 
+            refs.reply_form.style.display = 'none'
             disable(false, reply_content, reply_name)
             this.set({ loading: false })
             reply_target.set({ item: item })
-            hidePopup(getPopup())
         },
         reply$$F(err) {
             let refs = this.refs

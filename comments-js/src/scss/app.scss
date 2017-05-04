@@ -110,19 +110,7 @@ dl {
   display: none;
 }
 
-.popup {
-  position: absolute;
-  z-index: 999999;
-  display: none;
-
-  &.active {
-    display: block;
-  }
-}
-
-} // end #comments
-
-#comments-reply-form {
+.reply-form {
   position: relative;
   > button {
     background: transparent;
@@ -142,3 +130,5 @@ dl {
     }
   }
 }
+
+} // end #comments
