@@ -94,7 +94,7 @@ div.comment {
 div.reply {
   position: relative;
   > button {
-    background-color: #FCFCFC;
+    background: transparent;
     line-height: 1em;
     margin: 0;
     color: $primary-color;
@@ -104,7 +104,7 @@ div.reply {
     top: 0;
     cursor: pointer;
     font-size: 0.9rem;
-    &:focus {
+    &:focus, &:hover {
       background-color: $primary-color;
       color: #fff;
     }
