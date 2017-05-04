@@ -23,7 +23,7 @@
   {{/if}}
 </div>
 <script>
-import { POST_ID, context, timeago, append, extractMsg, toHTML, toPayload } from './util'
+import { POST_ID, context, timeago, append, extractMsg, toHTML, toPayload, toTree } from './util'
 import * as rpc from './rpc'
 
 export default {
@@ -57,15 +57,17 @@ export default {
         reply$$S(data) {
             let item = this.get('item'),
                 array = data['1'],
-                refs = this.refs,
-                name = refs.reply_name.value
+                refs = this.refs/*,
+                name = refs.reply_name.value*/
             
             refs.reply_content.value = ''
             refs.reply_name.value = ''
 
+            toTree(array, item.children, item)
             this.set({
                 loading: false,
-                items: toTree(array, this.get('items'))
+                reply_active: false,
+                item: item
             })
         },
         reply$$F(err) {
@@ -91,7 +93,7 @@ export default {
             })
 
             rpc.post('/comments/user/Comment/create', toPayload(name, content, item))
-                    .then(m.top_comment$$S).then(undefined, m.top_comment$$F)
+                    .then(m.reply$$S).then(undefined, m.reply$$F)
         }
     }
 }

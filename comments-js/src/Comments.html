@@ -69,7 +69,7 @@ export default {
             context.raw_items = context.raw_items.concat(array)
             this.set({
                 loading: false,
-                items: toTree(array, this.get('items'))
+                items: toTree(array, this.get('items'), null)
             })
         },
         fetch$$F(err) {
