@@ -1,7 +1,7 @@
 <div class="comment">
   <span class="name">{{ item['4'] }}</span><span class="timeago">{{ timeago(item['2']) }}</span>
   <div class="content" ref:content></div>
-  <button class="{{ append('outlined', !reply_active ? '' : 'hide') }}" on:click="set({ reply_active: true })">Reply</button>
+  <button class="{{ append('outlined', !reply_active ? '' : 'hide') }}" on:click="reply$$show_form()">Reply</button>
   <div class="{{ !reply_errmsg ? 'msg hide' : 'msg error' }}">
     <b on:click="set({ reply_errmsg: '' })">x</b>
     <span>{{ reply_errmsg }}</span>
@@ -50,6 +50,10 @@ export default {
         this.refs.content.innerHTML = toHTML(this.get('item')['5'])
     },
     methods: {
+        reply$$show_form() {
+            this.set({ reply_active: true })
+            this.refs.reply_content.focus()
+        },
         reply$$S(data) {
 
         },
