@@ -25,7 +25,7 @@ java -Dtemplate_path=.. \
 }
 
 EXEC=execjar
-#command -v fbsgen-ds >/dev/null 2>&1 && EXEC=fbsgen-ds
+command -v fbsgen-ds >/dev/null 2>&1 && EXEC=fbsgen-ds
 
 if [ -n "$1" ] && [ -d "$1" ]; then
     cd $1
