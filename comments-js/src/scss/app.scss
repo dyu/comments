@@ -89,6 +89,10 @@ div.comment {
       background-color: $primary-color;
     }*/
   }
+
+  > dd {
+    margin-top: 0.3em;
+  }
 }
 
 div.reply {
