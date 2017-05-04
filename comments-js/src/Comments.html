@@ -2,14 +2,14 @@
   <b>x</b>
   <span>{{ errmsg }}</span>
 </div>
-<textarea ref:top_content class="{{ !top_content_err ? '' : 'error' }}"></textarea>
+<textarea ref:comment_content class="{{ !comment_content_err ? '' : 'error' }}"></textarea>
 <div class="inline">
-  <input ref:top_name type="text" class="{{ !top_name_err ? '' : 'error' }}" placeholder="Name" />
-  <button type="button" class="primary" on:click="top_comment$$()" >Post comment</button>
+  <input ref:comment_name type="text" class="{{ !comment_name_err ? '' : 'error' }}" placeholder="Name" />
+  <button type="button" class="primary" on:click="comment$$()" >Post comment</button>
 </div>
-<div class="{{ !top_errmsg ? 'msg' : 'msg error' }}">
+<div class="{{ !comment_errmsg ? 'msg' : 'msg error' }}">
   <b>x</b>
-  <span>{{ top_errmsg }}</span>
+  <span>{{ comment_errmsg }}</span>
 </div>
 <div>
 <dl class="{{ items.length ? '' : 'hide' }}">
@@ -24,15 +24,22 @@ import * as rpc from './rpc'
 
 import Comment from './Comment.html'
 
+function disable(val, comment_content, comment_name) {
+    comment_content.disabled = val
+    comment_name.disabled = val
+    // button
+    comment_name.nextElementSibling.disabled = val
+}
+
 export default {
     data: () => ({
         loading: true, // fetch after this component is created
         errmg: '',
         items: context.items,
 
-        top_content_err: false,
-        top_name_err: false,
-        top_errmsg: '',
+        comment_content_err: false,
+        comment_name_err: false,
+        comment_errmsg: '',
 
         reply_target: null
     }),
@@ -49,69 +56,83 @@ export default {
                 fetch$$S: this.fetch$$S.bind(this),
                 fetch$$F: this.fetch$$F.bind(this),
 
-                top_comment$$S: this.top_comment$$S.bind(this),
-                top_comment$$F: this.top_comment$$F.bind(this)
+                comment$$S: this.comment$$S.bind(this),
+                comment$$F: this.comment$$F.bind(this)
             }
         })
-        
+
+        let refs = this.refs
+        disable(true, refs.comment_content, refs.comment_name)
         rpc.post('/comments/user/Comment/listAllByPostId', `{"1":${POST_ID}}`)
                 .then(this.m.fetch$$S).then(undefined, this.m.fetch$$F)
     },
     methods: {
         fetch$$S(data) {
-            let array = data['1']
+            let refs = this.refs,
+                array = data['1']
             
+            disable(false, refs.comment_content, refs.comment_name)
+
             if (!array || !array.length) {
                 this.set({ loading: false })
                 return
             }
 
-            context.raw_items = context.raw_items.concat(array)
+            //context.raw_items = context.raw_items.concat(array)
             this.set({
                 loading: false,
                 items: toTree(array, this.get('items'), null)
             })
         },
         fetch$$F(err) {
+            let refs = this.refs
+            disable(false, refs.comment_content, refs.comment_name)
             this.set({ loading: false, errmsg: extractMsg(err) })
         },
-        top_comment$$S(data) {
-            let array = data['1'],
-                refs = this.refs
+        comment$$S(data) {
+            let refs = this.refs,
+                comment_content = refs.comment_content,
+                comment_name = refs.comment_name,
+                array = data['1']
             
-            refs.top_content.value = ''
-            refs.top_name.value = ''
+            comment_content.value = ''
+            comment_name.value = ''
 
-            context.raw_items = context.raw_items.concat(array)
+            //context.raw_items = context.raw_items.concat(array)
+            disable(false, comment_content, comment_name)
             this.set({
                 loading: false,
                 items: toTree(array, this.get('items'))
             })
         },
-        top_comment$$F(err) {
-            this.set({ loading: false, top_errmsg: extractMsg(err) })
+        comment$$F(err) {
+            this.set({ loading: false, comment_errmsg: extractMsg(err) })
         },
-        top_comment$$() {
-            let content = this.refs.top_content.value.trim(),
-                name = this.refs.top_name.value.trim(),
+        comment$$() {
+            let refs = this.refs,
+                comment_content = refs.comment_content,
+                comment_name = refs.comment_name,
+                content = comment_content.value.trim(),
+                name = comment_name.value.trim(),
                 m = this.m
             
             if (!content) {
-                this.set({ top_content_err: true, top_name_err: false })
+                this.set({ comment_content_err: true, comment_name_err: false })
                 return
             }
             if (!name) {
-                this.set({ top_content_err: false, top_name_err: true })
+                this.set({ comment_content_err: false, comment_name_err: true })
                 return
             }
 
+            disable(true, comment_content, comment_name)
             this.set({
                 loading: true, errmsg: '',
-                top_content_err: false, top_name_err: false
+                comment_content_err: false, comment_name_err: false
             })
 
             rpc.post('/comments/user/Comment/create', toPayload(name, content))
-                    .then(m.top_comment$$S).then(undefined, m.top_comment$$F)
+                    .then(m.comment$$S).then(undefined, m.comment$$F)
         }
     }
 }
