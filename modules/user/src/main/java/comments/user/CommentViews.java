@@ -71,7 +71,7 @@ public final class CommentViews
         return PS;
     }
     
-    static final int MAX_SIZE = 1 + 8 // ts
+    static final int MAX_ENTITY_SIZE = 1 + 8 // ts
             + 1 + 2 + 9 + (127 * 9) // key_chain
             + 1 + 1 + 127 // name
             + 1 + 2 + 1024 // content
@@ -79,7 +79,8 @@ public final class CommentViews
             + 1 + 1 // depth
             + 1 + 9; // parent_key
     
-    static final int MAX_LIMIT = 0xFFFF - MAX_SIZE - 2; // 2 is the delimiter size
+    // the serialized size of numeric json is larger than protostuff
+    static final int MAX_RESPONSE_LIMIT = 0xFFFF - (MAX_ENTITY_SIZE * 2);
     
     static final Visitor<RpcResponse> PV = new Visitor<RpcResponse>()
     {
@@ -98,7 +99,7 @@ public final class CommentViews
                 throw RpcRuntimeExceptions.pipe(e);
             }
             
-            return ((JsonXOutput)res.output).getSize() >= MAX_LIMIT;
+            return ((JsonXOutput)res.output).getSize() >= MAX_RESPONSE_LIMIT;
         }
     };
     
