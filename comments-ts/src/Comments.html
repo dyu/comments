@@ -53,6 +53,11 @@ function keyupReplyName(e) {
     e.which === 13 && this.reply$$()
 }
 
+function keyupCommentName(e) {
+    // enter key
+    e.which === 13 && this.comment$$()
+}
+
 export default {
     data: () => ({
         loading: true, // fetch after this component is created
@@ -96,6 +101,7 @@ export default {
 
         refs.reply_content.addEventListener('keyup', keyupReplyContent.bind(this))
         refs.reply_name.addEventListener('keyup', keyupReplyName.bind(this))
+        refs.comment_name.addEventListener('keyup', keyupCommentName.bind(this))
         
         disable(true, refs.comment_content, refs.comment_name)
         rpc.post('/comments/user/Comment/listAllByPostId', `{"1":${POST_ID}}`)
