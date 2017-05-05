@@ -14,8 +14,8 @@ export const POST_ID = window['comments_post_id'],
 export const context = {
     raw_items: [],
     items: [],
-    root: null,
-    reply_target: null
+    root$: null,
+    reply$: null
 }
 
 function plural(num, unit, suffix) {

@@ -27,9 +27,9 @@ export default {
     },
     methods: {
         show_form() {
-            let root = context.root
-            if (!root.get('loading'))
-                root.reply$$show_form(this, this.refs.content.nextElementSibling)
+            let root$ = context.root$
+            if (!root$.get('loading'))
+                root$.reply$$show_form(this, this.refs.content.nextElementSibling)
         }
     }
 }

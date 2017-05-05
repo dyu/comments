@@ -79,7 +79,7 @@ export default {
         append
     },
     oncreate () {
-        context.root = this
+        context.root$ = this
 
         let refs = this.refs
 
@@ -178,11 +178,11 @@ export default {
         reply$$hide_form() {
             this.m.reply_form_parent.appendChild(this.refs.reply_form)
         },
-        reply$$show_form(reply_target, pop_target) {
+        reply$$show_form(reply$, pop_target) {
             let refs = this.refs,
                 reply_form = refs.reply_form
 
-            context.reply_target = reply_target
+            context.reply$ = reply$
 
             pop_target.parentNode.insertBefore(reply_form, pop_target)
             
@@ -193,8 +193,8 @@ export default {
                 reply_content = refs.reply_content,
                 reply_name = refs.reply_name,
                 array = data['1'],
-                reply_target = context.reply_target,
-                item = reply_target.get('item')
+                reply$ = context.reply$,
+                item = reply$.get('item')
             
             reply_content.value = ''
             reply_name.value = ''
@@ -204,7 +204,7 @@ export default {
             this.m.reply_form_parent.appendChild(refs.reply_form)
             disable(false, reply_content, reply_name)
             this.set({ loading: false })
-            reply_target.set({ item: item })
+            reply$.set({ item: item })
         },
         reply$$F(err) {
             let refs = this.refs
@@ -234,7 +234,7 @@ export default {
                 reply_content_err: false, reply_name_err: false
             })
 
-            rpc.post('/comments/user/Comment/create', toPayload(name, content, context.reply_target.get('item')))
+            rpc.post('/comments/user/Comment/create', toPayload(name, content, context.reply$.get('item')))
                     .then(m.reply$$S).then(undefined, m.reply$$F)
         }
     }
