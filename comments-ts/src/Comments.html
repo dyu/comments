@@ -7,8 +7,8 @@
   <input ref:comment_name type="text" class="{{ !comment_name_err ? '' : 'error' }}" placeholder="Name" />
   <button type="button" class="primary" on:click="comment$$()" >Post comment</button>
 </div>
-<div class="{{ !comment_errmsg ? 'msg' : 'msg error' }}">
-  <b>x</b>
+<div class="{{ !comment_errmsg ? 'hide' : 'msg error' }}">
+  <b on:click="set({ comment_errmsg: '' })">x</b>
   <span>{{ comment_errmsg }}</span>
 </div>
 <div style="display:none">
