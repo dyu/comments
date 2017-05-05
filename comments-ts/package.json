@@ -1,6 +1,6 @@
 {
-  "name": "comments-js",
-  "description": "comment engine",
+  "name": "comments-ts",
+  "description": "A simple, self-hosted comment engine",
   "author": "dyu",
   "private": true,
   "scripts": {

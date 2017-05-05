@@ -1,4 +1,5 @@
 # comments app
+A simple, self-hosted comment engine
 
 ## Server runtime dependencies
 - jdk7
