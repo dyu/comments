@@ -14,7 +14,6 @@ import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
 import com.dyuproject.protostuffdb.Datastore;
-import com.dyuproject.protostuffdb.ProtostuffPipe;
 import com.dyuproject.protostuffdb.WriteContext;
 
 /**
@@ -92,7 +91,7 @@ public final class CommentOps
             return CommentViews.visitWith(req.postId, lastSeenKey, store, res);
         
         // user posted a reply
-        final KeyBuilder kb = res.context.kb()
+        final KeyBuilder kb = context.kb()
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                 .$append(req.postId)
                 .$append(req.keyChain);
@@ -109,27 +108,11 @@ public final class CommentOps
             kb.$append(lastSeenKey);
         }
         
-        kb.$push()
+        return CommentViews.pipeTo(res, store, context, kb.$push()
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                 .$append(req.postId)
                 .$append(req.keyChain)
                 .$append8(0xFF)
-                .$push();
-        
-        final ProtostuffPipe pipe = res.context.pipe.init(
-                Comment.EM, CommentViews.PS, Comment.PList.FN_P, true);
-        try
-        {
-            store.visitRange(false, -1, false, null, res.context, 
-                    CommentViews.PV, res, 
-                    kb.buf(), kb.offset(-1), kb.len(-1), 
-                    kb.buf(), kb.offset(), kb.len());
-        }
-        finally
-        {
-            pipe.clear();
-        }
-
-        return true;
+                .$push());
     }
 }

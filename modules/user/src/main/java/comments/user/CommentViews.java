@@ -219,14 +219,18 @@ public final class CommentViews
             kb.$append(lastSeenKey);
         }
         
-        kb.$push()
+        return pipeTo(res, store, context, kb.$push()
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                 .$append(postId)
                 // key chain
                 .$append(parentValue, offset, size).$append(parentKey)
                 .$append8(0xFF)
-                .$push();
-        
+                .$push());
+    }
+    
+    static boolean pipeTo(RpcResponse res, Datastore store, WriteContext context, 
+            KeyBuilder kb)
+    {
         final ProtostuffPipe pipe = context.pipe.init(
                 Comment.EM, PS, Comment.PList.FN_P, true);
         try
