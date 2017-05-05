@@ -94,26 +94,25 @@ public final class CommentOps
         // user posted a reply
         final KeyBuilder kb = res.context.kb()
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
-                .$append(req.postId);
+                .$append(req.postId)
+                .$append(req.keyChain);
                 
-        final byte[] keyChain = req.keyChain;
         if (lastSeenKey == null)
         {
             // visit starting at the first child
-            kb.$append(keyChain).$append8(0);
+            kb.$append8(0);
         }
         else
         {
-            // visit starting the entry after the last seen one
+            // visit starting at the entry after the last seen one
             lastSeenKey[lastSeenKey.length - 1] |= 0x02;
-            
-            kb.$append(keyChain).$append(lastSeenKey);
+            kb.$append(lastSeenKey);
         }
         
         kb.$push()
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                 .$append(req.postId)
-                .$append(keyChain)
+                .$append(req.keyChain)
                 .$append8(0xFF)
                 .$push();
         

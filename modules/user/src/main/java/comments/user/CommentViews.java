@@ -203,23 +203,20 @@ public final class CommentViews
         
         final KeyBuilder kb = context.kb()
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
-                .$append(postId);
+                .$append(postId)
+                // key chain
+                .$append(parentValue, offset, size).$append(parentKey);
                 
         if (lastSeenKey == null)
         {
-            // key chain
-            kb.$append(parentValue, offset, size).$append(parentKey)
-                    // starting at the first child
-                    .$append8(0);
+            // starting at the first child
+            kb.$append8(0);
         }
         else
         {
-            // visit starting the entry after the last seen one
+            // visit starting at the entry after the last seen one
             lastSeenKey[lastSeenKey.length - 1] |= 0x02;
-            
-            // key chain
-            kb.$append(parentValue, offset, size).$append(parentKey)
-                    .$append(lastSeenKey);
+            kb.$append(lastSeenKey);
         }
         
         kb.$push()
