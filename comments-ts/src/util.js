@@ -1,4 +1,5 @@
 import showdown from 'showdown'
+import { escape } from './escape'
 
 const MINUTE = 60
 const HOUR = 60 * MINUTE
@@ -71,7 +72,7 @@ export function toPayload(name, content, reply) {
     let prefix = !items.length ? '' : `"1":"${items[items.length - 1]['1']}",`
     // parentKey
     let suffix = !reply ? '' : `,"8":"${reply['1']}"`
-    return `{${prefix}"4":"${name}","5":"${content}","6":${POST_ID}${suffix}}`
+    return `{${prefix}"4":"${escape(name)}","5":"${escape(content)}","6":${POST_ID}${suffix}}`
 }
 
 export function toTree(raw_items, items, parent) {
