@@ -4,10 +4,6 @@ A simple, self-hosted comment engine
 ## Server runtime dependencies
 - jdk7
 
-## Desktop runtime dependencies
-- jdk7
-- [nwjs](https://nwjs.io/) [0.19.5](https://dl.nwjs.io/v0.19.5/) or higher
-
 ## Dev requirements
 - [node](https://nodejs.org/en/download/) 6.9.0 or higher
 - yarn (npm install -g yarn)
@@ -44,22 +40,9 @@ yarn run dev
 ```
 
 ## Production mode
-If ```run.sh``` is still running, stop that process (ctrl+c)
 ```sh
 cd comments-ts
 # produces a single js and other assets in comments-ts/dist/
 yarn run build
-# finally, run your production app
-nw .
 ```
-
-## Packaging for desktop (nwjs)
-Exec
-```sh
-./scripts/archive.sh
-```
-
-That script generates:
-- target/comments-linux-x64.tar.gz
-- target/comments-win-x64.zip
 
