@@ -15,7 +15,6 @@ import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
 import com.dyuproject.protostuffdb.Datastore;
 import com.dyuproject.protostuffdb.ProtostuffPipe;
-import com.dyuproject.protostuffdb.RangeV;
 import com.dyuproject.protostuffdb.WriteContext;
 
 /**
@@ -89,90 +88,50 @@ public final class CommentOps
         
         req.key = key;
         
-        if (req.parentKey != ZERO_KEY)
+        if (req.parentKey == ZERO_KEY)
+            return CommentViews.visitWith(req.postId, lastSeenKey, store, res);
+        
+        // user posted a reply
+        final KeyBuilder kb = res.context.kb()
+                .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
+                .$append(req.postId);
+                
+        final byte[] keyChain = req.keyChain,
+                startKey;
+        if (lastSeenKey == null)
         {
-            // user posted a reply
-            final KeyBuilder kb = res.context.kb()
-                    .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
-                    .$append(req.postId);
-                    
-            final byte[] keyChain = req.keyChain,
-                    startKey;
-            if (lastSeenKey == null)
-            {
-                // visit starting at the first child
-                startKey = new byte[keyChain.length + 1];
-                System.arraycopy(keyChain, 0, startKey, 0, keyChain.length);
-            }
-            else
-            {
-                startKey = new byte[keyChain.length + 9];
-                System.arraycopy(keyChain, 0, startKey, 0, keyChain.length);
-                // visit starting the entry after the last seen one
-                lastSeenKey[lastSeenKey.length - 1] |= 0x02;
-                System.arraycopy(lastSeenKey, 0, startKey, keyChain.length, 9);
-            }
-            
-            kb.$append(startKey).$push()
-                    .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
-                    .$append(req.postId)
-                    .$append(keyChain)
-                    .$append8(0xFF)
-                    .$push();
-            
-            final ProtostuffPipe pipe = res.context.pipe.init(
-                    Comment.EM, Comment.getPipeSchema(), Comment.PList.FN_P, true);
-            try
-            {
-                store.visitRange(false, -1, false, null, res.context, 
-                        RangeV.RES_PV, res, 
-                        kb.buf(), kb.offset(-1), kb.len(-1), 
-                        kb.buf(), kb.offset(), kb.len());
-            }
-            finally
-            {
-                pipe.clear();
-            }
-        }
-        else if (lastSeenKey != null)
-        {
-            // visit starting the entry after the last seen one
-            lastSeenKey[lastSeenKey.length - 1] |= 0x02;
-            
-            KeyBuilder kb = res.context.kb()
-                    .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
-                    .$append(req.postId)
-                    .$append(ZERO_KEY)
-                    .$append(lastSeenKey)
-                    .$push()
-                    /*.begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
-                    .$append(req.postId)
-                    .$push()*/
-                    .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
-                    .$append(req.postId)
-                    .$append8(0xFF)
-                    .$push();
-            
-            final ProtostuffPipe pipe = res.context.pipe.init(
-                    Comment.EM, Comment.getPipeSchema(), Comment.PList.FN_P, true);
-            try
-            {
-                store.visitRange(false, -1, false, null/*kb.copy(-2)*/, res.context, 
-                        RangeV.RES_PV, res, 
-                        kb.buf(), kb.offset(-1), kb.len(-1), 
-                        kb.buf(), kb.offset(), kb.len());
-            }
-            finally
-            {
-                pipe.clear();
-            }
+            // visit starting at the first child
+            startKey = new byte[keyChain.length + 1];
+            System.arraycopy(keyChain, 0, startKey, 0, keyChain.length);
         }
         else
         {
-            CommentViews.visitByPostId(req.postId,
-                    store, res.context,
-                    RangeV.Store.ENTITY_PV,
-                    RangeV.RES_PV, res);
+            startKey = new byte[keyChain.length + 9];
+            System.arraycopy(keyChain, 0, startKey, 0, keyChain.length);
+            // visit starting the entry after the last seen one
+            lastSeenKey[lastSeenKey.length - 1] |= 0x02;
+            System.arraycopy(lastSeenKey, 0, startKey, keyChain.length, 9);
+        }
+        
+        kb.$append(startKey).$push()
+                .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
+                .$append(req.postId)
+                .$append(keyChain)
+                .$append8(0xFF)
+                .$push();
+        
+        final ProtostuffPipe pipe = res.context.pipe.init(
+                Comment.EM, CommentViews.PS, Comment.PList.FN_P, true);
+        try
+        {
+            store.visitRange(false, -1, false, null, res.context, 
+                    CommentViews.PV, res, 
+                    kb.buf(), kb.offset(-1), kb.len(-1), 
+                    kb.buf(), kb.offset(), kb.len());
+        }
+        finally
+        {
+            pipe.clear();
         }
 
         return true;

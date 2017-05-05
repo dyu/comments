@@ -14,16 +14,20 @@
 
 package comments.user;
 
+import static com.dyuproject.protostuffdb.EntityMetadata.ZERO_KEY;
+import static com.dyuproject.protostuffdb.SerializedValueUtil.asInt64;
+import static com.dyuproject.protostuffdb.SerializedValueUtil.readByteArrayOffsetWithTypeAsSize;
+
 import java.io.IOException;
 
 import com.dyuproject.protostuff.Input;
 import com.dyuproject.protostuff.JsonXOutput;
+import com.dyuproject.protostuff.KeyBuilder;
 import com.dyuproject.protostuff.Output;
 import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
 import com.dyuproject.protostuff.RpcRuntimeExceptions;
-import com.dyuproject.protostuff.ds.P8;
 import com.dyuproject.protostuff.ds.ParamRangeKey;
 import com.dyuproject.protostuffdb.Datastore;
 import com.dyuproject.protostuffdb.ProtostuffPipe;
@@ -99,7 +103,8 @@ public final class CommentViews
                 throw RpcRuntimeExceptions.pipe(e);
             }
             
-            return ((JsonXOutput)res.output).getSize() >= MAX_RESPONSE_LIMIT;
+            return res.output instanceof JsonXOutput && 
+                    ((JsonXOutput)res.output).getSize() >= MAX_RESPONSE_LIMIT;
         }
     };
     
@@ -132,14 +137,113 @@ public final class CommentViews
                 PV, res);
     }
 
-    static boolean listByPostId(P8 req, Datastore store, RpcResponse res,
-            Pipe.Schema<Comment.PList> resPipeSchema, RpcHeader header)
+    static boolean listByPostId(Comment.ByPostId req, Datastore store, RpcResponse res,
+            Pipe.Schema<Comment.PList> resPipeSchema, RpcHeader header) throws IOException
     {
-        res.context.ps = PS;
+        return req.parentKey == null ? 
+                visitWith(req.postId, req.lastSeenKey, store, res) :
+                visitWithParent(req.parentKey, req.postId, req.lastSeenKey, store, res);
+    }
+    
+    static boolean visitWith(long postId, byte[] lastSeenKey, 
+            Datastore store, RpcResponse res)
+    {
+        if (lastSeenKey == null)
+        {
+            res.context.ps = PS;
+            
+            return visitByPostId(postId,
+                    store, res.context,
+                    RangeV.Store.CONTEXT_PV,
+                    PV, res);
+        }
         
-        return Visit.by8(Comment.IDX_POST_ID__KEY_CHAIN, req,
-                Comment.EM, Comment.PList.FN_P,
-                RangeV.Store.CONTEXT_PV, store, res.context,
-                PV, res);
+        // visit starting the entry after the last seen one
+        lastSeenKey[lastSeenKey.length - 1] |= 0x02;
+        
+        KeyBuilder kb = res.context.kb()
+                .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
+                .$append(postId)
+                .$append(ZERO_KEY)
+                .$append(lastSeenKey)
+                .$push()
+                .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
+                .$append(postId)
+                .$append8(0xFF)
+                .$push();
+        
+        final ProtostuffPipe pipe = res.context.pipe.init(
+                Comment.EM, PS, Comment.PList.FN_P, true);
+        try
+        {
+            store.visitRange(false, -1, false, null, res.context, 
+                    PV, res, 
+                    kb.buf(), kb.offset(-1), kb.len(-1), 
+                    kb.buf(), kb.offset(), kb.len());
+        }
+        finally
+        {
+            pipe.clear();
+        }
+        
+        return true;
+    }
+    
+    static boolean visitWithParent(byte[] parentKey, long postId, byte[] lastSeenKey, 
+            Datastore store, RpcResponse res) throws IOException
+    {
+        final WriteContext context = res.context;
+        final byte[] parentValue = store.get(parentKey, Comment.EM, null, context);
+        
+        if (postId != asInt64(Comment.VO_POST_ID, parentValue))
+            return res.fail("Invalid post id.");
+        
+        final int offset = readByteArrayOffsetWithTypeAsSize(Comment.FN_KEY_CHAIN, parentValue, context),
+                size = context.type;
+        
+        final KeyBuilder kb = context.kb()
+                .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
+                .$append(postId);
+                
+        if (lastSeenKey == null)
+        {
+            // key chain
+            kb.$append(parentValue, offset, size).$append(parentKey)
+                    // starting at the first child
+                    .$append8(0);
+        }
+        else
+        {
+            // visit starting the entry after the last seen one
+            lastSeenKey[lastSeenKey.length - 1] |= 0x02;
+            
+            // key chain
+            kb.$append(parentValue, offset, size).$append(parentKey)
+                    .$append(lastSeenKey);
+        }
+        
+        kb.$push()
+                .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
+                .$append(postId)
+                // key chain
+                .$append(parentValue, offset, size).$append(parentKey)
+                .$append8(0xFF)
+                .$push();
+        
+        final ProtostuffPipe pipe = context.pipe.init(
+                Comment.EM, PS, Comment.PList.FN_P, true);
+        try
+        {
+            store.visitRange(false, -1, false, null, context, 
+                    PV, res, 
+                    kb.buf(), kb.offset(-1), kb.len(-1), 
+                    kb.buf(), kb.offset(), kb.len());
+        }
+        finally
+        {
+            pipe.clear();
+        }
+        
+        return true;
     }
 }

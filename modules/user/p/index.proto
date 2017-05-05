@@ -39,6 +39,17 @@ message ParamLong { @Min(value = 1) required int64 p = 1; }
 @Entity(kind = 10, seq = true, custom_ps = true)
 message Comment {
 
+  message ByPostId {
+    @Min(value = 1)
+    required int64 post_id = 1;
+    
+    @Key(kind = Comment)
+    optional bytes last_seen_key = 2;
+    
+    @Key(kind = Comment)
+    optional bytes parent_key = 3;
+  }
+
   service ForUser {
 
     @ListV
@@ -46,7 +57,7 @@ message Comment {
     
     rpc listAllByPostId(ParamLong) returns (Comment.PList);
     
-    rpc listByPostId(P8) returns (Comment.PList);
+    rpc listByPostId(ByPostId) returns (Comment.PList);
     
     rpc create(Comment) returns (Comment.PList);
 
