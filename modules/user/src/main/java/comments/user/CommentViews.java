@@ -17,13 +17,16 @@ package comments.user;
 import java.io.IOException;
 
 import com.dyuproject.protostuff.Input;
+import com.dyuproject.protostuff.JsonXOutput;
 import com.dyuproject.protostuff.Output;
 import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
+import com.dyuproject.protostuff.RpcRuntimeExceptions;
 import com.dyuproject.protostuff.ds.P8;
 import com.dyuproject.protostuff.ds.ParamRangeKey;
 import com.dyuproject.protostuffdb.Datastore;
+import com.dyuproject.protostuffdb.ProtostuffPipe;
 import com.dyuproject.protostuffdb.RangeV;
 import com.dyuproject.protostuffdb.Visit;
 import com.dyuproject.protostuffdb.Visitor;
@@ -68,6 +71,37 @@ public final class CommentViews
         return PS;
     }
     
+    static final int MAX_SIZE = 1 + 8 // ts
+            + 1 + 2 + 9 + (127 * 9) // key_chain
+            + 1 + 1 + 127 // name
+            + 1 + 2 + 1024 // content
+            + 1 + 8 // post_id
+            + 1 + 1 // depth
+            + 1 + 9; // parent_key
+    
+    static final int MAX_LIMIT = 0xFFFF - MAX_SIZE - 2; // 2 is the delimiter size
+    
+    static final Visitor<RpcResponse> PV = new Visitor<RpcResponse>()
+    {
+        public boolean visit(byte[] key, 
+                byte[] v, int voffset, int vlen, 
+                RpcResponse res, int index)
+        {
+            final ProtostuffPipe pipe = res.context.pipe.set(key, v, voffset, vlen);
+            try
+            {
+                res.writeRawNested(pipe.fieldNumber(), 
+                        pipe, pipe.schema(), pipe.repeated());
+            }
+            catch (IOException e)
+            {
+                throw RpcRuntimeExceptions.pipe(e);
+            }
+            
+            return ((JsonXOutput)res.output).getSize() >= MAX_LIMIT;
+        }
+    };
+    
     static <V> boolean visitByPostId(long postId, 
             Datastore store, WriteContext context, 
             Visitor<V> visitor, V param)
@@ -94,7 +128,7 @@ public final class CommentViews
         return visitByPostId(req.p,
                 store, res.context,
                 RangeV.Store.CONTEXT_PV,
-                RangeV.RES_PV, res);
+                PV, res);
     }
 
     static boolean listByPostId(P8 req, Datastore store, RpcResponse res,
@@ -105,6 +139,6 @@ public final class CommentViews
         return Visit.by8(Comment.IDX_POST_ID__KEY_CHAIN, req,
                 Comment.EM, Comment.PList.FN_P,
                 RangeV.Store.CONTEXT_PV, store, res.context,
-                RangeV.RES_PV, res);
+                PV, res);
     }
 }
