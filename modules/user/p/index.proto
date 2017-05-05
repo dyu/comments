@@ -93,10 +93,10 @@ message Comment {
 
   optional bytes key_chain = 3 [provided = true, immutable = true, default = ""];
 
-  @Length(min = 1, max = 127)
+  @Length(min = 1, max = 127, msg = "Name is too long")
   required string name = 4 [json_escape = true];
 
-  @Length(min = 1, max = 1024)
+  @Length(min = 1, max = 1024, msg = "The content is too long")
   required string content = 5 [json_escape = true];
   
   @Min(value = 1)
