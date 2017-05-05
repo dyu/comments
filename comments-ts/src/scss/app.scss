@@ -10,7 +10,7 @@ color: #333;
 @import "./base";
 
 @import "./buttons";
-@import "../../node_modules/pavilion/scss/pavilion-parts/lists";
+@import "./lists";
 ul {
     text-decoration: none;
     list-style-type: none;
