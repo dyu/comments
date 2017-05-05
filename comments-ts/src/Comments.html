@@ -147,6 +147,8 @@ export default {
             })
         },
         comment$$F(err) {
+            let refs = this.refs
+            disable(false, refs.comment_content, refs.comment_name)
             this.set({ loading: false, comment_errmsg: extractMsg(err) })
         },
         comment$$() {
