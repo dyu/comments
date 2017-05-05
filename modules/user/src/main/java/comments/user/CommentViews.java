@@ -76,7 +76,8 @@ public final class CommentViews
     }
     
     static final int MAX_ENTITY_SIZE = 1 + 8 // ts
-            + 1 + 2 + 9 + (127 * 9) // key_chain
+            // excluded in the response via the custom pipe schema above
+            //+ 1 + 2 + 9 + (127 * 9) // key_chain
             + 1 + 1 + 127 // name
             + 1 + 2 + 1024 // content
             + 1 + 8 // post_id
