@@ -158,10 +158,10 @@ public final class CommentViews
                     PV, res);
         }
         
-        // visit starting the entry after the last seen one
+        // visit starting at the entry after the last seen one
         lastSeenKey[lastSeenKey.length - 1] |= 0x02;
         
-        KeyBuilder kb = res.context.kb()
+        return pipeTo(res, store, res.context, res.context.kb()
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                 .$append(postId)
                 .$append(ZERO_KEY)
@@ -170,23 +170,7 @@ public final class CommentViews
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                 .$append(postId)
                 .$append8(0xFF)
-                .$push();
-        
-        final ProtostuffPipe pipe = res.context.pipe.init(
-                Comment.EM, PS, Comment.PList.FN_P, true);
-        try
-        {
-            store.visitRange(false, -1, false, null, res.context, 
-                    PV, res, 
-                    kb.buf(), kb.offset(-1), kb.len(-1), 
-                    kb.buf(), kb.offset(), kb.len());
-        }
-        finally
-        {
-            pipe.clear();
-        }
-        
-        return true;
+                .$push());
     }
     
     static boolean visitWithParent(byte[] parentKey, long postId, byte[] lastSeenKey, 
