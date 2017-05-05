@@ -8,7 +8,8 @@ const DAY = 24 * HOUR
 const converter = new showdown.Converter()
 converter.setFlavor('github')
 
-export const POST_ID = window['post_id']
+export const POST_ID = window['comments_post_id'],
+    MAX_DEPTH = Math.max(1, Math.min(window['comments_max_depth'] || 127, 127))
 
 export const context = {
     raw_items: [],

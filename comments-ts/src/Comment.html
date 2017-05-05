@@ -1,7 +1,7 @@
 <div class="comment">
   <span class="name">{{ item['4'] }}</span><span class="timeago">{{ timeago(item['2']) }}</span>
   <div class="content" ref:content></div>
-  <button class="outlined" on:click="show_form()">Reply</button>
+  <button class="{{ reply_btn_class(item['7']) }}" on:click="show_form()">Reply</button>
   {{#if item.children.length}}
   <dd>
     {{#each item.children as child, i}}
@@ -11,7 +11,7 @@
   {{/if}}
 </div>
 <script>
-import { POST_ID, context, timeago, append, extractMsg, toHTML, toPayload, toTree } from './util'
+import { POST_ID, MAX_DEPTH, context, timeago, append, extractMsg, toHTML, toPayload, toTree } from './util'
 import * as rpc from './rpc'
 
 export default {
@@ -20,7 +20,8 @@ export default {
     }),
     helpers: {
         timeago,
-        append
+        append,
+        reply_btn_class: (depth) => depth < MAX_DEPTH ? 'outlined' : 'hide'
     },
     oncreate() {
         this.refs.content.innerHTML = toHTML(this.get('item')['5'])
