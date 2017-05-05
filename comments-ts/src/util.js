@@ -106,9 +106,9 @@ export function toTree(raw_items, items, parent) {
             continue
         }
 
-        while (depth !== last_item.parent['7']) {
+        do {
             last_item = last_item.parent
-        }
+        } while (depth < last_item['7'])
 
         (item.parent = last_item.parent).children.push(item)
         last_item = item
