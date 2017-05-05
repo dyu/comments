@@ -1,5 +1,5 @@
-<div class="{{ !errmsg ? 'msg' : 'msg error' }}">
-  <b>x</b>
+<div class="{{ !errmsg ? 'hide' : 'msg error' }}">
+  <b on:click="set({ errmsg: '' })">x</b>
   <span>{{ errmsg }}</span>
 </div>
 <textarea ref:comment_content class="{{ !comment_content_err ? '' : 'error' }}"></textarea>
@@ -15,7 +15,7 @@
   <div ref:reply_form class="reply-form">
     <button type="button" on:click="reply$$hide_form()">x</button>
     <textarea ref:reply_content class="{{ !reply_content_err ? '' : 'error' }}"></textarea>
-    <div class="{{ !reply_errmsg ? 'msg hide' : 'msg error' }}">
+    <div class="{{ !reply_errmsg ? 'hide' : 'msg error' }}">
       <b on:click="set({ reply_errmsg: '' })">x</b>
       <span>{{ reply_errmsg }}</span>
     </div>
@@ -54,7 +54,8 @@ export default {
         comment_errmsg: '',
 
         reply_content_err: false,
-        reply_name_err: false
+        reply_name_err: false,
+        reply_errmsg: ''
     }),
     components: {
         Comment
