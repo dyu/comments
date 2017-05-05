@@ -71,8 +71,7 @@ public final class CommentOps
             Pipe.Schema<Comment.PList> resPipeSchema, 
             RpcHeader header) throws IOException
     {
-        final byte[] lastSeenKey = req.key, 
-                key = new byte[9];
+        final byte[] lastSeenKey = req.key;
         
         final WriteContext context = res.context;
         
@@ -80,6 +79,8 @@ public final class CommentOps
         
         if (!validateAndProvide(req, now, store, context, res))
             return false;
+        
+        final byte[] key = new byte[9];
         
         context.fillEntityKey(key, Comment.EM, now);
         
