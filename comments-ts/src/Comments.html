@@ -27,7 +27,7 @@
 </div>
 <dl class="{{ items.length ? '' : 'hide' }}">
 {{#each items as item, i}}
-  <Comment item='{{ item }}' index='{{ i }}' />
+  <Comment item="{{ item }}" />
 {{/each}}
 </dl>
 <script>
@@ -41,6 +41,16 @@ function disable(val, comment_content, comment_name) {
     comment_name.disabled = val
     // button
     comment_name.nextElementSibling.disabled = val
+}
+
+function keyupReplyContent(e) {
+    // escape key
+    e.which === 27 && this.reply$$hide_form()
+}
+
+function keyupReplyName(e) {
+    // enter key
+    e.which === 13 && this.reply$$()
 }
 
 export default {
@@ -83,6 +93,9 @@ export default {
                 reply_form_parent: refs.reply_form.parentNode
             }
         })
+
+        refs.reply_content.addEventListener('keyup', keyupReplyContent.bind(this))
+        refs.reply_name.addEventListener('keyup', keyupReplyName.bind(this))
         
         disable(true, refs.comment_content, refs.comment_name)
         rpc.post('/comments/user/Comment/listAllByPostId', `{"1":${POST_ID}}`)
