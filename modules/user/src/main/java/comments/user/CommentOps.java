@@ -96,24 +96,21 @@ public final class CommentOps
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                 .$append(req.postId);
                 
-        final byte[] keyChain = req.keyChain,
-                startKey;
+        final byte[] keyChain = req.keyChain;
         if (lastSeenKey == null)
         {
             // visit starting at the first child
-            startKey = new byte[keyChain.length + 1];
-            System.arraycopy(keyChain, 0, startKey, 0, keyChain.length);
+            kb.$append(keyChain).$append8(0);
         }
         else
         {
-            startKey = new byte[keyChain.length + 9];
-            System.arraycopy(keyChain, 0, startKey, 0, keyChain.length);
             // visit starting the entry after the last seen one
             lastSeenKey[lastSeenKey.length - 1] |= 0x02;
-            System.arraycopy(lastSeenKey, 0, startKey, keyChain.length, 9);
+            
+            kb.$append(keyChain).$append(lastSeenKey);
         }
         
-        kb.$append(startKey).$push()
+        kb.$push()
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
                 .$append(req.postId)
                 .$append(keyChain)
