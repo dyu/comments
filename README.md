@@ -1,6 +1,8 @@
 # comments app
 A simple, self-hosted comment engine
 
+The [demo](https://netlify-comments.dyuproject.com) is running on a $2.5 vultr plan located in SG, with the app [configured](ARGS.txt) to use a max memory of 128mb (to leave most of the available memory to the filesytem cache).
+
 ## Server runtime dependencies
 - jdk7
 
