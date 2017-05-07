@@ -2,7 +2,7 @@
   <span class="name"></span>
   <span>
    <span class="timeago">{{ timeago(item['2']) }}</span>
-   <button class="stripped" on:click="refresh$$(item)" title="refresh">[ r ]</button>
+   <button class="stripped" on:click="refresh$$()" title="refresh">[ r ]</button>
    {{#if item.children.length }}
    <button class="stripped" on:click="toggle(item)">[ {{ plus_minus(item.collapsed, item.children) }} ]</button>
    {{/if}}
@@ -52,7 +52,9 @@ export default {
                 root$.reply$$show_form(this, this.refs.content.nextElementSibling)
         },
         refresh$$(item) {
-            // TODO
+            let root$ = context.root$
+            if (!root$.get('loading'))
+                root$.fetch$$(false, this)
         }
     }
 }

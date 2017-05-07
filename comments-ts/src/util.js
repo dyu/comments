@@ -80,9 +80,12 @@ export function extractMsg(data) {
 
 // ==================================================
 
-export function toFetchPayload(items) {
+export function toFetchPayload(items, parent) {
     let suffix = !items || !items.length ? '' : `,"2":"${items[items.length - 1]['1']}"`
-    return `{"1":${POST_ID}${suffix}}`
+    if (!parent)
+        return `{"1":${POST_ID}${suffix}}`
+
+    return `{"1":${POST_ID}${suffix},"3":"${parent['1']}"}`
 }
 
 export function toPayload(name, content, reply) {

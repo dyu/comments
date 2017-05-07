@@ -139,32 +139,53 @@ export default {
             this.set({ collapsed: !collapsed, items: items })
         },
         fetch$$S(data) {
-            let array = data['1']
+            let array = data['1'],
+                reply$
             checkInitial(this.m, this.refs)
             if (!array || !array.length) {
                 // TODO hide load-more action when there are no more comments?
                 this.set({ loading: false })
-            } else {
+            } else if (!(reply$ = context.reply$)) {
                 //context.raw_items = context.raw_items.concat(array)
                 this.set({
                     loading: false,
                     total_count: array.length + this.get('total_count'),
                     items: toTree(array, this.get('items'), null)
                 })
+            } else {
+                context.reply$ = null
+                let item = reply$.get('item')
+                toTree(array, item.children, item)
+                reply$.set({ item })
+                this.set({
+                    loading: false,
+                    total_count: array.length + this.get('total_count')
+                })
             }
         },
         fetch$$F(err) {
+            context.reply$ = null
             checkInitial(this.m, this.refs)
             this.set({ loading: false, errmsg: extractMsg(err) })
         },
-        fetch$$(initial) {
-            let m = this.m
-            if (!initial) {
+        fetch$$(initial, reply$) {
+            let m = this.m,
+                payload
+            if (initial) {
+                payload = toFetchPayload()
+            } else if (!reply$) {
+                payload = toFetchPayload(this.get('items'))
+                m.refresh.disabled = true
+                this.set({ loading: true, errmsg: '' })
+            } else {
+                let item = reply$.get('item')
+                context.reply$ = reply$
+                payload = toFetchPayload(item.children, item)
                 m.refresh.disabled = true
                 this.set({ loading: true, errmsg: '' })
             }
             
-            rpc.post('/comments/user/Comment/listByPostId', toFetchPayload(!initial && this.get('items')))
+            rpc.post('/comments/user/Comment/listByPostId', payload)
                     .then(m.fetch$$S).then(undefined, m.fetch$$F)
         },
         comment$$S(data) {
