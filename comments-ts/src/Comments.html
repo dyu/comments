@@ -25,12 +25,12 @@
     </div>
   </div>
 </div>
+<button ref:load_more type="button" class="hide" on:click="fetch$$()" title="load more">[ refresh ]</button>
 <dl class="{{ items.length ? '' : 'hide' }}">
 {{#each items as item, i}}
   <Comment item="{{ item }}" />
 {{/each}}
 </dl>
-<button ref:load_more type="button" class="hide" on:click="fetch$$()" title="load more">[ refresh ]</button>
 <script>
 import { POST_ID, context, append, extractMsg, toTree, toFetchPayload, toPayload } from './util'
 import * as rpc from './rpc'
