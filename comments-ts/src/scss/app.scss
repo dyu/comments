@@ -72,6 +72,12 @@ div.inline {
   font-size: 0.95em;
   vertical-align: top;
 }
+span > button.stripped {
+  font-size: 0.8em;
+  vertical-align: top;
+  margin: 0 0 0.3em 0;
+  color: $medium-gray;
+}
 
 div.comment {
   padding: 0.8em 0 0 0.1em;
@@ -93,6 +99,12 @@ div.comment {
   }
   > dd {
     margin-top: -2.4em;
+  }
+}
+
+div.comment.collapsed {
+  > div, > button, > dd {
+    display: none;
   }
 }
 
