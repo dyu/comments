@@ -5,6 +5,20 @@ The [demo](https://netlify-comments.dyuproject.com) is running on a $2.5 vultr p
 
 ![screenshot](https://github.com/dyu/comments/raw/master/screenshot.png)
 
+## Deployment on your site/blog
+Put this anywhere in the body (although it is advisable to put it last)
+```html
+<div id="comments"></div>
+<script>
+window.rpc_host = 'https://rpc.dyuproject.com';
+window.comments_post_id = 1; // pick any number greater than zero
+window.comments_max_depth = 4; // max: 127
+</script>
+<script src="https://netlify-comments.dyuproject.com/build.js"></script>
+<link rel="stylesheet" href="https://netlify-comments.dyuproject.com/build.css" />
+```
+> *Note*: do not use 1 as the comments_post_id. Otherwise, you'll see the comments from the demo on your site/blog.
+
 ## Server runtime dependencies
 - jdk7
 
