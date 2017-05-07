@@ -25,14 +25,19 @@
     </div>
   </div>
 </div>
-<button ref:load_more type="button" class="hide" on:click="fetch$$()" title="load more">[ refresh ]</button>
+<div ref:controls class="hide">
+  <button type="button" class="stripped" on:click="fetch$$()" title="refresh">[ r ]</button>
+  <button type="button" class="stripped" on:click="collapse_all(collapsed, items)" title="{{ collapsed ? 'expand' : 'collapse' }}" >
+    [ {{ plus_minus(collapsed, items) }} ]
+  </button>
+</div>
 <dl class="{{ items.length ? '' : 'hide' }}">
 {{#each items as item, i}}
   <Comment item="{{ item }}" />
 {{/each}}
 </dl>
 <script>
-import { POST_ID, context, append, extractMsg, toTree, toFetchPayload, toPayload } from './util'
+import { POST_ID, context, append, plus_minus, extractMsg, toTree, toFetchPayload, toPayload } from './util'
 import * as rpc from './rpc'
 
 import Comment from './Comment.html'
@@ -48,9 +53,9 @@ function checkInitial(m, refs) {
     if (m.initial) {
         m.initial = false
         disable(false, refs.comment_content, refs.comment_name)
-        refs.load_more.setAttribute('class', 'stripped')
+        refs.controls.setAttribute('class', 'controls')
     } else {
-        refs.load_more.disabled = false
+        m.refresh.disabled = false
     }
 }
 
@@ -81,13 +86,16 @@ export default {
 
         reply_content_err: false,
         reply_name_err: false,
-        reply_errmsg: ''
+        reply_errmsg: '',
+
+        collapsed: false
     }),
     components: {
         Comment
     },
     helpers: {
-        append
+        append,
+        plus_minus
     },
     oncreate () {
         context.root$ = this
@@ -98,6 +106,7 @@ export default {
             enumerable: false,
             value: {
                 initial: true,
+
                 fetch$$S: this.fetch$$S.bind(this),
                 fetch$$F: this.fetch$$F.bind(this),
 
@@ -107,6 +116,7 @@ export default {
                 reply$$S: this.reply$$S.bind(this),
                 reply$$F: this.reply$$F.bind(this),
 
+                refresh: refs.controls.firstElementChild,
                 reply_form_parent: refs.reply_form.parentNode
             }
         })
@@ -119,12 +129,18 @@ export default {
         this.fetch$$(true)
     },
     methods: {
+        collapse_all(collapsed, items) {
+            for (var i = 0, len = items.length; i < len; i++) {
+                items[i].collapsed = !collapsed
+            }
+
+            this.set({ collapsed: !collapsed, items: items })
+        },
         fetch$$S(data) {
             let array = data['1']
             checkInitial(this.m, this.refs)
             if (!array || !array.length) {
                 // TODO hide load-more action when there are no more comments?
-                //this.refs.load_more.setAttribute('class', 'hide')
                 this.set({ loading: false })
             } else {
                 //context.raw_items = context.raw_items.concat(array)
@@ -140,8 +156,10 @@ export default {
         },
         fetch$$(initial) {
             let m = this.m
-            if (!initial)
-                this.refs.load_more.disabled = true
+            if (!initial) {
+                m.refresh.disabled = true
+                this.set({ loading: true, errmsg: '' })
+            }
             
             rpc.post('/comments/user/Comment/listByPostId', toFetchPayload(!initial && this.get('items')))
                     .then(m.fetch$$S).then(undefined, m.fetch$$F)

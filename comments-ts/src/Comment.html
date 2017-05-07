@@ -1,9 +1,9 @@
-<div class="{{ !collapsed ? 'comment' : 'comment collapsed' }}">
+<div class="{{ !item.collapsed ? 'comment' : 'comment collapsed' }}">
   <span class="name"></span>
   <span>
    <span class="timeago">{{ timeago(item['2']) }}</span>
    {{#if item.children.length }}
-   <button class="stripped" on:click="set({ collapsed: !collapsed })">[ {{ plus_minus(collapsed, item) }} ]</button>
+   <button class="stripped" on:click="toggle(item)">[ {{ plus_minus(item.collapsed, item.children) }} ]</button>
    {{/if}}
   </span>
   <div class="content" ref:content></div>
@@ -18,19 +18,19 @@
   {{/if}}
 </div>
 <script>
-import { MAX_DEPTH, context, timeago, append, sanitize, toHTML } from './util'
+import { MAX_DEPTH, context, timeago, append, plus_minus, sanitize, toHTML } from './util'
 
 const MINUS = '[ - ]',
     PLUS = '[ + ]'
 
 export default {
     data: () => ({
-        collapsed: false
+        
     }),
     helpers: {
         timeago,
         append,
-        plus_minus: (collapsed, item) => !collapsed ? '-' : ('+' + item.children.length),
+        plus_minus,
         reply_btn_class: (depth) => depth < MAX_DEPTH ? 'outlined' : 'hide'
     },
     oncreate() {
@@ -41,6 +41,10 @@ export default {
         content.innerHTML = toHTML(item['5'])
     },
     methods: {
+        toggle(item) {
+            item.collapsed = !item.collapsed
+            this.set({ item: item })
+        },
         show_form() {
             let root$ = context.root$
             if (!root$.get('loading'))

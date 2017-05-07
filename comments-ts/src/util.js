@@ -69,6 +69,10 @@ export function timeago(ts) {
     return timebetween(Math.floor(ts/1000), Math.floor(Date.now()/1000), ' ago')
 }
 
+export function plus_minus(collapsed, items) {
+    return !collapsed ? '-' : ('+' + items.length)
+}
+
 export function extractMsg(data) {
     //return Array.isArray(data) && data[1]['1'] || String(data)
     return Array.isArray(data) ? data[1]['1'] : String(data);
@@ -99,6 +103,7 @@ export function toTree(raw_items, items, parent) {
     
     for (var i = 0, len = raw_items.length; i < len; i++) {
         item = raw_items[i]
+        item.collapsed = false
         item.parent = parent
         item.children = []
         if (start_depth === (depth = item['7'])) {
