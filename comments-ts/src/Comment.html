@@ -9,7 +9,7 @@
   <div class="content" ref:content></div>
   <button class="{{ reply_btn_class(item['7']) }}" on:click="show_form()">Reply</button>
   {{#if item.children.length }}
-  <button class="stripped" on:click="refresh$$()">[ * ]</button>
+  <button class="stripped" disabled>&nbsp;<!--placeholder--></button>
   <dd ref:dd>
     {{#each item.children as child}}
     <:Self item="{{ child }}" />
