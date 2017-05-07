@@ -30,7 +30,7 @@
   <Comment item="{{ item }}" />
 {{/each}}
 </dl>
-<button ref:load_more type="button" class="hide" on:click="fetch$$()" title="load more">[ * ]</button>
+<button ref:load_more type="button" class="hide" on:click="fetch$$()" title="load more">[ refresh ]</button>
 <script>
 import { POST_ID, context, append, extractMsg, toTree, toFetchPayload, toPayload } from './util'
 import * as rpc from './rpc'
