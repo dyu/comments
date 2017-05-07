@@ -13,7 +13,7 @@ export function range(val, min, max, def) {
 }
 
 export const POST_ID = window['comments_post_id'],
-    MAX_DEPTH = range(window['comments_max_depth'], 0, 127, 4)
+    MAX_DEPTH = range(window['comments_max_depth'], 0, 127, 7)
 
 export const context = {
     raw_items: [],

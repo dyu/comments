@@ -1,9 +1,10 @@
 <div class="comment">
-  <span class="name">{{ item['4'] }}</span><span class="timeago">{{ timeago(item['2']) }}</span>
+  <span class="name">{{ item['4'] }}</span>&nbsp;&nbsp;<span class="timeago">{{ timeago(item['2']) }}</span>
   <div class="content" ref:content></div>
   <button class="{{ reply_btn_class(item['7']) }}" on:click="show_form()">Reply</button>
   {{#if item.children.length}}
-  <dd>
+  <button class="stripped" on:click="toggle()">[ - ]</button>
+  <dd ref:dd>
     {{#each item.children as child}}
     <:Self item="{{ child }}" />
     {{/each}}
@@ -12,6 +13,9 @@
 </div>
 <script>
 import { MAX_DEPTH, context, timeago, append, toHTML } from './util'
+
+const MINUS = '[ - ]',
+    PLUS = '[ + ]'
 
 export default {
     data: () => ({
@@ -30,6 +34,15 @@ export default {
             let root$ = context.root$
             if (!root$.get('loading'))
                 root$.reply$$show_form(this, this.refs.content.nextElementSibling)
+        },
+        toggle() {
+            let dd = this.refs.dd,
+                btn = dd.previousElementSibling,
+                text = btn.innerText,
+                // minus sign
+                hide = 45 === text.charCodeAt(2)
+            btn.innerText = hide ? PLUS : MINUS
+            dd.style.display = hide ? 'none' : 'block'
         }
     }
 }
