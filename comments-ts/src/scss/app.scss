@@ -92,12 +92,12 @@ div.comment {
     color: $medium-gray;
   }
   > dd {
-    margin-top: -1em;
+    margin-top: -2.4em;
   }
 }
 
 dd > div.comment {
-  border-top: 1px solid $soft-gray;
+  //border-top: 1px solid $soft-gray;
   margin-left: 0.3em;
 }
 
