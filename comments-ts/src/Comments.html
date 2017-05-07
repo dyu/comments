@@ -26,6 +26,7 @@
   </div>
 </div>
 <div ref:controls class="hide">
+  <span class="{{ total_count ? '' : 'hide' }}">{{ !total_count ? 'No comments yet' : (total_count + ' comments') }}</span>
   <button type="button" class="stripped" on:click="fetch$$()" title="refresh">[ r ]</button>
   <button type="button" class="stripped" on:click="collapse_all(collapsed, items)" title="{{ collapsed ? 'expand' : 'collapse' }}" >
     [ {{ plus_minus(collapsed, items) }} ]
@@ -79,6 +80,7 @@ export default {
         loading: true, // fetch after this component is created
         errmg: '',
         items: context.items,
+        total_count: 0,
 
         comment_content_err: false,
         comment_name_err: false,
@@ -116,7 +118,7 @@ export default {
                 reply$$S: this.reply$$S.bind(this),
                 reply$$F: this.reply$$F.bind(this),
 
-                refresh: refs.controls.firstElementChild,
+                refresh: refs.controls.firstElementChild.nextElementSibling,
                 reply_form_parent: refs.reply_form.parentNode
             }
         })
@@ -146,6 +148,7 @@ export default {
                 //context.raw_items = context.raw_items.concat(array)
                 this.set({
                     loading: false,
+                    total_count: array.length + this.get('total_count'),
                     items: toTree(array, this.get('items'), null)
                 })
             }
@@ -177,6 +180,7 @@ export default {
             disable(false, comment_content, comment_name)
             this.set({
                 loading: false, 
+                total_count: array.length + this.get('total_count'),
                 items: toTree(array, this.get('items'))
             })
         },
