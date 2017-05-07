@@ -2,6 +2,7 @@
   <span class="name"></span>
   <span>
    <span class="timeago">{{ timeago(item['2']) }}</span>
+   <button class="stripped" on:click="refresh$$(item)" title="refresh">[ r ]</button>
    {{#if item.children.length }}
    <button class="stripped" on:click="toggle(item)">[ {{ plus_minus(item.collapsed, item.children) }} ]</button>
    {{/if}}
@@ -50,7 +51,7 @@ export default {
             if (!root$.get('loading'))
                 root$.reply$$show_form(this, this.refs.content.nextElementSibling)
         },
-        refresh$$() {
+        refresh$$(item) {
             // TODO
         }
     }

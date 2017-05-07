@@ -28,7 +28,7 @@
 <div ref:controls class="hide">
   <span class="{{ total_count ? '' : 'hide' }}">{{ !total_count ? 'No comments yet' : (total_count + ' comments') }}</span>
   <button type="button" class="stripped" on:click="fetch$$()" title="refresh">[ r ]</button>
-  <button type="button" class="stripped" on:click="collapse_all(collapsed, items)" title="{{ collapsed ? 'expand' : 'collapse' }}" >
+  <button type="button" class="stripped" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items) }} ]
   </button>
 </div>
