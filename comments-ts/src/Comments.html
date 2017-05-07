@@ -140,12 +140,12 @@ export default {
         },
         fetch$$S(data) {
             let array = data['1'],
-                reply$
+                refresh$
             checkInitial(this.m, this.refs)
             if (!array || !array.length) {
                 // TODO hide load-more action when there are no more comments?
                 this.set({ loading: false })
-            } else if (!(reply$ = context.reply$)) {
+            } else if (!(refresh$ = context.refresh$)) {
                 //context.raw_items = context.raw_items.concat(array)
                 this.set({
                     loading: false,
@@ -153,10 +153,10 @@ export default {
                     items: toTree(array, this.get('items'), null)
                 })
             } else {
-                context.reply$ = null
-                let item = reply$.get('item')
+                context.refresh$ = null
+                let item = refresh$.get('item')
                 toTree(array, item.children, item)
-                reply$.set({ item })
+                refresh$.set({ item })
                 this.set({
                     loading: false,
                     total_count: array.length + this.get('total_count')
@@ -164,22 +164,22 @@ export default {
             }
         },
         fetch$$F(err) {
-            context.reply$ = null
+            context.refresh$ = null
             checkInitial(this.m, this.refs)
             this.set({ loading: false, errmsg: extractMsg(err) })
         },
-        fetch$$(initial, reply$) {
+        fetch$$(initial, refresh$) {
             let m = this.m,
                 payload
             if (initial) {
                 payload = toFetchPayload()
-            } else if (!reply$) {
+            } else if (!refresh$) {
                 payload = toFetchPayload(this.get('items'))
                 m.refresh.disabled = true
                 this.set({ loading: true, errmsg: '' })
             } else {
-                let item = reply$.get('item')
-                context.reply$ = reply$
+                let item = refresh$.get('item')
+                context.refresh$ = refresh$
                 payload = toFetchPayload(item.children, item)
                 m.refresh.disabled = true
                 this.set({ loading: true, errmsg: '' })

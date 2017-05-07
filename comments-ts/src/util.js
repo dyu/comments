@@ -20,7 +20,8 @@ export const context = {
     raw_items: [],
     items: [],
     root$: null,
-    reply$: null
+    reply$: null,
+    refresh$: null
 }
 
 function plural(num, unit, suffix) {
