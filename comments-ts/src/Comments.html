@@ -264,7 +264,7 @@ export default {
 
             this.m.reply_form_parent.appendChild(refs.reply_form)
             disable(false, reply_content, reply_name)
-            this.set({ loading: false })
+            this.set({ loading: false, total_count: array.length + this.get('total_count'), })
             reply$.set({ item: item })
         },
         reply$$F(err) {
