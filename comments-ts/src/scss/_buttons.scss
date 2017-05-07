@@ -42,7 +42,7 @@ button {
         }
     }
     
-    /*&.stripped {
+    &.stripped {
         background-color: transparent;
         color: $primary-color;
         &:visited {
@@ -57,7 +57,7 @@ button {
         }
     }
     
-    &.full-width {
+    /*&.full-width {
         display: block;
         width: 100%;
     }*/

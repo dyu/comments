@@ -71,6 +71,11 @@ export function extractMsg(data) {
 
 // ==================================================
 
+export function toFetchPayload(items) {
+    let suffix = !items || !items.length ? '' : `,"2":"${items[items.length - 1]['1']}"`
+    return `{"1":${POST_ID}${suffix}}`
+}
+
 export function toPayload(name, content, reply) {
     let items = !reply ? context.items : reply.children
     // lastSeenKey

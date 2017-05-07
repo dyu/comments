@@ -30,8 +30,9 @@
   <Comment item="{{ item }}" />
 {{/each}}
 </dl>
+<button ref:load_more type="button" class="hide" on:click="fetch$$()" title="load more">[ * ]</button>
 <script>
-import { POST_ID, context, append, extractMsg, toTree, toPayload } from './util'
+import { POST_ID, context, append, extractMsg, toTree, toFetchPayload, toPayload } from './util'
 import * as rpc from './rpc'
 
 import Comment from './Comment.html'
@@ -41,6 +42,16 @@ function disable(val, comment_content, comment_name) {
     comment_name.disabled = val
     // button
     comment_name.nextElementSibling.disabled = val
+}
+
+function checkInitial(m, refs) {
+    if (m.initial) {
+        m.initial = false
+        disable(false, refs.comment_content, refs.comment_name)
+        refs.load_more.setAttribute('class', 'stripped')
+    } else {
+        refs.load_more.disabled = false
+    }
 }
 
 function keyupReplyContent(e) {
@@ -86,6 +97,7 @@ export default {
         Object.defineProperty(this, 'm', {
             enumerable: false,
             value: {
+                initial: true,
                 fetch$$S: this.fetch$$S.bind(this),
                 fetch$$F: this.fetch$$F.bind(this),
 
@@ -104,31 +116,35 @@ export default {
         refs.comment_name.addEventListener('keyup', keyupCommentName.bind(this))
         
         disable(true, refs.comment_content, refs.comment_name)
-        rpc.post('/comments/user/Comment/listByPostId', `{"1":${POST_ID}}`)
-                .then(this.m.fetch$$S).then(undefined, this.m.fetch$$F)
+        this.fetch$$(true)
     },
     methods: {
         fetch$$S(data) {
-            let refs = this.refs,
-                array = data['1']
-            
-            disable(false, refs.comment_content, refs.comment_name)
-
+            let array = data['1']
+            checkInitial(this.m, this.refs)
             if (!array || !array.length) {
+                // TODO hide load-more action when there are no more comments?
+                //this.refs.load_more.setAttribute('class', 'hide')
                 this.set({ loading: false })
-                return
+            } else {
+                //context.raw_items = context.raw_items.concat(array)
+                this.set({
+                    loading: false,
+                    items: toTree(array, this.get('items'), null)
+                })
             }
-
-            //context.raw_items = context.raw_items.concat(array)
-            this.set({
-                loading: false,
-                items: toTree(array, this.get('items'), null)
-            })
         },
         fetch$$F(err) {
-            let refs = this.refs
-            disable(false, refs.comment_content, refs.comment_name)
+            checkInitial(this.m, this.refs)
             this.set({ loading: false, errmsg: extractMsg(err) })
+        },
+        fetch$$(initial) {
+            let m = this.m
+            if (!initial)
+                this.refs.load_more.disabled = true
+            
+            rpc.post('/comments/user/Comment/listByPostId', toFetchPayload(!initial && this.get('items')))
+                    .then(m.fetch$$S).then(undefined, m.fetch$$F)
         },
         comment$$S(data) {
             let refs = this.refs,
