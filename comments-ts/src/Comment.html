@@ -1,5 +1,5 @@
 <div class="comment">
-  <span class="name">{{ item['4'] }}</span>&nbsp;&nbsp;<span class="timeago">{{ timeago(item['2']) }}</span>
+  <span class="name"></span>&nbsp;&nbsp;<span class="timeago">{{ timeago(item['2']) }}</span>
   <div class="content" ref:content></div>
   <button class="{{ reply_btn_class(item['7']) }}" on:click="show_form()">Reply</button>
   {{#if item.children.length}}
@@ -12,7 +12,7 @@
   {{/if}}
 </div>
 <script>
-import { MAX_DEPTH, context, timeago, append, toHTML } from './util'
+import { MAX_DEPTH, context, timeago, append, sanitize, toHTML } from './util'
 
 const MINUS = '[ - ]',
     PLUS = '[ + ]'
@@ -27,7 +27,11 @@ export default {
         reply_btn_class: (depth) => depth < MAX_DEPTH ? 'outlined' : 'hide'
     },
     oncreate() {
-        this.refs.content.innerHTML = toHTML(this.get('item')['5'])
+        let item = this.get('item'),
+            content = this.refs.content
+
+        content.previousElementSibling.previousElementSibling.innerText = sanitize(item['4'])
+        content.innerHTML = toHTML(item['5'])
     },
     methods: {
         show_form() {

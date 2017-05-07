@@ -1,4 +1,5 @@
 import showdown from 'showdown'
+import dompurify from 'dompurify'
 import { escape } from './escape'
 
 const MINUTE = 60
@@ -36,8 +37,12 @@ function plural(num, unit, suffix) {
     return buf
 }
 
+export function sanitize(str) {
+    return dompurify.sanitize(str)
+}
+
 export function toHTML(md) {
-    return converter.makeHtml(md)
+    return sanitize(converter.makeHtml(md))
 }
 
 export function timebetween(a, b, suffix) {
