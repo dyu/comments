@@ -51,32 +51,12 @@ message Comment {
   }
 
   service ForUser {
-
-    @ListV
-    rpc list(ParamRangeKey) returns (Comment.PList);
-    
-    rpc listAllByPostId(ParamLong) returns (Comment.PList);
     
     rpc listByPostId(ByPostId) returns (Comment.PList);
     
     rpc create(Comment) returns (Comment.PList);
-
-    //@X
-    //rpc update(ParamUpdate) returns (void);
-
   }
-
-  // ==================================================
-
-  /*@Config(link = SI, service = UserServices.ForUser)
-  @Include(client = true)
-  @int8 enum Q {
-
-    POST_ID = 1 [
-      f0 = "post_id"
-    ];
-  }*/
-
+  
   // ==================================================
 
   @Config(link = Tags)

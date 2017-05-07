@@ -104,7 +104,7 @@ export default {
         refs.comment_name.addEventListener('keyup', keyupCommentName.bind(this))
         
         disable(true, refs.comment_content, refs.comment_name)
-        rpc.post('/comments/user/Comment/listAllByPostId', `{"1":${POST_ID}}`)
+        rpc.post('/comments/user/Comment/listByPostId', `{"1":${POST_ID}}`)
                 .then(this.m.fetch$$S).then(undefined, this.m.fetch$$F)
     },
     methods: {

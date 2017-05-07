@@ -126,18 +126,7 @@ public final class CommentViews
                 visitorType, store, context,
                 visitor, param);
     }
-
-    static boolean listAllByPostId(ParamLong req, Datastore store, RpcResponse res,
-            Pipe.Schema<Comment.PList> resPipeSchema, RpcHeader header)
-    {
-        res.context.ps = PS;
-        
-        return visitByPostId(req.p,
-                store, res.context,
-                RangeV.Store.CONTEXT_PV,
-                PV, res);
-    }
-
+    
     static boolean listByPostId(Comment.ByPostId req, Datastore store, RpcResponse res,
             Pipe.Schema<Comment.PList> resPipeSchema, RpcHeader header) throws IOException
     {
