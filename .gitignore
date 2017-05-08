@@ -1,5 +1,6 @@
+/comments-ts/dist
+/ansible/hosts.ini
 node_modules
-dist
 g
 target
 .settings
@@ -9,5 +10,5 @@ target
 .packages
 .pub
 .generated
-/ansible/hosts.ini
+
 
