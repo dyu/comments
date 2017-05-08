@@ -14,7 +14,8 @@ export function range(val, min, max, def) {
 }
 
 export const POST_ID = window['comments_post_id'],
-    MAX_DEPTH = range(window['comments_max_depth'], 0, 127, 7)
+    MAX_DEPTH = range(window['comments_max_depth'], 0, 127, 7),
+    COLLAPSE_DEPTH = range(window['comments_collapse_depth'], -1, 127, -1)
 
 export const context = {
     raw_items: [],
@@ -107,10 +108,11 @@ export function toTree(raw_items, items, parent) {
     
     for (var i = 0, len = raw_items.length; i < len; i++) {
         item = raw_items[i]
-        item.collapsed = false
+        depth = item['7']
+        item.collapsed = COLLAPSE_DEPTH >= 0 && depth >= COLLAPSE_DEPTH
         item.parent = parent
         item.children = []
-        if (start_depth === (depth = item['7'])) {
+        if (start_depth === depth) {
             items.push(item)
             last_item = item
             last_depth = depth
