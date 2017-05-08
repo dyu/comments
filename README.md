@@ -14,8 +14,8 @@ window.rpc_host = 'https://rpc.dyuproject.com';
 window.comments_max_depth = 10; // max: 127
 window.comments_collapse_depth = 7; // the depth where comments get collapsed by default
 </script>
-<script src="https://netlify-comments.dyuproject.com/build.js"></script>
-<link rel="stylesheet" href="https://netlify-comments.dyuproject.com/build.css" />
+<script src="https://netlify-comments.dyuproject.com/dist/build.js"></script>
+<link rel="stylesheet" href="https://netlify-comments.dyuproject.com/dist/build.css" />
 ```
 > Note: Uses the same instance powering the demo. No tracking whatsoever.
 
