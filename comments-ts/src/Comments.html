@@ -26,7 +26,7 @@
   </div>
 </div>
 <div ref:controls class="hide">
-  <span class="{{ total_count ? '' : 'hide' }}">{{ !total_count ? 'No comments yet' : (total_count + ' comments') }}</span>
+  <span>{{ !total_count ? 'No comments yet' : pluralize(total_count, ' comment') }}</span>
   <button type="button" class="stripped" on:click="fetch$$()" title="refresh">[ r ]</button>
   <button type="button" class="stripped" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items) }} ]
@@ -38,7 +38,11 @@
 {{/each}}
 </dl>
 <script>
-import { POST_ID, context, append, plus_minus, extractMsg, toTree, toFetchPayload, toPayload } from './util'
+import {
+    POST_ID, context, extractMsg,
+    append, plus_minus, pluralize,
+    toTree, toFetchPayload, toPayload
+} from './util'
 import * as rpc from './rpc'
 
 import Comment from './Comment.html'
@@ -97,7 +101,8 @@ export default {
     },
     helpers: {
         append,
-        plus_minus
+        plus_minus,
+        pluralize
     },
     oncreate () {
         context.root$ = this

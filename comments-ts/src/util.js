@@ -1,5 +1,6 @@
 import showdown from 'showdown'
 import dompurify from 'dompurify'
+import hash from 'string-hash'
 import { escape } from './escape'
 
 const MINUTE = 60
@@ -13,7 +14,14 @@ export function range(val, min, max, def) {
     return typeof val !== 'number' ? def : Math.max(min, Math.min(val, max))
 }
 
-export const POST_ID = window['comments_post_id'],
+function resolvePostId(id) {
+    if (typeof id !== 'number' || id < 1)
+        id = hash(window.location.hostname + window.location.pathname)
+    
+    return id
+}
+
+export const POST_ID = resolvePostId(window['comments_post_id']),
     MAX_DEPTH = range(window['comments_max_depth'], 0, 127, 7),
     COLLAPSE_DEPTH = range(window['comments_collapse_depth'], -1, 127, -1)
 
@@ -36,6 +44,15 @@ function plural(num, unit, suffix) {
     if (suffix)
         buf += suffix
     
+    return buf
+}
+
+export function pluralize(num, str, suffix) {
+    var buf = ''
+    buf += num
+    buf += str
+    if (num > 1)
+        buf += (suffix || 's')
     return buf
 }
 
