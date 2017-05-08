@@ -153,6 +153,15 @@ dl {
   }
 }
 
+span.count {
+  color: $hard-gray;
+  font-weight: bold;
+  font-size: 1.1em;
+  + span {
+    color: $medium-gray;
+  }
+}
+
 > div.controls {
   margin: 0.5em 0;
   > button {

@@ -26,7 +26,8 @@
   </div>
 </div>
 <div ref:controls class="hide">
-  <span>{{ !total_count ? 'No comments yet' : pluralize(total_count, ' comment') }}</span>
+  <span class="{{ total_count ? 'count' : 'hide' }}">{{ total_count }}</span>
+  <span>{{ !total_count ? 'No comments yet' : pluralize(total_count, 'comment') }}</span>
   <button type="button" class="outlined" on:click="fetch$$()" title="refresh">r</button>
   <button type="button" class="stripped" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items) }} ]

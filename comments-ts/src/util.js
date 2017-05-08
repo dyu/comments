@@ -50,9 +50,10 @@ function plural(num, unit, suffix) {
     return buf
 }
 
-export function pluralize(num, str, suffix) {
+export function pluralize(num, str, suffix, with_num) {
     var buf = ''
-    buf += num
+    if (with_num)
+        buf += num
     buf += str
     if (num > 1)
         buf += (suffix || 's')
