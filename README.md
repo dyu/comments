@@ -5,19 +5,27 @@ The [demo](https://netlify-comments.dyuproject.com) is running on a $2.5 vultr p
 
 ![screenshot](https://github.com/dyu/comments/raw/master/screenshot.png)
 
-## Deployment on your site/blog
-Put this anywhere in the body (although it is advisable to put it last)
+## Instant comments on your site/blog
+Put this anywhere in the html body (although it is advisable to put it last)
 ```html
 <div id="comments"></div>
 <script>
 window.rpc_host = 'https://rpc.dyuproject.com';
-window.comments_post_id = 1; // pick any number greater than zero
-window.comments_max_depth = 4; // max: 127
+window.comments_max_depth = 10; // max: 127
+window.comments_collapse_depth = 7; // the depth where comments get collapsed by default
 </script>
 <script src="https://netlify-comments.dyuproject.com/build.js"></script>
 <link rel="stylesheet" href="https://netlify-comments.dyuproject.com/build.css" />
 ```
-> *Note*: do not use 1 as the comments_post_id. Otherwise, you'll see the comments from the demo on your site/blog.
+> Note: Uses the same instance powering the demo. No tracking whatsoever.
+
+1. The [css](https://dyu.github.io/comments/build.css) is 6.2kb minified, built with [pavilion](https://github.com/getpavilion/pavilion) core.
+2. The [js](https://dyu.github.io/comments/build.js) is 79.7kb minified, built with:
+   - [sveltjs](https://github.com/sveltejs/svelte)
+   - [showdown](https://github.com/showdownjs/showdown)
+   - [dompurify](https://github.com/cure53/DOMPurify)
+   - [string-hash](https://github.com/darkskyapp/string-hash)
+   - [color-hash](https://github.com/zenozeng/color-hash)
 
 ## Server runtime dependencies
 - jdk7
