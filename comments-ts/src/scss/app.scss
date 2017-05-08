@@ -64,11 +64,12 @@ div.inline {
 }
 
 .name {
-  color: $primary-color;
   font-size: 1.1em;
+  font-weight: bold;
+  letter-spacing: 0.1em;
 }
 .timeago {
-  color: lighten($alt-color, 10%);
+  color: $medium-gray;
   font-size: 0.95em;
   vertical-align: top;
 }
@@ -83,9 +84,14 @@ div.comment {
   padding: 0.8em 0 0 0.1em;
   margin: 0 0 0 0;
   //border-bottom: 1px solid $soft-gray;
+  > button {
+    color: $hard-gray;
+  }
   > button.outlined {
     font-size: 0.85em;
     padding: 0.25rem 0.5rem;
+    border-color: $soft-gray;
+    
     /*&:hover {
       color: #fff !important;
       background-color: $primary-color;
@@ -95,7 +101,6 @@ div.comment {
     display: block;
     margin: 0 0 0.5em -0.1em;
     font-size: 0.8em;
-    color: $medium-gray;
   }
   > dd {
     margin-top: -2.4em;

@@ -1,7 +1,10 @@
 import showdown from 'showdown'
 import dompurify from 'dompurify'
 import hash from 'string-hash'
+import ColorHash from 'color-hash'
 import { escape } from './escape'
+
+const COLOR_HASH = new ColorHash()
 
 const MINUTE = 60
 const HOUR = 60 * MINUTE
@@ -58,6 +61,10 @@ export function pluralize(num, str, suffix) {
 
 export function sanitize(str) {
     return dompurify.sanitize(str)
+}
+
+export function toHexColor(str) {
+    return COLOR_HASH.hex(str)
 }
 
 export function toHTML(md) {

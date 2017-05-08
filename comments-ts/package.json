@@ -9,6 +9,7 @@
     "start": "http-server . & npm run dev & open http://127.0.0.1:8080"
   },
   "dependencies": {
+    "color-hash": "^1.0.3",
     "dompurify": "^0.8.9",
     "showdown": "^1.6.4",
     "string-hash": "^1.1.3",

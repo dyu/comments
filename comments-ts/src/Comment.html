@@ -19,7 +19,11 @@
   {{/if}}
 </div>
 <script>
-import { MAX_DEPTH, context, timeago, append, plus_minus, sanitize, toHTML } from './util'
+import {
+    MAX_DEPTH, context,
+    timeago, append, plus_minus, sanitize,
+    toHTML, toHexColor
+} from './util'
 
 const MINUS = '[ - ]',
     PLUS = '[ + ]'
@@ -36,9 +40,12 @@ export default {
     },
     oncreate() {
         let item = this.get('item'),
-            content = this.refs.content
-
-        content.parentNode.firstElementChild.innerText = sanitize(item['4'])
+            content = this.refs.content,
+            nameNode = content.parentNode.firstElementChild,
+            name = sanitize(item['4'])
+        
+        nameNode.innerText = name
+        nameNode.style.color = toHexColor(name)
         content.innerHTML = toHTML(item['5'])
     },
     methods: {
