@@ -97,7 +97,12 @@ export function timeago(ts) {
 }
 
 export function plus_minus(collapsed, items) {
-    return !collapsed ? '-' : ('+' + items.length)
+    if (!collapsed)
+        return '-'
+    else if (!items.length)
+        return '+'
+    else
+        return '+' + items.length
 }
 
 export function extractMsg(data) {

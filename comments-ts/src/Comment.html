@@ -3,9 +3,7 @@
   <span>
    <span class="timeago">{{ timeago(item['2']) }}</span>
    <button class="outlined" on:click="refresh$$()" title="refresh">r</button>
-   {{#if item.children.length }}
    <button class="stripped" on:click="toggle(item)">[ {{ plus_minus(item.collapsed, item.children) }} ]</button>
-   {{/if}}
   </span>
   <div class="content" ref:content></div>
   <button class="{{ reply_btn_class(item['7']) }}" on:click="show_form()">Reply</button>
