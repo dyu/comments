@@ -153,8 +153,16 @@ dl {
   }
 }
 
-> div.controls > button {
-  color: $medium-gray;
+> div.controls {
+  margin: 0.5em 0;
+  > button {
+    color: $medium-gray;
+  }
+  > button.outlined {
+    padding: 0 0.5em;
+    margin: 0;
+    border-color: $soft-gray;
+  }
 }
 
 } // end #comments
