@@ -19,8 +19,8 @@ window.comments_collapse_depth = 7; // the depth where comments get collapsed by
 ```
 > Note: Uses the same instance powering the demo. No tracking whatsoever.
 
-1. The [css](https://dyu.github.io/comments/build.css) is 6.2kb minified, built with [pavilion](https://github.com/getpavilion/pavilion) core.
-2. The [js](https://dyu.github.io/comments/build.js) is 79.7kb minified, built with:
+1. The [css](https://dyu.github.io/comments/dist/build.css) is 6.2kb minified, built with [pavilion](https://github.com/getpavilion/pavilion) core.
+2. The [js](https://dyu.github.io/comments/dist/build.js) is 79.7kb minified, built with:
    - [sveltjs](https://github.com/sveltejs/svelte)
    - [showdown](https://github.com/showdownjs/showdown)
    - [dompurify](https://github.com/cure53/DOMPurify)
