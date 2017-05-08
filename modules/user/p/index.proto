@@ -76,7 +76,7 @@ message Comment {
   @Length(min = 1, max = 127, msg = "Name is too long")
   required string name = 4 [json_escape = true];
 
-  @Length(min = 1, max = 1024, msg = "The content is too long")
+  @Length(min = 1, max = 2048, msg = "The content is too long")
   required string content = 5 [json_escape = true];
   
   @Min(value = 1)
