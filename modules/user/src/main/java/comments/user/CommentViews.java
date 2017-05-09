@@ -169,6 +169,9 @@ public final class CommentViews
         final WriteContext context = res.context;
         final byte[] parentValue = store.get(parentKey, Comment.EM, null, context);
         
+        if (parentValue == null)
+            return res.fail("Parent comment does not exist!");
+        
         if (postId != asInt64(Comment.VO_POST_ID, parentValue))
             return res.fail("Invalid post id.");
         
