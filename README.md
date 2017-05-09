@@ -65,6 +65,13 @@ cd comments-ts
 yarn run dev
 ```
 
+If your dev machine is a MacOS, **protostuffdb** currently does not have binary distributions for it yet.
+It is because the author does not have a MacOS machine to test/build against.
+
+On the other hand, you can still do development on the client-side part with this temporary workaround:
+1. Edit ```comments-ts/index.html```
+2. Replace ```window.rpc_host = 'http://127.0.0.1:5020'``` with ```window.rpc_host = 'https://rpc.dyuproject.com'```
+
 ## Production mode
 ```sh
 cd comments-ts
