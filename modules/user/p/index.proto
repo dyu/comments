@@ -74,13 +74,13 @@ message Comment {
   optional bytes key_chain = 3 [provided = true, immutable = true, default = ""];
 
   @Length(min = 1, max = 127, msg = "Name is too long")
-  required string name = 4 [json_escape = true];
+  required string name = 4 [json_escape = true, immutable = true];
 
   @Length(min = 1, max = 2048, msg = "The content is too long")
-  required string content = 5 [json_escape = true];
+  required string content = 5 [json_escape = true, immutable = true];
   
   @Min(value = 1)
-  required uint64 post_id = 6;
+  required uint64 post_id = 6 [immutable = true];
   
   optional int8 depth = 7 [default = 0, provided = true, immutable = true];
   
