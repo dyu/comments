@@ -1,4 +1,4 @@
-import showdown from 'showdown'
+import MarkdownIt from 'markdown-it'
 import dompurify from 'dompurify'
 import hash from 'string-hash'
 import ColorHash from 'color-hash'
@@ -10,8 +10,7 @@ const MINUTE = 60
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
 
-const converter = new showdown.Converter()
-converter.setFlavor('github')
+const converter = new MarkdownIt('commonmark');
 
 export function range(val, min, max, def) {
     return typeof val !== 'number' ? def : Math.max(min, Math.min(val, max))
@@ -69,7 +68,7 @@ export function toHexColor(str) {
 }
 
 export function toHTML(md) {
-    return sanitize(converter.makeHtml(md))
+    return sanitize(converter.render(md))
 }
 
 export function timebetween(a, b, suffix) {
