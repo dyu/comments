@@ -207,7 +207,7 @@ export default {
             this.set({
                 loading: false, 
                 total_count: array.length + this.get('total_count'),
-                items: toTree(array, this.get('items'))
+                items: toTree(array, this.get('items'), null, true)
             })
         },
         comment$$F(err) {
@@ -266,7 +266,7 @@ export default {
             reply_content.value = ''
             reply_name.value = ''
 
-            toTree(array, item.children, item)
+            toTree(array, item.children, item, true)
 
             this.m.reply_form_parent.appendChild(refs.reply_form)
             disable(false, reply_content, reply_name)

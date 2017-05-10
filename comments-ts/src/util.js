@@ -131,7 +131,7 @@ export function toPayload(name, content, reply) {
     return `{${prefix}"4":"${escape(name)}","5":"${escape(content)}","6":${POST_ID}${suffix}}`
 }
 
-export function toTree(raw_items, items, parent) {
+export function toTree(raw_items, items, parent, fromSubmit) {
     let start_depth = !parent ? 0 : 1 + parent['7'],
         last_item = !items.length ? null : items[items.length - 1],
         last_depth = !last_item ? start_depth : last_item['7'],
@@ -141,7 +141,7 @@ export function toTree(raw_items, items, parent) {
     for (var i = 0, len = raw_items.length; i < len; i++) {
         item = raw_items[i]
         depth = item['7']
-        item.collapsed = COLLAPSE_DEPTH >= 0 && depth >= COLLAPSE_DEPTH
+        item.collapsed = !fromSubmit && COLLAPSE_DEPTH >= 0 && depth >= COLLAPSE_DEPTH
         item.parent = parent
         item.children = []
         if (start_depth === depth) {
