@@ -28,7 +28,7 @@
 <div ref:controls class="hide">
   <span class="{{ total_count ? 'count' : 'hide' }}">{{ total_count }}</span>
   <span>{{ !total_count ? 'No comments yet' : pluralize(total_count, 'comment') }}</span>
-  <button type="button" class="outlined" on:click="fetch$$()" title="refresh">r</button>
+  <button ref:refresh type="button" class="outlined" on:click="fetch$$()" title="refresh">r</button>
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items) }} ]
   </button>
@@ -61,7 +61,7 @@ function checkInitial(m, refs) {
         disable(false, refs.comment_content, refs.comment_name)
         refs.controls.setAttribute('class', 'controls')
     } else {
-        m.refresh.disabled = false
+        refs.refresh.disabled = false
     }
 }
 
@@ -124,7 +124,6 @@ export default {
                 reply$$S: this.reply$$S.bind(this),
                 reply$$F: this.reply$$F.bind(this),
 
-                refresh: refs.controls.firstElementChild.nextElementSibling,
                 reply_form_parent: refs.reply_form.parentNode
             }
         })
@@ -181,13 +180,13 @@ export default {
                 payload = toFetchPayload()
             } else if (!refresh$) {
                 payload = toFetchPayload(this.get('items'))
-                m.refresh.disabled = true
+                this.refs.refresh.disabled = true
                 this.set({ loading: true, errmsg: '' })
             } else {
                 let item = refresh$.get('item')
                 context.refresh$ = refresh$
                 payload = toFetchPayload(item.children, item)
-                m.refresh.disabled = true
+                this.refs.refresh.disabled = true
                 this.set({ loading: true, errmsg: '' })
             }
             
