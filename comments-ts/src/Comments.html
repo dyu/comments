@@ -40,7 +40,7 @@
 </dl>
 <script>
 import {
-    POST_ID, context, extractMsg,
+    POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize,
     toTree, toFetchPayload, toPayload
 } from './util'
@@ -221,14 +221,15 @@ export default {
                 comment_name = refs.comment_name,
                 content = comment_content.value.trim(),
                 name = comment_name.value.trim(),
-                m = this.m
+                m = this.m,
+                comment_errmsg = !content || !CONTENT_LIMIT || content.length <= CONTENT_LIMIT ? '' : CONTENT_ERRMSG
             
-            if (!content) {
-                this.set({ comment_content_err: true, comment_name_err: false, comment_errmsg: '' })
+            if (!content || comment_errmsg) {
+                this.set({ comment_content_err: true, comment_name_err: false, comment_errmsg })
                 return
             }
             if (!name) {
-                this.set({ comment_content_err: false, comment_name_err: true, comment_errmsg: '' })
+                this.set({ comment_content_err: false, comment_name_err: true, comment_errmsg })
                 return
             }
 

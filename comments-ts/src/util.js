@@ -26,7 +26,9 @@ function resolvePostId(id) {
 
 export const POST_ID = resolvePostId(window['comments_post_id']),
     MAX_DEPTH = range(window['comments_max_depth'], 0, 127, 7),
-    COLLAPSE_DEPTH = range(window['comments_collapse_depth'], -1, 127, -1)
+    COLLAPSE_DEPTH = range(window['comments_collapse_depth'], -1, 127, -1),
+    CONTENT_LIMIT = range(window['comments_content_limit'], 0, 8192, 0),
+    CONTENT_ERRMSG = 'The content is too long'
 
 export const context = {
     raw_items: [],
