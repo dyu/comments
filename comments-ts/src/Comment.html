@@ -1,14 +1,11 @@
 <div class="{{ !item.collapsed ? 'comment' : 'comment collapsed' }}">
   <span class="name"></span>
   <span>
-   <span class="timeago">{{ timeago(item['2']) }}</span>
-   <button ref:refresh class="outlined" on:click="refresh$$()" title="direct replies + nested replies">
-     {{ item.children.length }}
-     <span class="{{ (item.total_child_count - item.children.length) ? '' : 'hide' }}">
-       &nbsp;+{{ item.total_child_count - item.children.length }}
-     </span>
-   </button>
-   <button class="stripped" on:click="toggle(item)">[ {{ plus_minus(item.collapsed, item.total_child_count) }} ]</button>
+    <span class="timeago">{{ timeago(item['2']) }}</span>
+    <button ref:refresh class="outlined" on:click="refresh$$()" title="refresh">r</button>
+    <button class="stripped" on:click="toggle(item)" title="{{title(item.children.length, item.total_child_count)}}">
+      [ {{ plus_minus(item.collapsed, item.total_child_count) }} ]
+    </button>
   </span>
   <div class="content" ref:content></div>
   <button class="{{ reply_btn_class(item['7']) }}" on:click="show_form()">Reply</button>
@@ -39,6 +36,7 @@ export default {
         timeago,
         append,
         plus_minus,
+        title: (count, total_count) => `direct replies: ${count}, nested replies: ${total_count - count}`,
         reply_btn_class: (depth) => depth < MAX_DEPTH ? 'outlined' : 'hide'
     },
     oncreate() {
