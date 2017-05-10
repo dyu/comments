@@ -98,13 +98,13 @@ export function timeago(ts) {
     return timebetween(Math.floor(ts/1000), Math.floor(Date.now()/1000), ' ago')
 }
 
-export function plus_minus(collapsed, items) {
+export function plus_minus(collapsed, count) {
     if (!collapsed)
         return '-'
-    else if (!items.length)
+    else if (!count)
         return '+'
     else
-        return '+' + items.length
+        return '+' + count
 }
 
 export function extractMsg(data) {
@@ -131,6 +131,19 @@ export function toPayload(name, content, reply) {
     return `{${prefix}"4":"${escape(name)}","5":"${escape(content)}","6":${POST_ID}${suffix}}`
 }
 
+function inc(parent) {
+    do {
+        parent.total_child_count++
+        parent = parent.parent
+    } while (parent)
+}
+
+function addTo(parent, item) {
+    item.parent = parent
+    parent.children.push(item)
+    inc(parent)
+}
+
 export function toTree(raw_items, items, parent, fromSubmit) {
     let start_depth = !parent ? 0 : 1 + parent['7'],
         last_item = !items.length ? null : items[items.length - 1],
@@ -143,21 +156,23 @@ export function toTree(raw_items, items, parent, fromSubmit) {
         depth = item['7']
         item.collapsed = !fromSubmit && COLLAPSE_DEPTH >= 0 && depth >= COLLAPSE_DEPTH
         item.parent = parent
+        item.total_child_count = 0
         item.children = []
         if (start_depth === depth) {
             items.push(item)
+            parent && inc(parent)
             last_item = item
             last_depth = depth
             continue
         }
         
         if (depth === last_depth) {
-            (item.parent = last_item.parent).children.push(item)
+            addTo(last_item.parent, item)
             last_item = item
             continue
         }
         if (depth > last_depth) {
-            (item.parent = last_item).children.push(item)
+            addTo(last_item, item)
             last_item = item
             last_depth = depth
             continue
@@ -167,7 +182,7 @@ export function toTree(raw_items, items, parent, fromSubmit) {
             last_item = last_item.parent
         } while (depth < last_item['7'])
 
-        (item.parent = last_item.parent).children.push(item)
+        addTo(last_item.parent, item)
         last_item = item
         last_depth = depth
     }

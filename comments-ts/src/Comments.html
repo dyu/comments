@@ -28,13 +28,13 @@
 <div ref:controls class="hide">
   <span class="{{ total_count ? 'count' : 'hide' }}">{{ total_count }}</span>
   <span>{{ !total_count ? 'No comments yet' : pluralize(total_count, 'comment') }}</span>
-  <button ref:refresh type="button" class="outlined" on:click="fetch$$()" title="refresh">r</button>
+  <button ref:refresh type="button" class="outlined" on:click="fetch$$()">refresh</button>
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
-    [ {{ plus_minus(collapsed, items) }} ]
+    [ {{ plus_minus(collapsed, items.length) }} ]
   </button>
 </div>
 <dl class="{{ items.length ? '' : 'hide' }}">
-{{#each items as item, i}}
+{{#each items as item}}
   <Comment item="{{ item }}" />
 {{/each}}
 </dl>
@@ -55,14 +55,18 @@ function disable(val, comment_content, comment_name) {
     comment_name.nextElementSibling.disabled = val
 }
 
-function checkInitial(m, refs) {
+function checkInitial(m, refs, refresh$) {
     if (m.initial) {
         m.initial = false
         disable(false, refs.comment_content, refs.comment_name)
         refs.controls.setAttribute('class', 'controls')
     } else {
         refs.refresh.disabled = false
+        if (refresh$)
+            refresh$.refs.refresh.disabled = false
     }
+
+    return refresh$
 }
 
 function keyupReplyContent(e) {
@@ -145,12 +149,12 @@ export default {
         },
         fetch$$S(data) {
             let array = data['1'],
-                refresh$
-            checkInitial(this.m, this.refs)
+                refresh$ = checkInitial(this.m, this.refs, context.refresh$)
+            
             if (!array || !array.length) {
                 // TODO hide load-more action when there are no more comments?
                 this.set({ loading: false })
-            } else if (!(refresh$ = context.refresh$)) {
+            } else if (!refresh$) {
                 //context.raw_items = context.raw_items.concat(array)
                 this.set({
                     loading: false,
@@ -159,18 +163,23 @@ export default {
                 })
             } else {
                 context.refresh$ = null
-                let item = refresh$.get('item')
+                let item = refresh$.get('item'), parent = item.parent
                 toTree(array, item.children, item)
-                refresh$.set({ item })
                 this.set({
                     loading: false,
                     total_count: array.length + this.get('total_count')
                 })
+
+                // update from the root parent
+                while (parent) {
+                    item = parent
+                    parent = parent.parent
+                }
+                item.v$.set({ item })
             }
         },
         fetch$$F(err) {
-            context.refresh$ = null
-            checkInitial(this.m, this.refs)
+            checkInitial(this.m, this.refs, context.refresh$)
             this.set({ loading: false, errmsg: extractMsg(err) })
         },
         fetch$$(initial, refresh$) {
@@ -185,6 +194,7 @@ export default {
             } else {
                 let item = refresh$.get('item')
                 context.refresh$ = refresh$
+                refresh$.refs.refresh.disabled = true
                 payload = toFetchPayload(item.children, item)
                 this.refs.refresh.disabled = true
                 this.set({ loading: true, errmsg: '' })
@@ -261,7 +271,8 @@ export default {
                 reply_name = refs.reply_name,
                 array = data['1'],
                 reply$ = context.reply$,
-                item = reply$.get('item')
+                item = reply$.get('item'),
+                parent = item.parent
             
             reply_content.value = ''
             reply_name.value = ''
@@ -271,7 +282,13 @@ export default {
             this.m.reply_form_parent.appendChild(refs.reply_form)
             disable(false, reply_content, reply_name)
             this.set({ loading: false, total_count: array.length + this.get('total_count'), })
-            reply$.set({ item: item })
+
+            // update from the root parent
+            while (parent) {
+                item = parent
+                parent = parent.parent
+            }
+            item.v$.set({ item })
         },
         reply$$F(err) {
             let refs = this.refs

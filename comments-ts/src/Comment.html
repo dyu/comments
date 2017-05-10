@@ -2,8 +2,8 @@
   <span class="name"></span>
   <span>
    <span class="timeago">{{ timeago(item['2']) }}</span>
-   <button class="outlined" on:click="refresh$$()" title="refresh">r</button>
-   <button class="stripped" on:click="toggle(item)">[ {{ plus_minus(item.collapsed, item.children) }} ]</button>
+   <button ref:refresh class="outlined" on:click="refresh$$()" title="replies">{{ item.children.length }}</button>
+   <button class="stripped" on:click="toggle(item)">[ {{ plus_minus(item.collapsed, item.total_child_count) }} ]</button>
   </span>
   <div class="content" ref:content></div>
   <button class="{{ reply_btn_class(item['7']) }}" on:click="show_form()">Reply</button>
@@ -42,6 +42,8 @@ export default {
             nameNode = content.parentNode.firstElementChild,
             name = sanitize(item['4'])
         
+        item.v$ = this
+
         nameNode.innerText = name
         nameNode.style.color = toHexColor(name)
         content.innerHTML = toHTML(item['5'])
