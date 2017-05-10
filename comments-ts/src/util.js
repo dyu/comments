@@ -76,7 +76,7 @@ export function timebetween(a, b, suffix) {
     const elapsed = b - a;
 
     if (elapsed === 0) {
-        return 'just now'
+        return 'just moments' + suffix
     } else if (elapsed < MINUTE) {
         return plural(elapsed, 'second', suffix);
     } else if (elapsed < HOUR) {
