@@ -150,6 +150,10 @@ function resolveNick(session, m) {
     return user
 }
 
+function postComment(url, payload, m) {
+    return rpc.post(!WITH_AUTH ? url : `${url}?access_token=${m.session.oauth_data.es_token}`, payload)
+}
+
 export default {
     data: () => ({
         loading: true, // fetch after this component is created
@@ -332,7 +336,7 @@ export default {
                 comment_content_err: false, comment_name_err: false, comment_errmsg: ''
             })
 
-            rpc.post('/comments/user/Comment/create', toPayload(name, content))
+            postComment('/comments/user/Comment/create', toPayload(name, content), m)
                     .then(m.comment$$S).then(undefined, m.comment$$F)
         },
         reply$$hide_form() {
@@ -402,7 +406,7 @@ export default {
                 reply_content_err: false, reply_name_err: false, reply_errmsg: ''
             })
 
-            rpc.post('/comments/user/Comment/create', toPayload(name, content, context.reply$.get('item')))
+            postComment('/comments/user/Comment/create', toPayload(name, content, context.reply$.get('item')), m)
                     .then(m.reply$$S).then(undefined, m.reply$$F)
         },
         pop(target) {
