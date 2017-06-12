@@ -8,9 +8,9 @@
   <div class="{{ !comment_name_err ? 'ib' : 'ib error' }}">
     <span>{{ user_nick || 'Post using' }}</span>
     <div class="{{ user_nick ? 'hide' : 'ib' }}">
-      <button class="{{ !(auth_flags & 2) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
-      <button class="{{ !(auth_flags & 4) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
-      <button class="{{ !(auth_flags & 8) ? 'hide' : 'stripped' }}" on:click="pop('gitlab')">gitlab</button>
+      <button class="{{ !(auth_flags & 1) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
+      <button class="{{ !(auth_flags & 2) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
+      <button class="{{ !(auth_flags & 4) ? 'hide' : 'stripped' }}" on:click="pop('gitlab')">gitlab</button>
     </div>
     <button tabindex="-1" class="{{ user_nick ? 'stripped' : 'hide' }}" on:click="logout()">x</button>
     <input ref:comment_name type="hidden" />
@@ -37,9 +37,9 @@
       <div class="{{ !reply_name_err ? 'ib' : 'ib error' }}">
         <span>{{ user_nick || 'Post using' }}</span>
         <div class="{{ user_nick ? 'hide' : 'ib' }}">
-          <button class="{{ !(auth_flags & 2) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
-          <button class="{{ !(auth_flags & 4) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
-          <button class="{{ !(auth_flags & 8) ? 'hide' : 'stripped' }}" on:click="pop('gitlab')">gitlab</button>
+          <button class="{{ !(auth_flags & 1) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
+          <button class="{{ !(auth_flags & 2) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
+          <button class="{{ !(auth_flags & 4) ? 'hide' : 'stripped' }}" on:click="pop('gitlab')">gitlab</button>
         </div>
         <button tabindex="-1" class="{{ user_nick ? 'stripped' : 'hide' }}" on:click="logout()">x</button>
         <input ref:reply_name type="hidden" />
@@ -70,7 +70,7 @@ import {
     POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize,
     toTree, toFetchPayload, toPayload, popAuth,
-    WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GITHUB
+    WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GOOGLE, AUTH_GITHUB, AUTH_GITLAB
 } from './util'
 import * as rpc from './rpc'
 import * as storage from './storage/'
@@ -113,21 +113,41 @@ function keyupCommentName(e) {
     e.which === 13 && this.comment$$()
 }
 
+function googleHtml(user, info) {
+    return `<a><img src="${info.picture}" />${user}</a>`
+}
+
+function githubHtml(user, info) {
+    return `<a href="https://github.com/${info.login}"><img src="${info.avatar_url}" />${user}</a>`
+}
+
+function gitlabHtml(user, info) {
+    return `<a href="https://gitlab.com/${info.username}"><img src="${info.avatar_url}" />${user}</a>`
+}
+
 function resolveNick(session, m) {
     let oauth_data = session.oauth_data,
-        es_user = oauth_data.es_user
+        info = oauth_data.info,
+        user
     
-    if (session.type === 2 && AUTH_FLAGS === AUTH_GITHUB) {
-        es_user = es_user.substring(0, es_user.indexOf('@'))
-        m.user_html = `<a href="https://github.com/${es_user}"><img src="${oauth_data.info.avatar_url}" />${es_user}</a>`
-        return es_user
+    switch (session.type) {
+        case 1: // google
+            user = info.name
+            m.user_html = !(AUTH_GOOGLE & (AUTH_FLAGS >>> 4)) ? user : googleHtml(user, info)
+            break
+        case 2: // github
+            user = !(AUTH_FLAGS & 8) ? info.name : info.login
+            m.user_html = !(AUTH_GITHUB & (AUTH_FLAGS >>> 4)) ? user : githubHtml(user, info)
+            break
+        case 3: // gitlab
+            user = !(AUTH_FLAGS & 8) ? info.name : info.username
+            m.user_html = !(AUTH_GITLAB & (AUTH_FLAGS >>> 4)) ? user : gitlabHtml(user, info)
+            break
+        default:
+            m.user_html = user = oauth_data.es_user
     }
-    else if (!(AUTH_FLAGS & 8)) {
-        return m.user_html = es_user
-    }
-    else {
-        return m.user_html = oauth_data.info.name
-    }
+    
+    return user
 }
 
 export default {
