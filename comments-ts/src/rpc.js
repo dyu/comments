@@ -82,27 +82,29 @@ var prefix = window['rpc_host'] || '';
 export function setAuthHandler(handler) {
     config.auth$$ = handler;
 }
-function post$$(location, data, delegate, initialHandler) {
+export function $post(location, data, delegate, initialHandler) {
     var authHandler = config.auth$$, opts = {
         method: 'POST',
         body: data
     };
-    if (prefix)
-        location = prefix + location;
     return delegate || authHandler ?
         new P(location, opts, initialHandler || checkStatus, authHandler) :
         fetch(location, opts).then(initialHandler || checkStatus).then(handler);
+}
+function post$$(location, data, delegate, initialHandler) {
+    return $post(!prefix ? location : prefix + location, data)
 }
 export function post(location, data) {
     return config.post$$(location, data);
 }
-function get$$(location, opts, delegate, initialHandler) {
+export function $get(location, opts, delegate, initialHandler) {
     var authHandler = config.auth$$;
-    if (prefix)
-        location = prefix + location;
     return delegate || authHandler ?
         new P(location, opts, initialHandler || checkStatus, authHandler) :
         fetch(location, opts).then(initialHandler || checkStatus).then(handler);
+}
+function get$$(location, opts) {
+    return $get(!prefix ? location : prefix + location, opts) 
 }
 export function get(location, opts) {
     return config.get$$(location, opts);

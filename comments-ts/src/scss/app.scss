@@ -24,6 +24,13 @@ input[type="text"].error {
     border: $default-border-width solid $error-color !important;
 }
 
+.ib {
+  display: inline-block;
+}
+.ib.error {
+  border-bottom: $default-border-width solid $error-color;
+}
+
 div.inline {
   margin-top: 0.3em;
   position: relative;

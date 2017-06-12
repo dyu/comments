@@ -25,6 +25,12 @@ function resolvePostId(id) {
 }
 
 export const POST_ID = resolvePostId(window['comments_post_id']),
+    AUTH_HOST = window['comments_auth_host'],
+    WITH_AUTH = !!AUTH_HOST,
+    AUTH_GOOGLE = 2,
+    AUTH_GITHUB = 4,
+    AUTH_GITLAB = 8,
+    AUTH_TYPE = range(window['comments_auth_type'], 2, 0x0E, 0x0E),
     MAX_DEPTH = range(window['comments_max_depth'], 0, 127, 7),
     COLLAPSE_DEPTH = range(window['comments_collapse_depth'], -1, 127, -1),
     CONTENT_LIMIT = range(window['comments_content_limit'], 0, 8192, 0),
@@ -189,3 +195,39 @@ export function toTree(raw_items, items, parent, fromSubmit) {
 
     return items
 }
+
+const iframe = document.getElementById('comments-auth'),
+    href = window.location.href,
+    fnEvent = window.addEventListener || window.attachEvent,
+    keyEvent = !window.addEventListener ? 'onmessage' : 'message',
+    alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+
+export function randomText(len) {
+    var text = ''
+    for(var i = 0; i < len; i++)
+        text += alphanumeric.charAt(Math.floor(Math.random() * alphanumeric.length))
+
+    return text
+}
+
+var html, pmid
+export function popAuth(type) {
+    // always load
+    html = html ? '' : type + '.html'
+    pmid = randomText(10)
+    iframe.src = AUTH_HOST + '/iframe/' + html + '#' +pmid + '~' + type + '~' + href
+}
+
+function onAuth(e) {
+    var array = JSON.parse(e.data)
+    if (!Array.isArray(array) || array.length !== 3 || array[2] !== pmid) return
+    
+    var type = array[0], data = array[1]
+    if (!type || !data || !data.es_token) {
+        context.root$.auth$$F(data || 'Auth failed.')
+    } else {
+        context.root$.auth$$S(data, type)
+    }
+}
+
+fnEvent(keyEvent, onAuth, false)
