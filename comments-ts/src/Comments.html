@@ -113,16 +113,21 @@ function keyupCommentName(e) {
     e.which === 13 && this.comment$$()
 }
 
-function resolveNick(session) {
+function resolveNick(session, m) {
     let oauth_data = session.oauth_data,
         es_user = oauth_data.es_user
     
-    if (session.type === 2 && AUTH_FLAGS === AUTH_GITHUB)
-        return es_user.substring(0, es_user.indexOf('@'))
-    else if (!(AUTH_FLAGS & 8))
+    if (session.type === 2 && AUTH_FLAGS === AUTH_GITHUB) {
+        es_user = es_user.substring(0, es_user.indexOf('@'))
+        m.user_html = `<a href="https://github.com/${es_user}"><img src="${oauth_data.info.avatar_url}" />${es_user}</a>`
         return es_user
-    else
-        return oauth_data.info.name
+    }
+    else if (!(AUTH_FLAGS & 8)) {
+        return m.user_html = es_user
+    }
+    else {
+        return m.user_html = oauth_data.info.name
+    }
 }
 
 export default {
@@ -181,6 +186,7 @@ export default {
                 login$$S: this.login$$S.bind(this),
                 login$$F: this.login$$F.bind(this),
 
+                user_html: null,
                 session
             }
         })
@@ -190,7 +196,7 @@ export default {
             refs.reply_name.addEventListener('keyup', keyupReplyName.bind(this))
             refs.comment_name.addEventListener('keyup', keyupCommentName.bind(this))
         } else if (session.oauth_data) {
-            this.set({ user_nick: resolveNick(session) })
+            this.set({ user_nick: resolveNick(session, this.m) })
         }
         
         disable(true, refs.comment_content, refs.comment_name, refs.comment_btn)
@@ -284,11 +290,11 @@ export default {
         },
         comment$$() {
             let refs = this.refs,
+                m = this.m,
                 comment_content = refs.comment_content,
                 comment_name = refs.comment_name,
                 content = comment_content.value.trim(),
-                name = WITH_AUTH ? this.get('user_nick') : comment_name.value.trim(),
-                m = this.m,
+                name = WITH_AUTH ? m.user_html : comment_name.value.trim(),
                 comment_errmsg = !content || !CONTENT_LIMIT || content.length <= CONTENT_LIMIT ? '' : CONTENT_ERRMSG
             
             if (!content || comment_errmsg) {
@@ -354,11 +360,12 @@ export default {
         },
         reply$$() {
             let refs = this.refs,
+                m = this.m,
                 reply_content = refs.reply_content,
                 reply_name = refs.reply_name,
                 content = reply_content.value.trim(),
-                name = WITH_AUTH ? this.get('user_nick') : reply_name.value.trim(),
-                m = this.m
+                name = WITH_AUTH ? m.user_html : reply_name.value.trim()
+                
             
             if (!content) {
                 this.set({ reply_content_err: true, reply_name_err: false, reply_errmsg: '' })
@@ -417,7 +424,7 @@ export default {
             
             storage.set('session', session)
             
-            this.set({ loading: false, user_nick: resolveNick(session) })
+            this.set({ loading: false, user_nick: resolveNick(session, m) })
         },
         login$$F(err) {
             this.set({ loading: false, errmsg: extractMsg(err) })

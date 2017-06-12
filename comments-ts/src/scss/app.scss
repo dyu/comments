@@ -119,6 +119,18 @@ span {
   font-size: 1.1em;
   font-weight: bold;
   letter-spacing: 0.1em;
+   > p {
+     display: inline;
+   }
+   img {
+     margin: 0 0.5em 0 0;
+     padding: 0;
+     height: 2.5em;
+     width: 2.5em;
+   }
+   a {
+    vertical-align: top;
+   }
 }
 .timeago {
   color: $alt-gray;
