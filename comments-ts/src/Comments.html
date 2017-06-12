@@ -8,11 +8,11 @@
   <div class="{{ !comment_name_err ? 'ib' : 'ib error' }}">
     <span>{{ user_nick || 'Post using' }}</span>
     <div class="{{ user_nick ? 'hide' : 'ib' }}">
-      <button ref:google class="{{ !(auth_type & 2) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
-      <button ref:github class="{{ !(auth_type & 4) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
-      <button ref:gitlab class="{{ !(auth_type & 8) ? 'hide' : 'stripped' }}" on:click="pop('gitlab')">gitlab</button>
+      <button class="{{ !(auth_type & 2) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
+      <button class="{{ !(auth_type & 4) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
+      <button class="{{ !(auth_type & 8) ? 'hide' : 'stripped' }}" on:click="pop('gitlab')">gitlab</button>
     </div>
-    <button tabindex="-1" ref:logout class="{{ user_nick ? 'stripped' : 'hide' }}" on:click="logout()">x</button>
+    <button tabindex="-1" class="{{ user_nick ? 'stripped' : 'hide' }}" on:click="logout()">x</button>
     <input ref:comment_name type="hidden" />
   </div>
   {{else}}
@@ -33,7 +33,20 @@
       <span>{{ reply_errmsg }}</span>
     </div>
     <div class="inline">
+      {{#if with_auth }}
+      <div class="{{ !reply_name_err ? 'ib' : 'ib error' }}">
+        <span>{{ user_nick || 'Post using' }}</span>
+        <div class="{{ user_nick ? 'hide' : 'ib' }}">
+          <button class="{{ !(auth_type & 2) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
+          <button class="{{ !(auth_type & 4) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
+          <button class="{{ !(auth_type & 8) ? 'hide' : 'stripped' }}" on:click="pop('gitlab')">gitlab</button>
+        </div>
+        <button tabindex="-1" class="{{ user_nick ? 'stripped' : 'hide' }}" on:click="logout()">x</button>
+        <input ref:reply_name type="hidden" />
+      </div>
+      {{else}}
       <input ref:reply_name type="text" class="{{ !reply_name_err ? '' : 'error' }}" placeholder="Name" />
+      {{/if}}
       <button ref:reply_btn type="button" class="primary" on:click="reply$$()">Reply</button>
     </div>
   </div>
