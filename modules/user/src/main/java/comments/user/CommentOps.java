@@ -3,6 +3,7 @@
 package comments.user;
 
 import static com.dyuproject.protostuffdb.EntityMetadata.ZERO_KEY;
+import static protostuffdb.Jni.TOKEN_AS_USER;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.asInt64;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.readByteArrayOffsetWithTypeAsSize;
 
@@ -14,6 +15,7 @@ import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
 import com.dyuproject.protostuffdb.Datastore;
+import com.dyuproject.protostuffdb.ValueUtil;
 import com.dyuproject.protostuffdb.WriteContext;
 
 /**
@@ -71,6 +73,12 @@ public final class CommentOps
             Pipe.Schema<Comment.PList> resPipeSchema, 
             RpcHeader header) throws IOException
     {
+        if (TOKEN_AS_USER && 
+                (header.authToken == null || !ValueUtil.isEqual(header.authToken, req.name)))
+        {
+            return res.unauthorized();
+        }
+        
         final byte[] lastSeenKey = req.key;
         
         final WriteContext context = res.context;
