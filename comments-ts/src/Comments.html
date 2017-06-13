@@ -318,7 +318,7 @@ export default {
                 comment_content = refs.comment_content,
                 comment_name = refs.comment_name,
                 content = comment_content.value.trim(),
-                name = WITH_AUTH ? m.user_html : comment_name.value.trim(),
+                name = WITH_AUTH ? (this.get('user_nick') && m.user_html) : comment_name.value.trim(),
                 comment_errmsg = !content || !CONTENT_LIMIT || content.length <= CONTENT_LIMIT ? '' : CONTENT_ERRMSG
             
             if (!content || comment_errmsg) {
@@ -388,7 +388,7 @@ export default {
                 reply_content = refs.reply_content,
                 reply_name = refs.reply_name,
                 content = reply_content.value.trim(),
-                name = WITH_AUTH ? m.user_html : reply_name.value.trim()
+                name = WITH_AUTH ? (this.get('user_nick') && m.user_html) : reply_name.value.trim()
                 
             
             if (!content) {
