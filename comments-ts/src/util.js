@@ -226,7 +226,7 @@ function onAuth(e) {
     if (!type || !data || !data.es_token) {
         context.root$.auth$$F(data || 'Auth failed.')
     } else {
-        context.root$.auth$$S(data, type)
+        context.root$.auth$$S(data)
     }
 }
 

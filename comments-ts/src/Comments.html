@@ -126,11 +126,11 @@ function gitlabHtml(user, info) {
 }
 
 function resolveNick(session, m) {
-    let oauth_data = session.oauth_data,
-        info = oauth_data.info,
+    let auth_data = session.auth_data,
+        info = auth_data.info,
         user
     
-    switch (session.type) {
+    switch (auth_data.type) {
         case 1: // google
             user = info.name
             m.user_html = !(AUTH_GOOGLE & (AUTH_FLAGS >>> 4)) ? user : googleHtml(user, info)
@@ -144,14 +144,14 @@ function resolveNick(session, m) {
             m.user_html = !(AUTH_GITLAB & (AUTH_FLAGS >>> 4)) ? user : gitlabHtml(user, info)
             break
         default:
-            m.user_html = user = oauth_data.es_user
+            m.user_html = user = auth_data.es_user
     }
     
     return user
 }
 
 function postComment(url, payload, m) {
-    return rpc.post(!WITH_AUTH ? url : `${url}?access_token=${m.session.oauth_data.es_token}`, payload)
+    return rpc.post(!WITH_AUTH ? url : `${url}?access_token=${m.session.auth_data.es_token}`, payload)
 }
 
 export default {
@@ -188,7 +188,7 @@ export default {
         context.root$ = this
 
         let refs = this.refs,
-            session = storage.get('session') || { oauth_data: null, type: null, user: null }
+            session = storage.get('session') || { auth_data: null, user: null }
         
         Object.defineProperty(this, 'm', {
             enumerable: false,
@@ -219,7 +219,7 @@ export default {
         if (!WITH_AUTH) {
             refs.reply_name.addEventListener('keyup', keyupReplyName.bind(this))
             refs.comment_name.addEventListener('keyup', keyupCommentName.bind(this))
-        } else if (session.oauth_data) {
+        } else if (session.auth_data) {
             this.set({ user_nick: resolveNick(session, this.m) })
         }
         
@@ -416,18 +416,17 @@ export default {
             this.set({ errmsg: '' })
             popAuth(target)
         },
-        auth$$S(oauth_data, type) {
+        auth$$S(auth_data) {
             if (this.get('loading')) return
 
             var m = this.m,
                 session = m.session
 
-            session.type = type
-            session.oauth_data = oauth_data
+            session.auth_data = auth_data
 
             this.set({ loading: true })
 
-            rpc.$get(AUTH_HOST + '/auth/user/login?es_token=' + oauth_data.es_token)
+            rpc.$get(AUTH_HOST + '/auth/user/login?es_token=' + auth_data.es_token)
                     .then(m.login$$S).then(undefined, m.login$$F)
         },
         auth$$F(errmsg) {
@@ -438,8 +437,8 @@ export default {
         login$$S(data) {
             var m = this.m,
                 session = m.session,
-                oauth_data = session.oauth_data,
-                es_user = oauth_data.es_user,
+                auth_data = session.auth_data,
+                es_user = auth_data.es_user,
                 user = data['2']
             
             if (es_user !== user['3']) return
