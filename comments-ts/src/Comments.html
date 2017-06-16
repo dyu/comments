@@ -67,7 +67,7 @@
 import {
     POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize, range,
-    toTree, toFetchPayload, toPayload, toKeyArray, popAuth,
+    toTree, toFetchPayload, toPayload, popAuth,
     WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GOOGLE, AUTH_GITHUB, AUTH_GITLAB
 } from './util'
 import * as rpc from './rpc'
@@ -485,7 +485,6 @@ export default {
             var m = this.m,
                 keyChain = data['3'],
                 name = data['4'],
-                keys,
                 parent
             
             if (!keyChain) {
@@ -506,7 +505,16 @@ export default {
                 return
             }
 
-            // TODO
+            var map = m.root_map,
+                item
+            
+            for (var offset = 0, len = Math.floor(keyChain.length / 12); len-- > 0; offset += 12) {
+                if (!(item = map[keyChain.substring(offset, offset + 12)])) break
+                map = item.map
+                parent = item
+            }
+            
+            this.fetch$$(false, parent && parent.v$)
         },
         onopen() {
             console.log('Connected to ' + this.m.ws_host)

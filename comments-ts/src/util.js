@@ -118,14 +118,6 @@ export function extractMsg(data) {
     return Array.isArray(data) ? data[1]['1'] : String(data);
 }
 
-export function toKeyArray(keyChain) {
-    var array = []
-    for (var offset = 0, len = Math.floor(keyChain.length / 12); len-- > 0; offset += 12) {
-        array.push(keyChain.substring(offset, 12))
-    }
-    return array
-}
-
 // ==================================================
 
 export function toFetchPayload(items, parent) {
