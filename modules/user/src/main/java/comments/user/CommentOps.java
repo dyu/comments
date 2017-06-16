@@ -137,6 +137,7 @@ public final class CommentOps
         public void writeTo(Output output, Comment message) throws IOException
         {
             output.writeFixed64(Comment.FN_POST_ID, message.postId, false);
+            output.writeString(Comment.FN_NAME, message.name, false);
             if (message.depth == 0)
                 return;
             
