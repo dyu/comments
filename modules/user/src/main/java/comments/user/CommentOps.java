@@ -6,6 +6,7 @@ import static com.dyuproject.protostuffdb.EntityMetadata.ZERO_KEY;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.asInt64;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.readByteArrayOffsetWithTypeAsSize;
 import static protostuffdb.Jni.TOKEN_AS_USER;
+import static protostuffdb.Jni.WITH_PUBSUB;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -125,7 +126,8 @@ public final class CommentOps
     
     static boolean pub(Comment req, RpcResponse res) throws IOException
     {
-        res.output.writeObject(Comment.PList.FN_PUB, req, PUB_SCHEMA, false);
+        if (WITH_PUBSUB)
+            res.output.writeObject(Comment.PList.FN_PUB, req, PUB_SCHEMA, false);
         return true;
     }
     
