@@ -1,6 +1,6 @@
-## 0.4.0
+## 0.4.0 (2017-06-16)
 
-* 
+* authenticated comments via google/github/gitlab oauth
 
 ## 0.3.0 (2017-06-12)
 
