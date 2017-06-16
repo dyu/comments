@@ -67,7 +67,7 @@
 import {
     POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize, range,
-    toTree, toFetchPayload, toPayload, popAuth,
+    toTree, toFetchPayload, toPayload, toKeyArray, popAuth,
     WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GOOGLE, AUTH_GITHUB, AUTH_GITLAB
 } from './util'
 import * as rpc from './rpc'
@@ -217,9 +217,11 @@ export default {
                 onclose: this.onclose.bind(this),
                 connect: this.connect.bind(this),
 
+                root_map: {},
+
                 comment_user: '',
                 reply_user: '',
-                ts: 0,
+                reply_depth: 0,
                 
                 ws_host,
                 ws_reconnect_seconds,
@@ -399,8 +401,8 @@ export default {
                 reply_content = refs.reply_content,
                 reply_name = refs.reply_name,
                 content = reply_content.value.trim(),
-                name = WITH_AUTH ? m.user_html : reply_name.value.trim()
-                
+                name = WITH_AUTH ? m.user_html : reply_name.value.trim(),
+                item
             
             if (!content) {
                 this.set({ reply_content_err: true, reply_name_err: false, reply_errmsg: '' })
@@ -417,9 +419,12 @@ export default {
                 reply_content_err: false, reply_name_err: false, reply_errmsg: ''
             })
 
-            m.reply_user = name
+            item = context.reply$.get('item')
 
-            postComment('/comments/user/Comment/create', toPayload(name, content, context.reply$.get('item')), m)
+            m.reply_user = name
+            m.reply_depth = 1 + item['7']
+
+            postComment('/comments/user/Comment/create', toPayload(name, content, item), m)
                     .then(m.reply$$S).then(undefined, m.reply$$F)
         },
         // auth
@@ -477,15 +482,30 @@ export default {
                 postId
             if (!data || !(postId = data['6']) || postId !== POST_ID) return
             
-            var comment_user = data['4'],
-                parentKey = data['8']
+            var m = this.m,
+                keyChain = data['3'],
+                name = data['4'],
+                keys,
+                parent
             
-            if (!parentKey) {
+            if (!keyChain) {
                 // fetch newer
-                comment_user !== this.m.comment_user && this.fetch$$()
+                name !== m.comment_user && this.fetch$$()
                 return
             }
-            
+
+            if (name === m.reply_user && m.reply_depth === Math.floor(keyChain.length / 12)) {
+                // same user
+                return
+            }
+
+            if (keyChain.length === 12) {
+                // root key
+                parent = m.root_map[keyChain]
+                this.fetch$$(false, parent && parent.v$)
+                return
+            }
+
             // TODO
         },
         onopen() {
