@@ -141,13 +141,9 @@ public final class CommentOps
             if (message.depth == 0)
                 return;
             
-            output.writeByteArray(Comment.FN_PARENT_KEY, message.parentKey, false);
-            if (message.depth == 1)
-                return;
-            
-            // root comment key
+            // start at the parent key
             output.writeByteRange(false, Comment.FN_KEY_CHAIN, 
-                    message.keyChain, 9, 9, false);
+                    message.keyChain, 9, message.keyChain.length - 9, false);
         }
     };
 }
