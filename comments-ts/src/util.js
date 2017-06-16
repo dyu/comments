@@ -196,8 +196,7 @@ export function toTree(raw_items, items, parent, fromSubmit) {
     return items
 }
 
-const iframe = document.getElementById('comments-auth'),
-    href = window.location.href,
+const href = window.location.href,
     fnEvent = window.addEventListener || window.attachEvent,
     keyEvent = !window.addEventListener ? 'onmessage' : 'message',
     alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
@@ -210,12 +209,20 @@ export function randomText(len) {
     return text
 }
 
-var html, pmid
+var pmpage, pmid, iframe
 export function popAuth(type) {
     // always load
-    html = html ? '' : type + '.html'
+    pmpage = pmpage ? '' : type + '.html'
     pmid = randomText(10)
-    iframe.src = AUTH_HOST + '/iframe/' + html + '#' +pmid + '~' + type + '~' + href
+
+    if (!iframe) {
+        iframe = document.createElement('iframe')
+        iframe.style.width = '100%'
+        iframe.style.border = 'none'
+        document.body.appendChild(iframe)
+    }
+
+    iframe.src = AUTH_HOST + '/iframe/' + pmpage + '#' +pmid + '~' + type + '~' + href
 }
 
 function onAuth(e) {
