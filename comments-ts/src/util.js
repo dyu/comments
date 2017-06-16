@@ -150,7 +150,7 @@ function addTo(parent, item) {
     inc(parent)
 }
 
-export function toTree(raw_items, items, parent, fromSubmit) {
+export function toTree(raw_items, items, m, parent, fromSubmit) {
     let start_depth = !parent ? 0 : 1 + parent['7'],
         last_item = !items.length ? null : items[items.length - 1],
         last_depth = !last_item ? start_depth : last_item['7'],

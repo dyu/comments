@@ -54,8 +54,6 @@
 <div ref:controls class="hide">
   <span class="{{ total_count ? 'count' : 'hide' }}">{{ total_count }}</span>
   <span>{{ !total_count ? 'No comments yet' : pluralize(total_count, 'comment') }}</span>&nbsp;
-  <button ref:refresh type="button" class="outlined" title="refresh" on:click="fetch$$()">r</button>
-  <span class="legend">= refresh</span>
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items.length) }} ]
   </button>
@@ -68,7 +66,7 @@
 <script>
 import {
     POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, context, extractMsg,
-    append, plus_minus, pluralize,
+    append, plus_minus, pluralize, range,
     toTree, toFetchPayload, toPayload, popAuth,
     WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GOOGLE, AUTH_GITHUB, AUTH_GITLAB
 } from './util'
@@ -89,10 +87,7 @@ function checkInitial(m, refs, refresh$) {
         m.initial = false
         disable(false, refs.comment_content, refs.comment_name, refs.comment_btn)
         refs.controls.setAttribute('class', 'controls')
-    } else {
-        refs.refresh.disabled = false
-        if (refresh$)
-            refresh$.refs.refresh.disabled = false
+        window.setTimeout(m.connect, 100)
     }
 
     return refresh$
@@ -188,7 +183,10 @@ export default {
         context.root$ = this
 
         let refs = this.refs,
-            session = storage.get('session') || { auth_data: null, user: null }
+            session = storage.get('session') || { auth_data: null, user: null },
+            ws_protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://',
+            ws_host = ws_protocol + window.location.hostname + ':' + (window['comments_ws_port'] || '5020'),
+            ws_reconnect_seconds = range(window['comments_ws_reconnect_seconds'], 1, 60*60, 5)
         
         Object.defineProperty(this, 'm', {
             enumerable: false,
@@ -211,7 +209,21 @@ export default {
                 login$$F: this.login$$F.bind(this),
 
                 user_html: null,
-                session
+                session,
+
+                // websocket
+                onmessage: this.onmessage.bind(this),
+                onopen: this.onopen.bind(this),
+                onclose: this.onclose.bind(this),
+                connect: this.connect.bind(this),
+
+                comment_user: '',
+                reply_user: '',
+                ts: 0,
+                
+                ws_host,
+                ws_reconnect_seconds,
+                ws: null
             }
         })
 
@@ -246,12 +258,12 @@ export default {
                 this.set({
                     loading: false,
                     total_count: array.length + this.get('total_count'),
-                    items: toTree(array, this.get('items'), null)
+                    items: toTree(array, this.get('items'), this.m, null)
                 })
             } else {
                 context.refresh$ = null
                 let item = refresh$.get('item'), parent = item.parent
-                toTree(array, item.children, item)
+                toTree(array, item.children, this.m, item)
                 this.set({
                     loading: false,
                     total_count: array.length + this.get('total_count')
@@ -276,14 +288,11 @@ export default {
                 payload = toFetchPayload()
             } else if (!refresh$) {
                 payload = toFetchPayload(this.get('items'))
-                this.refs.refresh.disabled = true
                 this.set({ loading: true, errmsg: '' })
             } else {
                 let item = refresh$.get('item')
                 context.refresh$ = refresh$
-                refresh$.refs.refresh.disabled = true
                 payload = toFetchPayload(item.children, item)
-                this.refs.refresh.disabled = true
                 this.set({ loading: true, errmsg: '' })
             }
             
@@ -304,7 +313,7 @@ export default {
             this.set({
                 loading: false, 
                 total_count: array.length + this.get('total_count'),
-                items: toTree(array, this.get('items'), null, true)
+                items: toTree(array, this.get('items'), this.m, null, true)
             })
         },
         comment$$F(err) {
@@ -336,6 +345,8 @@ export default {
                 comment_content_err: false, comment_name_err: false, comment_errmsg: ''
             })
 
+            m.comment_user = name
+
             postComment('/comments/user/Comment/create', toPayload(name, content), m)
                     .then(m.comment$$S).then(undefined, m.comment$$F)
         },
@@ -364,7 +375,7 @@ export default {
             reply_content.value = ''
             reply_name.value = ''
 
-            toTree(array, item.children, item, true)
+            toTree(array, item.children, this.m, item, true)
 
             this.m.reply_form_parent.appendChild(refs.reply_form)
             disable(false, reply_content, reply_name, refs.reply_btn)
@@ -406,9 +417,12 @@ export default {
                 reply_content_err: false, reply_name_err: false, reply_errmsg: ''
             })
 
+            m.reply_user = name
+
             postComment('/comments/user/Comment/create', toPayload(name, content, context.reply$.get('item')), m)
                     .then(m.reply$$S).then(undefined, m.reply$$F)
         },
+        // auth
         pop(target) {
             var m = this.m
             if (this.get('loading')) return
@@ -456,6 +470,39 @@ export default {
             storage.remove('session')
             this.m.user_html = ''
             this.set({ user_nick: '' })
+        },
+        // websocket
+        onmessage(e) {
+            var data = JSON.parse(e.data),
+                postId
+            if (!data || !(postId = data['6']) || postId !== POST_ID) return
+            
+            var comment_user = data['4'],
+                parentKey = data['8']
+            
+            if (!parentKey) {
+                // fetch newer
+                comment_user !== this.m.comment_user && this.fetch$$()
+                return
+            }
+            
+            // TODO
+        },
+        onopen() {
+            console.log('Connected to ' + this.m.ws_host)
+        },
+        onclose() {
+            window.setTimeout(this.m.connect, 1000 * this.m.ws_reconnect_seconds)
+        },
+        connect() {
+            var m = this.m,
+                ws = new WebSocket(m.ws_host)
+            
+            m.ws = ws
+            
+            ws.onopen = m.onopen
+            ws.onclose = m.onclose
+            ws.onmessage = m.onmessage
         }
     }
 }
