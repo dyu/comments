@@ -3,19 +3,20 @@
 package comments.user;
 
 import static com.dyuproject.protostuffdb.EntityMetadata.ZERO_KEY;
-import static protostuffdb.Jni.TOKEN_AS_USER;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.asInt64;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.readByteArrayOffsetWithTypeAsSize;
+import static protostuffdb.Jni.TOKEN_AS_USER;
 
 import java.io.IOException;
 import java.util.Arrays;
 
+import com.dyuproject.protostuff.CustomSchema;
 import com.dyuproject.protostuff.KeyBuilder;
+import com.dyuproject.protostuff.Output;
 import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
 import com.dyuproject.protostuffdb.Datastore;
-import com.dyuproject.protostuffdb.ValueUtil;
 import com.dyuproject.protostuffdb.WriteContext;
 
 /**
@@ -73,11 +74,8 @@ public final class CommentOps
             Pipe.Schema<Comment.PList> resPipeSchema, 
             RpcHeader header) throws IOException
     {
-        if (TOKEN_AS_USER && 
-                (header.authToken == null || !ValueUtil.isEqual(header.authToken, req.name)))
-        {
+        if (TOKEN_AS_USER && header.authToken == null)
             return res.unauthorized();
-        }
         
         final byte[] lastSeenKey = req.key;
         
@@ -97,7 +95,7 @@ public final class CommentOps
         req.key = key;
         
         if (req.parentKey == ZERO_KEY)
-            return CommentViews.visitWith(req.postId, lastSeenKey, store, res);
+            return CommentViews.visitWith(req.postId, lastSeenKey, store, res) && pub(req, res);
         
         // user posted a reply
         final KeyBuilder kb = context.kb()
@@ -122,6 +120,31 @@ public final class CommentOps
                 .$append(req.postId)
                 .$append(req.keyChain)
                 .$append8(0xFF)
-                .$push());
+                .$push()) && pub(req, res);
     }
+    
+    static boolean pub(Comment req, RpcResponse res) throws IOException
+    {
+        res.output.writeObject(Comment.PList.FN_PUB, req, PUB_SCHEMA, false);
+        return true;
+    }
+    
+    static final CustomSchema<Comment> PUB_SCHEMA = new CustomSchema<Comment>(Comment.getSchema())
+    {
+        @Override
+        public void writeTo(Output output, Comment message) throws IOException
+        {
+            output.writeFixed64(Comment.FN_POST_ID, message.postId, false);
+            if (message.depth == 0)
+                return;
+            
+            output.writeByteArray(Comment.FN_PARENT_KEY, message.parentKey, false);
+            if (message.depth == 1)
+                return;
+            
+            // root comment key
+            output.writeByteRange(false, Comment.FN_KEY_CHAIN, 
+                    message.keyChain, 9, 9, false);
+        }
+    };
 }

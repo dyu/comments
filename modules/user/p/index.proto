@@ -54,6 +54,7 @@ message Comment {
     
     rpc listByPostId(ByPostId) returns (Comment.PList);
     
+    @Pub(last_field = true)
     rpc create(Comment) returns (Comment.PList);
   }
   
@@ -87,6 +88,6 @@ message Comment {
   @Key(entity = Comment)
   optional bytes parent_key = 8 [default = "", immutable = true];
 
-  message PList { repeated Comment p = 1; }
+  message PList { repeated Comment p = 1; optional Comment pub = 2; }
 }
 

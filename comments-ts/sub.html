@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>subscribe to published data</title>
+  </head>
+  <body>
+    <textarea id="ta"></textarea>
+    <button id="btn">Reconnect</button>
+    <script>(function(){
+    var ta = document.getElementById('ta'),
+        btn = document.getElementById('btn'),
+        ws_protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://',
+        ws
+    function onmessage(e) {
+        ta.value += e.data + '\n\n'
+    }
+    function onopen() {
+        ta.value += '--------------- Connected.\n\n'
+        btn.style.display = 'none'
+    }
+    function onclose() {
+        ta.value += '--------------- Disconnected.\n\n'
+        btn.disabled = false
+        btn.style.display = 'inline-block'
+    }
+    function connect() {
+        btn.disabled = true
+        ws = new WebSocket(ws_protocol + window.location.hostname + ':' + 5020)
+        ws.onopen = onopen
+        ws.onclose = onclose
+        ws.onmessage = onmessage
+    }
+    btn.onclick = connect
+    connect()
+    })();</script>
+    <style>
+    body, textarea {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+    #ta { width:100%; border:none; min-height:21rem; height:35rem; margin:0.5em 0; }
+    #btn { background:transparent; border:none; cursor:pointer; color:#0080ff; font-size:1.2em; display:none; }
+    </style>
+  </body>
+</html>

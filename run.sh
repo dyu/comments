@@ -48,5 +48,5 @@ esac
 
 mkdir -p $DATA_DIR
 
-$BIN $PORT comments-ts/g/user/UserServices.json $ARGS -Djava.class.path=$JAR comments.all.Main
+$BIN $PORT comments-ts/g/user/UserServices.json $ARGS -Dprotostuffdb.with_pubsub=true -Djava.class.path=$JAR comments.all.Main
 

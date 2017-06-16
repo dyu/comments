@@ -9,7 +9,7 @@ UMask=0002
 WorkingDirectory=/home/deploy/projects/comments/current
 Restart=on-failure
 #RestartSec=3
-ExecStart=/opt/protostuffdb/bin/protostuffdb 5020 comments-ts/g/user/UserServices.json -Xms128m -Xmx128m -XX:NewRatio=1 -Djava.class.path=comments-all/target/comments-all-jarjar.jar comments.all.Main
+ExecStart=/opt/protostuffdb/bin/protostuffdb 5020 comments-ts/g/user/UserServices.json -Xms128m -Xmx128m -XX:NewRatio=1 -Dprotostuffdb.with_pubsub=true -Djava.class.path=comments-all/target/comments-all-jarjar.jar comments.all.Main
 
 [Install]
 WantedBy=multi-user.target
