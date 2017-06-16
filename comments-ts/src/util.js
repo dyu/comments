@@ -221,8 +221,8 @@ export function popAuth(type) {
         iframe.style.border = 'none'
         document.body.appendChild(iframe)
     }
-
-    iframe.src = AUTH_HOST + '/iframe/' + pmpage + '#' +pmid + '~' + type + '~' + href
+    
+    iframe.src = AUTH_HOST + '/iframe/' + pmpage + '#' + pmid + '~' + type + '~' + href
 }
 
 function onAuth(e) {
