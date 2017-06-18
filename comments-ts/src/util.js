@@ -68,6 +68,12 @@ export function pluralize(num, str, suffix, with_num) {
     return buf
 }
 
+export function delayEventHandler(obj, key, timeout) {
+    return function (e) {
+        window.setTimeout(function () { obj[key](e) }, timeout)
+    }
+}
+
 export function sanitize(str) {
     return dompurify.sanitize(str)
 }

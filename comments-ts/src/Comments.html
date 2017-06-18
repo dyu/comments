@@ -67,7 +67,7 @@
 import {
     POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize, range,
-    toTree, toFetchPayload, toPayload, popAuth,
+    toTree, toFetchPayload, toPayload, popAuth, delayEventHandler,
     WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GOOGLE, AUTH_GITHUB, AUTH_GITLAB
 } from './util'
 import * as rpc from './rpc'
@@ -212,16 +212,16 @@ export default {
                 session,
 
                 // websocket
-                onmessage: this.onmessage.bind(this),
                 onopen: this.onopen.bind(this),
                 onclose: this.onclose.bind(this),
                 connect: this.connect.bind(this),
+                // delay by 1 second
+                onmessage: delayEventHandler(this, 'onmessage', 1000),
 
                 root_map: {},
 
-                comment_user: '',
-                reply_user: '',
-                reply_depth: 0,
+                comment_key: '',
+                reply_key: '',
                 
                 ws_host,
                 ws_reconnect_seconds,
@@ -302,20 +302,24 @@ export default {
                     .then(m.fetch$$S).then(undefined, m.fetch$$F)
         },
         comment$$S(data) {
-            let refs = this.refs,
+            let m = this.m,
+                refs = this.refs,
                 comment_content = refs.comment_content,
                 comment_name = refs.comment_name,
-                array = data['1']
+                array = data['1'],
+                pub = data['2']
             
             comment_content.value = ''
             comment_name.value = ''
 
+            m.comment_key = pub && pub['1']
+            
             //context.raw_items = context.raw_items.concat(array)
             disable(false, comment_content, comment_name, refs.comment_btn)
             this.set({
                 loading: false, 
                 total_count: array.length + this.get('total_count'),
-                items: toTree(array, this.get('items'), this.m, null, true)
+                items: toTree(array, this.get('items'), m, null, true)
             })
         },
         comment$$F(err) {
@@ -347,8 +351,6 @@ export default {
                 comment_content_err: false, comment_name_err: false, comment_errmsg: ''
             })
 
-            m.comment_user = name
-
             postComment('/comments/user/Comment/create', toPayload(name, content), m)
                     .then(m.comment$$S).then(undefined, m.comment$$F)
         },
@@ -366,10 +368,12 @@ export default {
             refs.reply_content.focus()
         },
         reply$$S(data) {
-            let refs = this.refs,
+            let m = this.m,
+                refs = this.refs,
                 reply_content = refs.reply_content,
                 reply_name = refs.reply_name,
                 array = data['1'],
+                pub = data['2'],
                 reply$ = context.reply$,
                 item = reply$.get('item'),
                 parent = item.parent
@@ -377,7 +381,9 @@ export default {
             reply_content.value = ''
             reply_name.value = ''
 
-            toTree(array, item.children, this.m, item, true)
+            m.reply_key = pub && pub['1']
+
+            toTree(array, item.children, m, item, true)
 
             this.m.reply_form_parent.appendChild(refs.reply_form)
             disable(false, reply_content, reply_name, refs.reply_btn)
@@ -420,9 +426,6 @@ export default {
             })
 
             item = context.reply$.get('item')
-
-            m.reply_user = name
-            m.reply_depth = 1 + item['7']
 
             postComment('/comments/user/Comment/create', toPayload(name, content, item), m)
                     .then(m.reply$$S).then(undefined, m.reply$$F)
@@ -478,23 +481,22 @@ export default {
         },
         // websocket
         onmessage(e) {
-            var data = JSON.parse(e.data),
-                postId
-            if (!data || !(postId = data['6']) || postId !== POST_ID) return
+            var data = JSON.parse(e.data)
+            if (!data || POST_ID !== data['6']) return
             
             var m = this.m,
+                key = data['1'],
                 keyChain = data['3'],
-                name = data['4'],
                 parent
             
             if (!keyChain) {
-                // fetch newer
-                name !== m.comment_user && this.fetch$$()
+                // fetch newer if not sent by current user
+                key !== m.comment_key && this.fetch$$()
                 return
             }
 
-            if (name === m.reply_user && m.reply_depth === Math.floor(keyChain.length / 12)) {
-                // same user
+            if (key === m.reply_key) {
+                // sent by current user
                 return
             }
 
@@ -520,7 +522,9 @@ export default {
             console.log('Connected to ' + this.m.ws_host)
         },
         onclose() {
-            window.setTimeout(this.m.connect, 1000 * this.m.ws_reconnect_seconds)
+            var secs = this.m.ws_reconnect_seconds
+            window.setTimeout(this.m.connect, 1000 * secs)
+            console.log(`Reconnecting in ${secs} second(s)`)
         },
         connect() {
             var m = this.m,

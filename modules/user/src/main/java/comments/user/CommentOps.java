@@ -136,6 +136,7 @@ public final class CommentOps
         @Override
         public void writeTo(Output output, Comment message) throws IOException
         {
+            output.writeByteArray(Comment.FN_KEY, message.key, false);
             output.writeFixed64(Comment.FN_POST_ID, message.postId, false);
             output.writeString(Comment.FN_NAME, message.name, false);
             if (message.depth == 0)
