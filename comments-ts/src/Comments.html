@@ -65,9 +65,10 @@
 </dl>
 <script>
 import {
-    POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, context, extractMsg,
+    CONFIG, POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize, range,
     toTree, toFetchPayload, toPayload, popAuth, delayEventHandler,
+    WS_HOST, WS_RECONNECT_SECS, WS_LOG,
     WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GOOGLE, AUTH_GITHUB, AUTH_GITLAB
 } from './util'
 import * as rpc from './rpc'
@@ -182,11 +183,11 @@ export default {
     oncreate () {
         context.root$ = this
 
+        rpc.setPrefix(CONFIG['rpc_host'] || '')
+
         let refs = this.refs,
-            session = storage.get('session') || { auth_data: null, user: null },
-            ws_protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://',
-            ws_host = ws_protocol + window.location.hostname + ':' + (window['comments_ws_port'] || '5020'),
-            ws_reconnect_seconds = range(window['comments_ws_reconnect_seconds'], 1, 60*60, 5)
+            session_default = { auth_data: null, user: null },
+            session = !WITH_AUTH ? session_default : (storage.get('session') || session_default)
         
         Object.defineProperty(this, 'm', {
             enumerable: false,
@@ -223,8 +224,6 @@ export default {
                 comment_key: '',
                 reply_key: '',
                 
-                ws_host,
-                ws_reconnect_seconds,
                 ws: null
             }
         })
@@ -519,16 +518,15 @@ export default {
             this.fetch$$(false, parent && parent.v$)
         },
         onopen() {
-            console.log('Connected to ' + this.m.ws_host)
+            if (WS_LOG) console.log('Connected to ' + WS_HOST)
         },
         onclose() {
-            var secs = this.m.ws_reconnect_seconds
-            window.setTimeout(this.m.connect, 1000 * secs)
-            console.log(`Reconnecting in ${secs} second(s)`)
+            window.setTimeout(this.m.connect, 1000 * WS_RECONNECT_SECS)
+            if (WS_LOG) console.log(`Reconnecting in ${secs} second(s)`)
         },
         connect() {
             var m = this.m,
-                ws = new WebSocket(m.ws_host)
+                ws = new WebSocket(WS_HOST)
             
             m.ws = ws
             

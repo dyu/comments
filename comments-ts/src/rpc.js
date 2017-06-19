@@ -79,6 +79,9 @@ var config_default = {
 window['rpc_config_d'] = config_default;
 var config = window['rpc_config'] || config_default;
 var prefix = window['rpc_host'] || '';
+export function setPrefix(host) {
+    prefix = host
+}
 export function setAuthHandler(handler) {
     config.auth$$ = handler;
 }

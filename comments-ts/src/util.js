@@ -24,16 +24,25 @@ function resolvePostId(id) {
     return id
 }
 
-export const POST_ID = resolvePostId(window['comments_post_id']),
-    AUTH_HOST = window['comments_auth_host'],
+function resolveWsHost(suffix) {
+    var p = window.location.protocol === 'https:' ? 'wss://' : 'ws://'
+    return p + window.location.hostname + suffix
+}
+
+export const CONFIG = window['comments_config'] || {},
+    POST_ID = resolvePostId(CONFIG['post_id']),
+    WS_HOST = CONFIG['ws_host'] || resolveWsHost(':5020'),
+    WS_RECONNECT_SECS = range(CONFIG['ws_reconnect_secs'], 1, 60*60, 5),
+    WS_LOG = range(CONFIG['ws_log'], 0, 1, 1),
+    AUTH_HOST = CONFIG['auth_host'],
     WITH_AUTH = !!AUTH_HOST,
     AUTH_GOOGLE = 1,
     AUTH_GITHUB = 2,
     AUTH_GITLAB = 4,
-    AUTH_FLAGS = range(window['comments_auth_flags'], 1, 0xFF, 0x07),
-    MAX_DEPTH = range(window['comments_max_depth'], 0, 127, 7),
-    COLLAPSE_DEPTH = range(window['comments_collapse_depth'], -1, 127, -1),
-    CONTENT_LIMIT = range(window['comments_content_limit'], 0, 8192, 0),
+    AUTH_FLAGS = range(CONFIG['auth_flags'], 1, 0xFF, 0x07),
+    MAX_DEPTH = range(CONFIG['max_depth'], 0, 127, 7),
+    COLLAPSE_DEPTH = range(CONFIG['collapse_depth'], -1, 127, -1),
+    CONTENT_LIMIT = range(CONFIG['content_limit'], 0, 8192, 0),
     CONTENT_ERRMSG = 'The content is too long'
 
 export const context = {
