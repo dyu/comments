@@ -43,7 +43,8 @@ export const CONFIG = window['comments_config'] || {},
     LIMIT_DEPTH = range(CONFIG['limit_depth'], 0, 127, 7),
     COLLAPSE_DEPTH = range(CONFIG['collapse_depth'], -1, 127, -1),
     CONTENT_LIMIT = range(CONFIG['content_limit'], 0, 8192, 0),
-    CONTENT_ERRMSG = 'The content is too long'
+    CONTENT_ERRMSG = 'The content is too long',
+    NAME_ERRMSG = 'Name cannot be more than 64 characters'
 
 export const context = {
     raw_items: [],

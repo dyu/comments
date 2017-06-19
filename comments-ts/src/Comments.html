@@ -65,7 +65,7 @@
 </dl>
 <script>
 import {
-    CONFIG, POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, context, extractMsg,
+    CONFIG, POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, NAME_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize, range,
     toTree, toFetchPayload, toPayload, popAuth, delayEventHandler,
     WS_HOST, WS_RECONNECT_SECS, WS_LOG,
@@ -339,7 +339,7 @@ export default {
                 this.set({ comment_content_err: true, comment_name_err: false, comment_errmsg })
                 return
             }
-            if (!name) {
+            if (!name || (!WITH_AUTH && name.length > 64 && !!(comment_errmsg = NAME_ERRMSG))) {
                 this.set({ comment_content_err: false, comment_name_err: true, comment_errmsg })
                 return
             }
@@ -407,14 +407,15 @@ export default {
                 reply_name = refs.reply_name,
                 content = reply_content.value.trim(),
                 name = WITH_AUTH ? m.user_html : reply_name.value.trim(),
+                reply_errmsg = !content || !CONTENT_LIMIT || content.length <= CONTENT_LIMIT ? '' : CONTENT_ERRMSG,
                 item
             
-            if (!content) {
-                this.set({ reply_content_err: true, reply_name_err: false, reply_errmsg: '' })
+            if (!content || reply_errmsg) {
+                this.set({ reply_content_err: true, reply_name_err: false, reply_errmsg })
                 return
             }
-            if (!name) {
-                this.set({ reply_content_err: false, reply_name_err: true, reply_errmsg: '' })
+            if (!name || (!WITH_AUTH && name.length > 64 && !!(reply_errmsg = NAME_ERRMSG))) {
+                this.set({ reply_content_err: false, reply_name_err: true, reply_errmsg })
                 return
             }
 
