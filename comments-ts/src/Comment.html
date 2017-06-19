@@ -19,7 +19,7 @@
 </div>
 <script>
 import {
-    MAX_DEPTH, context,
+    LIMIT_DEPTH, context,
     timeago, append, plus_minus, sanitize,
     toHTML, toHexColor
 } from './util'
@@ -36,7 +36,7 @@ export default {
         append,
         plus_minus,
         title: (count, total_count) => `direct replies: ${count}, nested replies: ${total_count - count}`,
-        reply_btn_class: (depth) => depth < MAX_DEPTH ? 'outlined' : 'hide'
+        reply_btn_class: (depth) => depth < LIMIT_DEPTH ? 'outlined' : 'hide'
     },
     oncreate() {
         let item = this.get('item'),
