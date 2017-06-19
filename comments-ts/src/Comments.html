@@ -57,6 +57,7 @@
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items.length) }} ]
   </button>
+  <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">&nbsp;*</span>
 </div>
 <dl class="{{ items.length ? '' : 'hide' }}">
 {{#each items as item}}
@@ -88,7 +89,7 @@ function checkInitial(m, refs, refresh$) {
         m.initial = false
         disable(false, refs.comment_content, refs.comment_name, refs.comment_btn)
         refs.controls.setAttribute('class', 'controls')
-        window.setTimeout(m.connect, 100)
+        window.setTimeout(m.connect, 1000)
     }
 
     return refresh$
@@ -170,6 +171,7 @@ export default {
         // auth
         with_auth: WITH_AUTH,
         auth_flags: AUTH_FLAGS,
+        connected: false,
         user_nick: ''
     }),
     components: {
@@ -519,11 +521,13 @@ export default {
             this.fetch$$(false, parent && parent.v$)
         },
         onopen() {
+            this.set({ connected: true })
             if (WS_LOG) console.log('Connected to ' + WS_HOST)
         },
         onclose() {
+            this.set({ connected: false })
             window.setTimeout(this.m.connect, 1000 * WS_RECONNECT_SECS)
-            if (WS_LOG) console.log(`Reconnecting in ${secs} second(s)`)
+            if (WS_LOG) console.log(`Reconnecting in ${WS_RECONNECT_SECS} second(s)`)
         },
         connect() {
             var m = this.m,

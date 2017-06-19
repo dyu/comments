@@ -93,6 +93,12 @@ div.inline {
     font-weight: bold;
     font-size: 1.1em;
   }
+  > span.symbol {
+    color: $hard-gray;
+    font-weight: bold;
+    font-size: 1.1em;
+    cursor: default;
+  }
 }
 span {
   > button {
