@@ -69,7 +69,7 @@ import {
     CONFIG, POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, NAME_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize, range,
     toTree, toFetchPayload, toPayload, popAuth, delayEventHandler,
-    WS_HOST, WS_RECONNECT_SECS, WS_LOG,
+    WS_HOST, WS_RECONNECT_SECS,
     WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GOOGLE, AUTH_GITHUB, AUTH_GITLAB
 } from './util'
 import * as rpc from './rpc'
@@ -522,12 +522,10 @@ export default {
         },
         onopen() {
             this.set({ connected: true })
-            if (WS_LOG) console.log('Connected to ' + WS_HOST)
         },
         onclose() {
             this.set({ connected: false })
             window.setTimeout(this.m.connect, 1000 * WS_RECONNECT_SECS)
-            if (WS_LOG) console.log(`Reconnecting in ${WS_RECONNECT_SECS} second(s)`)
         },
         connect() {
             var m = this.m,
