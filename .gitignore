@@ -1,5 +1,6 @@
-/comments-ts/dist
 /ansible/hosts.ini
+/comments-ts/dist
+/comments-ts/bin/*.tar.gz
 node_modules
 g
 target

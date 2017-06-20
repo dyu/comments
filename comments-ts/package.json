@@ -1,8 +1,14 @@
 {
   "name": "comments-ts",
-  "description": "A simple, self-hosted comment engine",
+  "description": "standalone binaries for a real-time comment engine with support for anonymous or authenticated posts",
   "author": "dyu",
-  "private": true,
+  "version": "0.5.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dyu/bookmarks.git"
+  },
+  "files": ["dist", "bin"],
   "scripts": {
     "build": "rollup -c --environment production && cleancss -O2 removeDuplicateRules:on dist/build.css > dist/build.min.css && mv dist/build.min.css dist/build.css",
     "dev": "rollup -c -w",
