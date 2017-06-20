@@ -45,6 +45,7 @@ function createCompatConfig(target, src) {
 
 export const CONFIG = window['comments_config'] || createCompatConfig({}, window),
     POST_ID = resolvePostId(CONFIG['post_id']),
+    UI_FLAGS = range(CONFIG['ui_flags'], 0, 15, 0),
     WITH_WS = !!CONFIG['ws_enabled'],
     WS_HOST = !WITH_WS ? '' : (CONFIG['ws_host'] || resolveWsHost(CONFIG['rpc_host'])),
     WS_RECONNECT_SECS = !WITH_WS ? 0 : range(CONFIG['ws_reconnect_secs'], 1, 60*60, 10),

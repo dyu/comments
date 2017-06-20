@@ -67,8 +67,12 @@
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items.length) }} ]
   </button>
+  {{#if !skip_load_more }}
   <button type="button" class="outlined" disabled="{{ loading }}" on:click="load(true)">load more</button>
+  {{/if}}
+  {{#if !skip_refresh }}
   <button type="button" class="outlined" disabled="{{ loading }}" on:click="load(false)">refresh</button>
+  {{/if}}
   <div class="legend btns">
     <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">*</span>
     <button class="stripped" disabled>Press</button>
@@ -86,7 +90,7 @@
 </dl>
 <script>
 import {
-    CONFIG, POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, NAME_ERRMSG, context, extractMsg,
+    CONFIG, POST_ID, UI_FLAGS, CONTENT_LIMIT, CONTENT_ERRMSG, NAME_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize, range,
     toHTML, toTree, toFetchPayload, toPayload, popAuth, delayEventHandler,
     WS_HOST, WS_RECONNECT_SECS,
@@ -200,6 +204,9 @@ export default {
         reply_preview: '',
 
         collapsed: false,
+
+        skip_refresh: 1 === (1 & UI_FLAGS),
+        skip_load_more: 2 === (2 & UI_FLAGS),
 
         // auth
         with_auth: WITH_AUTH,
