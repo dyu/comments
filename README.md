@@ -19,10 +19,11 @@ Put this anywhere in the html body (although it is advisable to put it last)
 <div id="comments"></div>
 <script>
 window.comments_config = {
-  ws_enabled: true, // real-time updates
   collapse_depth: 7, // the depth where comments get collapsed by default
   limit_depth: 10, // max: 127
   //auth_host: 'https://api.dyuproject.com', // if you prefer authenticated comments
+  ws_enabled: true, // real-time updates
+  ws_host: 'https://rpc.dyuproject.com/sub',
   rpc_host: 'https://rpc.dyuproject.com'
 }
 </script>
