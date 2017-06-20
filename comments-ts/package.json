@@ -1,5 +1,5 @@
 {
-  "name": "comments-ts",
+  "name": "dyu-comments",
   "description": "standalone binaries for a real-time comment engine with support for anonymous or authenticated posts",
   "author": "dyu",
   "version": "0.5.0",
