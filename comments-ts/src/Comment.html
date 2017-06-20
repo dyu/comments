@@ -1,6 +1,6 @@
 <div class="{{ !item.collapsed ? 'comment' : 'comment collapsed' }}">
   <span class="name"></span>
-  <span>
+  <span class="btns">
     <span class="timeago">{{ timeago(item['2']) }}</span>
     <button class="stripped" on:click="toggle(item)" title="{{title(item.children.length, item.total_child_count)}}">
       [ {{ plus_minus(item.collapsed, item.total_child_count) }} ]

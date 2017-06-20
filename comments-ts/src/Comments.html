@@ -63,20 +63,20 @@
 </div>
 <div ref:controls class="hide">
   <span class="{{ total_count ? 'count' : 'hide' }}">{{ total_count }}</span>
-  <span>{{ !total_count ? 'No comments yet' : pluralize(total_count, 'comment') }}</span>&nbsp;
+  <span>{{ !total_count ? 'No comments yet' : pluralize(total_count, 'comment') }}</span>
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items.length) }} ]
   </button>
   <button type="button" class="outlined" disabled="{{ loading }}" on:click="load(true)">load more</button>
   <button type="button" class="outlined" disabled="{{ loading }}" on:click="load(false)">refresh</button>
-  <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">&nbsp;*</span>
-  <span class="legend">
+  <div class="legend btns">
+    <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">*</span>
     <button class="stripped" disabled>Press</button>
     <button class="outlined" disabled>ctrl</button>
     <button class="stripped" disabled>+</button>
     <button class="outlined" disabled>space</button>
     <button class="stripped" disabled>to toggle markdown preview</button>
-  </span>
+  </div>
   <div style="clear:both"></div>
 </div>
 <dl class="{{ items.length ? '' : 'hide' }}">
