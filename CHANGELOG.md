@@ -1,3 +1,7 @@
+## 0.5.0 (2017-06-20)
+
+* real-time comments via protostuffdb's pubsub
+
 ## 0.4.0 (2017-06-16)
 
 * authenticated comments via google/github/gitlab oauth
