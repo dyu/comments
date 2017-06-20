@@ -51,6 +51,7 @@ export const CONFIG = window['comments_config'] || createCompatConfig({}, window
     WS_RECONNECT_SECS = !WITH_WS ? 0 : range(CONFIG['ws_reconnect_secs'], 1, 60*60, 10),
     AUTH_HOST = CONFIG['auth_host'],
     WITH_AUTH = !!AUTH_HOST,
+    AUTH_IFRAME = !WITH_AUTH ? '' : (CONFIG['auth_iframe'] || (AUTH_HOST + '/iframe/')),
     AUTH_GOOGLE = 1,
     AUTH_GITHUB = 2,
     AUTH_GITLAB = 4,
@@ -282,7 +283,7 @@ export function popAuth(type) {
         document.body.appendChild(iframe)
     }
     
-    iframe.src = AUTH_HOST + '/iframe/' + pmpage + '#' + pmid + '~' + type + '~' + href
+    iframe.src = AUTH_IFRAME + pmpage + '#' + pmid + '~' + type + '~' + href
 }
 
 function onAuth(e) {
