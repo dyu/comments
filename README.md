@@ -23,7 +23,7 @@ window.comments_config = {
   limit_depth: 10, // max: 127
   //auth_host: 'https://api.dyuproject.com', // if you prefer authenticated comments
   ws_enabled: true, // real-time updates
-  ws_host: 'https://rpc.dyuproject.com/sub',
+  ws_host: 'wss://rpc.dyuproject.com/sub',
   rpc_host: 'https://rpc.dyuproject.com'
 }
 </script>
