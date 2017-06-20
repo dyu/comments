@@ -77,8 +77,13 @@ div.inline {
   }
   > button.outlined {
     padding: 0 0.5em;
-    margin: 0;
-    border-color: $medium-gray;
+    margin: 0 0.25em;
+    color: lighten($primary-color, 20%);
+    border-color: lighten($primary-color, 20%);
+    &:hover {
+      color: $primary-color;
+      border-color: $primary-color;
+    }
   }
   > span {
     color: $medium-gray;
@@ -87,6 +92,10 @@ div.inline {
     color: lighten($medium-gray, 5%);
     font-style: italic;
     font-size: 0.9em;
+    > button {
+      margin-top: 0.35em;
+      color: $hard-gray;
+    }
   }
   > span.count {
     color: $hard-gray;
@@ -194,19 +203,25 @@ dl {
   display: none;
 }
 
-.reply-form {
+div.ta {
   position: relative;
   margin: 0 0 0.3em 0;
+}
+div.preview {
+  border-left: 3px solid $primary-color;
+  padding-left: 0.5em;
+}
+
+div.v-btns {
+  position: absolute;
   > button {
+    display: block;
+    line-height: 1rem;
     background: transparent;
-    line-height: 1em;
-    margin: 0;
+    margin: 0 0 0.5em 0;
     font-weight: bold;
     color: $primary-color;
-    position: absolute;
     padding: 0 0.2em !important;
-    right: 0;
-    top: 0;
     cursor: pointer;
     font-size: 0.9rem;
     &:focus, &:hover {
@@ -214,6 +229,12 @@ dl {
       color: #fff;
     }
   }
+}
+
+div.v-btns.top { top: 0; right: 0; }
+div.v-btns.bottom { top: 8.3rem; right: 0; }
+
+.reply-form {
   + button {
     display: none;
   }

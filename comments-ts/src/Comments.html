@@ -2,7 +2,13 @@
   <b on:click="set({ errmsg: '' })">x</b>
   <span>{{ errmsg }}</span>
 </div>
-<textarea ref:comment_content class="{{ !comment_content_err ? '' : 'error' }}"></textarea>
+<div class="ta">
+  <div class="v-btns bottom" title="preview">
+    <button tabindex="-1" type="button" on:click="preview('comment_preview', 'comment_content')">p</button>
+  </div>
+  <textarea ref:comment_content class="{{ !comment_content_err ? '' : 'error' }}"></textarea>
+  <div ref:comment_preview class="{{ comment_preview ? 'preview' : 'hide' }}"></div>
+</div>
 <div class="inline">
   {{#if with_auth }}
   <div class="{{ !comment_name_err ? 'ib' : 'ib error' }}">
@@ -25,9 +31,13 @@
   <span>{{ comment_errmsg }}</span>
 </div>
 <div style="display:none">
-  <div ref:reply_form class="reply-form">
-    <button type="button" on:click="reply$$hide_form()">x</button>
+  <div ref:reply_form class="reply-form ta">
+    <div class="v-btns top" title="close"><button type="button" on:click="reply$$hide_form()">x</button></div>
+    <div class="v-btns bottom" title="preview">
+      <button tabindex="-1" type="button" on:click="preview('reply_preview', 'reply_content')">p</button>
+    </div>
     <textarea ref:reply_content class="{{ !reply_content_err ? '' : 'error' }}"></textarea>
+    <div ref:reply_preview class="{{ reply_preview ? 'preview' : 'hide' }}"></div>
     <div class="{{ !reply_errmsg ? 'hide' : 'msg error' }}">
       <b on:click="set({ reply_errmsg: '' })">x</b>
       <span>{{ reply_errmsg }}</span>
@@ -57,6 +67,16 @@
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items.length) }} ]
   </button>
+  <span class="legend">
+    <button class="stripped" disabled>Press</button>
+    <button class="outlined" disabled>ctrl</button>
+    <button class="stripped" disabled>+</button>
+    <button class="outlined" disabled>space</button>
+    <button class="stripped" disabled>to toggle markdown preview</button>
+  </span>
+  <button type="button" class="outlined" title="refresh" disabled="{{ loading }}" on:click="fetch$$()">
+    refresh
+  </button>
   <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">&nbsp;*</span>
 </div>
 <dl class="{{ items.length ? '' : 'hide' }}">
@@ -68,7 +88,7 @@
 import {
     CONFIG, POST_ID, CONTENT_LIMIT, CONTENT_ERRMSG, NAME_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize, range,
-    toTree, toFetchPayload, toPayload, popAuth, delayEventHandler,
+    toHTML, toTree, toFetchPayload, toPayload, popAuth, delayEventHandler,
     WS_HOST, WS_RECONNECT_SECS,
     WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GOOGLE, AUTH_GITHUB, AUTH_GITLAB
 } from './util'
@@ -95,9 +115,20 @@ function checkInitial(m, refs, refresh$) {
     return refresh$
 }
 
+function keyupCommentContent(e) {
+    // ctrl + space
+    e.which === 32 && e.ctrlKey && this.preview('comment_preview', 'comment_content')
+}
+
 function keyupReplyContent(e) {
-    // escape key
-    e.which === 27 && this.reply$$hide_form()
+    switch (e.which) {
+        case 27: // escape
+            this.reply$$hide_form()
+            break
+        case 32: // space
+            e.ctrlKey && this.preview('reply_preview', 'reply_content')
+            break
+    }
 }
 
 function keyupReplyName(e) {
@@ -161,10 +192,12 @@ export default {
         comment_content_err: false,
         comment_name_err: false,
         comment_errmsg: '',
+        comment_preview: '',
 
         reply_content_err: false,
         reply_name_err: false,
         reply_errmsg: '',
+        reply_preview: '',
 
         collapsed: false,
 
@@ -230,6 +263,7 @@ export default {
             }
         })
 
+        refs.comment_content.addEventListener('keyup', keyupCommentContent.bind(this))
         refs.reply_content.addEventListener('keyup', keyupReplyContent.bind(this))
         if (!WITH_AUTH) {
             refs.reply_name.addEventListener('keyup', keyupReplyName.bind(this))
@@ -349,7 +383,7 @@ export default {
             disable(true, comment_content, comment_name, refs.comment_btn)
             this.set({
                 loading: true, errmsg: '',
-                comment_content_err: false, comment_name_err: false, comment_errmsg: ''
+                comment_content_err: false, comment_name_err: false, comment_errmsg: '', comment_preview: ''
             })
 
             postComment('/comments/user/Comment/create', toPayload(name, content), m)
@@ -424,13 +458,33 @@ export default {
             disable(true, reply_content, reply_name, refs.reply_btn)
             this.set({
                 loading: true, errmsg: '',
-                reply_content_err: false, reply_name_err: false, reply_errmsg: ''
+                reply_content_err: false, reply_name_err: false, reply_errmsg: '', reply_preview: ''
             })
 
             item = context.reply$.get('item')
 
             postComment('/comments/user/Comment/create', toPayload(name, content, item), m)
                     .then(m.reply$$S).then(undefined, m.reply$$F)
+        },
+        preview(key, ref_key) {
+            var obj = {},
+                refs = this.refs,
+                clear = true,
+                value = refs[ref_key].value.trim()
+            
+            if (value)
+                clear = value === this.get(key)
+            else if (value === this.get(key)) // no text input
+                return
+            
+            if (clear) {
+                obj[key] = ''
+            } else {
+                obj[key] = value
+                refs[key].innerHTML = toHTML(value)
+            }
+            
+            this.set(obj)
         },
         // auth
         pop(target) {
