@@ -5,8 +5,8 @@
 BIN=target/hprotostuffdb-rjre
 DATA_DIR=target/data/main
 JAR=comments-all/target/comments-all-jarjar.jar
-ASSETS=-Dprotostuffdb.assets_dir=comments-ts/
-PUBSUB=-Dprotostuffdb.with_pubsub=true
+ASSETS='-Dprotostuffdb.assets_dir=comments-ts/'
+PUBSUB='-Dprotostuffdb.with_pubsub=true'
 ARGS=$(cat ARGS.txt)
 PORT=$(cat PORT.txt)
 
