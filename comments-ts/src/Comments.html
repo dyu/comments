@@ -109,7 +109,7 @@ function checkInitial(m, refs, refresh$) {
         m.initial = false
         disable(false, refs.comment_content, refs.comment_name, refs.comment_btn)
         refs.controls.setAttribute('class', 'controls')
-        window.setTimeout(m.connect, 1000)
+        WS_HOST && window.setTimeout(m.connect, 1000)
     }
 
     return refresh$

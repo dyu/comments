@@ -24,15 +24,16 @@ function resolvePostId(id) {
     return id
 }
 
-function resolveWsHost(suffix) {
-    var p = window.location.protocol === 'https:' ? 'wss://' : 'ws://'
-    return p + window.location.hostname + suffix
+function resolveWsHost(rpc_host) {
+    return !rpc_host ? ('ws' + window.location.protocol.substring(4) + '//' + window.location.host) :
+            ('ws' + rpc_host.substring(4))
 }
 
 export const CONFIG = window['comments_config'] || {},
     POST_ID = resolvePostId(CONFIG['post_id']),
-    WS_HOST = CONFIG['ws_host'] || resolveWsHost(':' + window.location.port),
-    WS_RECONNECT_SECS = range(CONFIG['ws_reconnect_secs'], 1, 60*60, 10),
+    WITH_WS = !!CONFIG['ws_enabled'],
+    WS_HOST = !WITH_WS ? '' : (CONFIG['ws_host'] || resolveWsHost(CONFIG['rpc_host'])),
+    WS_RECONNECT_SECS = !WITH_WS ? 0 : range(CONFIG['ws_reconnect_secs'], 1, 60*60, 10),
     AUTH_HOST = CONFIG['auth_host'],
     WITH_AUTH = !!AUTH_HOST,
     AUTH_GOOGLE = 1,
