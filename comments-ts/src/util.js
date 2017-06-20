@@ -168,13 +168,18 @@ function fillItem(item, parent, fromSubmit) {
 }
 
 function addTo(parent, item, fromSubmit) {
-    var key = item['1']
-    if (parent.map[key]) return
+    var key = item['1'],
+        existing = parent.map[key]
+    if (existing)
+        return existing
+
     fillItem(item, parent, fromSubmit)
     item.parent = parent
     parent.children.push(item)
     parent.map[key] = item
     inc(parent)
+    
+    return existing
 }
 
 export function toTree(raw_items, items, m, parent, fromSubmit) {
@@ -182,6 +187,7 @@ export function toTree(raw_items, items, m, parent, fromSubmit) {
         start_depth = !parent ? 0 : 1 + parent['7'],
         last_item = !items.length ? null : items[items.length - 1],
         last_depth = !last_item ? start_depth : last_item['7'],
+        count = 0,
         item,
         depth,
         key
@@ -191,25 +197,30 @@ export function toTree(raw_items, items, m, parent, fromSubmit) {
         depth = item['7']
         if (start_depth === depth) {
             key = item['1']
-            if (map[key]) continue
+            last_depth = depth
+            if ((last_item = map[key])) continue
+            last_item = item
+            count++
             fillItem(item, parent, fromSubmit)
             items.push(item)
             map[key] = item
             parent && inc(parent)
-            last_item = item
-            last_depth = depth
             continue
         }
         
         if (depth === last_depth) {
-            addTo(last_item.parent, item, fromSubmit)
-            last_item = item
+            if (!(last_item = addTo(last_item.parent, item, fromSubmit))) {
+                last_item = item
+                count++
+            }
             continue
         }
         if (depth > last_depth) {
-            addTo(last_item, item)
-            last_item = item
             last_depth = depth
+            if (!(last_item = addTo(last_item, item, fromSubmit))) {
+                last_item = item
+                count++
+            }
             continue
         }
 
@@ -217,10 +228,14 @@ export function toTree(raw_items, items, m, parent, fromSubmit) {
             last_item = last_item.parent
         } while (depth < last_item['7'])
 
-        addTo(last_item.parent, item, fromSubmit)
-        last_item = item
         last_depth = depth
+        if (!(last_item = addTo(last_item.parent, item, fromSubmit))) {
+            last_item = item
+            count++
+        }
     }
+
+    m.total_count += count
 
     return items
 }

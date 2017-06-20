@@ -67,6 +67,9 @@
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items.length) }} ]
   </button>
+  <button type="button" class="outlined" disabled="{{ loading }}" on:click="load(true)">load more</button>
+  <button type="button" class="outlined" disabled="{{ loading }}" on:click="load(false)">refresh</button>
+  <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">&nbsp;*</span>
   <span class="legend">
     <button class="stripped" disabled>Press</button>
     <button class="outlined" disabled>ctrl</button>
@@ -74,10 +77,7 @@
     <button class="outlined" disabled>space</button>
     <button class="stripped" disabled>to toggle markdown preview</button>
   </span>
-  <button type="button" class="outlined" title="refresh" disabled="{{ loading }}" on:click="fetch$$()">
-    refresh
-  </button>
-  <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">&nbsp;*</span>
+  <div style="clear:both"></div>
 </div>
 <dl class="{{ items.length ? '' : 'hide' }}">
 {{#each items as item}}
@@ -228,6 +228,7 @@ export default {
             enumerable: false,
             value: {
                 initial: true,
+                total_count: 0,
 
                 fetch$$S: this.fetch$$S.bind(this),
                 fetch$$F: this.fetch$$F.bind(this),
@@ -291,11 +292,12 @@ export default {
                 // TODO hide load-more action when there are no more comments?
                 this.set({ loading: false })
             } else if (!refresh$) {
+                let items = toTree(array, this.get('items'), this.m, null)
                 //context.raw_items = context.raw_items.concat(array)
                 this.set({
                     loading: false,
-                    total_count: array.length + this.get('total_count'),
-                    items: toTree(array, this.get('items'), this.m, null)
+                    total_count: this.m.total_count,
+                    items
                 })
             } else {
                 context.refresh$ = null
@@ -303,7 +305,7 @@ export default {
                 toTree(array, item.children, this.m, item)
                 this.set({
                     loading: false,
-                    total_count: array.length + this.get('total_count')
+                    total_count: this.m.total_count
                 })
 
                 // update from the root parent
@@ -336,13 +338,22 @@ export default {
             rpc.post('/comments/user/Comment/listByPostId', payload)
                     .then(m.fetch$$S).then(undefined, m.fetch$$F)
         },
+        load(more) {
+            if (this.get('loading')) return
+
+            let m = this.m
+            this.set({ loading: true, errmsg: '' })
+            rpc.post('/comments/user/Comment/listByPostId', toFetchPayload(more && this.get('items')))
+                    .then(m.fetch$$S).then(undefined, m.fetch$$F)
+        },
         comment$$S(data) {
             let m = this.m,
                 refs = this.refs,
                 comment_content = refs.comment_content,
                 comment_name = refs.comment_name,
                 array = data['1'],
-                pub = data['2']
+                pub = data['2'],
+                items = toTree(array, this.get('items'), m, null, true)
             
             comment_content.value = ''
             comment_name.value = ''
@@ -353,8 +364,8 @@ export default {
             disable(false, comment_content, comment_name, refs.comment_btn)
             this.set({
                 loading: false, 
-                total_count: array.length + this.get('total_count'),
-                items: toTree(array, this.get('items'), m, null, true)
+                total_count: m.total_count,
+                items
             })
         },
         comment$$F(err) {
@@ -422,7 +433,7 @@ export default {
 
             this.m.reply_form_parent.appendChild(refs.reply_form)
             disable(false, reply_content, reply_name, refs.reply_btn)
-            this.set({ loading: false, total_count: array.length + this.get('total_count'), })
+            this.set({ loading: false, total_count: m.total_count })
 
             // update from the root parent
             while (parent) {
