@@ -47,6 +47,9 @@ div.inline {
     margin: 0;
     vertical-align: top;
   }
+  > div.ib {
+    margin-bottom: 1em;
+  }
 }
 
 .msg {
