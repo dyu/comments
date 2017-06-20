@@ -48,7 +48,10 @@ div.inline {
     vertical-align: top;
   }
   > div.ib {
-    margin-bottom: 1em;
+    font-size: 0.9em;
+    max-width: 55%;
+    margin-bottom: 1.1em;
+    word-wrap: break-word;
   }
 }
 
@@ -155,9 +158,7 @@ span.symbol {
    }
 }
 .timeago {
-  color: $alt-gray;
-  font-size: 0.95em;
-  vertical-align: top;
+  cursor: default;
 }
 
 div.comment {

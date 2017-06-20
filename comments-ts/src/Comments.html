@@ -12,7 +12,7 @@
 <div class="inline">
   {{#if with_auth }}
   <div class="{{ !comment_name_err ? 'ib' : 'ib error' }}">
-    <span>{{ user_nick || 'Post using' }}</span>
+    <span>{{ user_nick || 'via ' }}</span>
     <div class="{{ user_nick ? 'hide' : 'ib' }}">
       <button class="{{ !(auth_flags & 1) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
       <button class="{{ !(auth_flags & 2) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
@@ -45,7 +45,7 @@
     <div class="inline">
       {{#if with_auth }}
       <div class="{{ !reply_name_err ? 'ib' : 'ib error' }}">
-        <span>{{ user_nick || 'Post using' }}</span>
+        <span>{{ user_nick || 'via' }}</span>
         <div class="{{ user_nick ? 'hide' : 'ib' }}">
           <button class="{{ !(auth_flags & 1) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
           <button class="{{ !(auth_flags & 2) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
@@ -116,6 +116,8 @@ function checkInitial(m, refs, refresh$) {
         disable(false, refs.comment_content, refs.comment_name, refs.comment_btn)
         refs.controls.setAttribute('class', 'controls')
         WS_HOST && window.setTimeout(m.connect, 1000)
+    } else if (refresh$) {
+        refresh$.refs.refresh.disabled = false
     }
 
     return refresh$
@@ -294,11 +296,13 @@ export default {
         },
         fetch$$S(data) {
             let array = data['1'],
-                refresh$ = checkInitial(this.m, this.refs, context.refresh$)
+                refresh$ = checkInitial(this.m, this.refs, context.refresh$),
+                item
             
             if (!array || !array.length) {
-                // TODO hide load-more action when there are no more comments?
                 this.set({ loading: false })
+                if (!refresh$) return
+                item = refresh$.get('item')
             } else if (!refresh$) {
                 let items = toTree(array, this.get('items'), this.m, null)
                 //context.raw_items = context.raw_items.concat(array)
@@ -307,22 +311,21 @@ export default {
                     total_count: this.m.total_count,
                     items
                 })
+                return
             } else {
                 context.refresh$ = null
-                let item = refresh$.get('item'), parent = item.parent
+                item = refresh$.get('item')
                 toTree(array, item.children, this.m, item)
                 this.set({
                     loading: false,
                     total_count: this.m.total_count
                 })
-
-                // update from the root parent
-                while (parent) {
-                    item = parent
-                    parent = parent.parent
-                }
-                item.v$.set({ item })
             }
+            
+            // get the root parent
+            for (var parent = item.parent; !!parent; parent = parent.parent) item = parent
+            
+            item.v$.set({ item })
         },
         fetch$$F(err) {
             checkInitial(this.m, this.refs, context.refresh$)
@@ -337,8 +340,9 @@ export default {
                 payload = toFetchPayload(this.get('items'))
                 this.set({ loading: true, errmsg: '' })
             } else {
-                let item = refresh$.get('item')
                 context.refresh$ = refresh$
+                refresh$.refs.refresh.disabled = true
+                let item = refresh$.get('item')
                 payload = toFetchPayload(item.children, item)
                 this.set({ loading: true, errmsg: '' })
             }

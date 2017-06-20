@@ -1,7 +1,7 @@
 <div class="{{ !item.collapsed ? 'comment' : 'comment collapsed' }}">
   <span class="name"></span>
   <span class="btns">
-    <span class="timeago">{{ timeago(item['2']) }}</span>
+    <button ref:refresh class="stripped timeago" title="refresh" on:click="refresh()">{{ timeago(item['2']) }}</button>
     <button class="stripped" on:click="toggle(item)" title="{{title(item.children.length, item.total_child_count)}}">
       [ {{ plus_minus(item.collapsed, item.total_child_count) }} ]
     </button>
@@ -59,6 +59,11 @@ export default {
             let root$ = context.root$
             if (!root$.get('loading'))
                 root$.reply$$show_form(this, this.refs.content.nextElementSibling)
+        },
+        refresh() {
+            let root$ = context.root$
+            if (!root$.get('loading'))
+                root$.fetch$$(false, this)
         }
     }
 }
