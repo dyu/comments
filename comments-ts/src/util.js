@@ -29,7 +29,18 @@ function resolveWsHost(rpc_host) {
             ('ws' + rpc_host.substring(4))
 }
 
-export const CONFIG = window['comments_config'] || {},
+function createCompatConfig(target, src, rpc_host) {
+    var limit_depth = src['comments_max_depth'],
+        collapse_depth = src['comments_collapse_depth']
+    
+    if (rpc_host) target.rpc_host = rpc_host
+    if (limit_depth) target.limit_depth = limit_depth
+    if (collapse_depth) target.collapse_depth = collapse_depth
+    
+    return target
+}
+
+export const CONFIG = window['comments_config'] || createCompatConfig({}, window, window['rpc_host']),
     POST_ID = resolvePostId(CONFIG['post_id']),
     WITH_WS = !!CONFIG['ws_enabled'],
     WS_HOST = !WITH_WS ? '' : (CONFIG['ws_host'] || resolveWsHost(CONFIG['rpc_host'])),
