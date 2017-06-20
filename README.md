@@ -1,26 +1,38 @@
 # comments app
-A simple, self-hosted comment engine
+A real-time comment engine with support for anonymous or authenticated posts
 
-The [demo](https://netlify-comments.dyuproject.com) is running on a $2.5 vultr plan located in SG, with the app [configured](ARGS.txt) to use a max memory of 128mb (to leave most of the available memory to the filesystem cache).
+### Quickstart
+```sh
+mkdir -p target/standalone && cd target/standalone
+wget https://unpkg.com/dyu-comments@0.5.1/bin/comments-linux-standalone-x64.tar.gz
+tar -xzf comments-linux-standalone-x64.tar.gz
+./start.sh
+```
 
 ![screenshot](https://github.com/dyu/comments/raw/master/screenshot.png)
+
+The [demo](https://netlify-comments.dyuproject.com) is running on a $2.5 vultr plan located in SG, with the app [configured](ARGS.txt) to use a max memory of 128mb (to leave most of the available memory to the filesystem cache).
 
 ## Instant comments on your site/blog
 Put this anywhere in the html body (although it is advisable to put it last)
 ```html
 <div id="comments"></div>
 <script>
-window.rpc_host = 'https://rpc.dyuproject.com';
-window.comments_max_depth = 10; // max: 127
-window.comments_collapse_depth = 7; // the depth where comments get collapsed by default
+window.comments_config = {
+  ws_enabled: true, // real-time updates
+  collapse_depth: 7, // the depth where comments get collapsed by default
+  limit_depth: 10, // max: 127
+  //auth_host: 'https://api.dyuproject.com', // if you prefer authenticated comments
+  rpc_host: 'https://rpc.dyuproject.com'
+}
 </script>
 <script src="https://netlify-comments.dyuproject.com/dist/build.js"></script>
 <link rel="stylesheet" href="https://netlify-comments.dyuproject.com/dist/build.css" />
 ```
 > Note: Uses the same instance powering the demo. No tracking whatsoever.
 
-1. The [css](https://dyu.github.io/comments/dist/build.css) is 6.2kb minified, built with [pavilion](https://github.com/getpavilion/pavilion) core.
-2. The [js](https://dyu.github.io/comments/dist/build.js) is 79.7kb minified, built with:
+1. The [css](https://dyu.github.io/comments/dist/build.css) is 7.1kb minified, built with [pavilion](https://github.com/getpavilion/pavilion) core.
+2. The [js](https://dyu.github.io/comments/dist/build.js) is 91.8kb minified, built with:
    - [sveltjs](https://github.com/sveltejs/svelte)
    - [showdown](https://github.com/showdownjs/showdown)
    - [dompurify](https://github.com/cure53/DOMPurify)
