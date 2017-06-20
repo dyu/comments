@@ -78,8 +78,8 @@ div.inline {
   > button.outlined {
     padding: 0 0.5em;
     margin: 0 0.25em;
-    color: lighten($primary-color, 20%);
-    border-color: lighten($primary-color, 20%);
+    color: lighten($primary-color, 15%);
+    border-color: lighten($primary-color, 10%);
     &:hover {
       color: $primary-color;
       border-color: $primary-color;
