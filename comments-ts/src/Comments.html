@@ -94,7 +94,7 @@
 import {
     CONFIG, POST_ID, UI_FLAGS, CONTENT_LIMIT, CONTENT_ERRMSG, NAME_ERRMSG, context, extractMsg,
     append, plus_minus, pluralize, range,
-    toHTML, toTree, toFetchPayload, toPayload, popAuth, delayEventHandler,
+    toHTML, toTree, toFetchPayload, toPayload, popAuth,
     WS_HOST, WS_RECONNECT_SECS,
     WITH_AUTH, AUTH_HOST, AUTH_FLAGS, AUTH_GOOGLE, AUTH_GITHUB, AUTH_GITLAB
 } from './util'
@@ -261,8 +261,7 @@ export default {
                 onopen: this.onopen.bind(this),
                 onclose: this.onclose.bind(this),
                 connect: this.connect.bind(this),
-                // delay by 1 second
-                onmessage: delayEventHandler(this, 'onmessage', 1000),
+                onmessage: this.onmessage.bind(this),
 
                 root_map: {},
 
