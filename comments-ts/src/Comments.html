@@ -67,11 +67,13 @@
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items.length) }} ]
   </button>
+  <button type="button" class="{{ !total_count || !skip_refresh ? 'outlined' : 'hide' }}" disabled="{{ loading }}" on:click="load(false)">
+    refresh
+  </button>
   {{#if !skip_load_more }}
-  <button type="button" class="outlined" disabled="{{ loading }}" on:click="load(true)">load more</button>
-  {{/if}}
-  {{#if !skip_refresh }}
-  <button type="button" class="outlined" disabled="{{ loading }}" on:click="load(false)">refresh</button>
+  <button type="button" class="{{ !total_count ? 'hide' : 'outlined' }}" disabled="{{ loading }}" on:click="load(true)">
+    load more
+  </button>
   {{/if}}
   <div class="legend btns">
     <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">*</span>
