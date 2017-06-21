@@ -51,11 +51,12 @@ export const CONFIG = window['comments_config'] || createCompatConfig({}, window
     WS_RECONNECT_SECS = !WITH_WS ? 0 : range(CONFIG['ws_reconnect_secs'], 1, 60*60, 10),
     AUTH_HOST = CONFIG['auth_host'],
     WITH_AUTH = !!AUTH_HOST,
-    AUTH_IFRAME = !WITH_AUTH ? '' : (CONFIG['auth_iframe'] || (AUTH_HOST + '/iframe/')),
+    AUTH_PROXY = !WITH_AUTH ? '' : (CONFIG['auth_proxy'] || (AUTH_HOST + '/iframe/')),
     AUTH_GOOGLE = 1,
     AUTH_GITHUB = 2,
     AUTH_GITLAB = 4,
     AUTH_FLAGS = range(CONFIG['auth_flags'], 1, 0xFF, 0x07),
+    AUTH_OPEN_WINDOW = 0 !== (AUTH_FLAGS & 0x80),
     LIMIT_DEPTH = range(CONFIG['limit_depth'], 0, 127, 7),
     COLLAPSE_DEPTH = range(CONFIG['collapse_depth'], -1, 127, -1),
     CONTENT_LIMIT = range(CONFIG['content_limit'], 0, 8192, 0),
@@ -270,11 +271,18 @@ export function randomText(len) {
     return text
 }
 
+function openWindow(path) {
+    var w = window.open(path, 'Login', 'width=450,height=500,location=1,status=1,resizable=yes')
+    w && w.moveTo(window.innerWidth/2 - (450/2), window.innerHeight/2 - (500/2))
+}
+
 var pmpage, pmid, iframe
 export function popAuth(type) {
-    // always load
-    pmpage = pmpage ? '' : type + '.html'
     pmid = randomText(10)
+    if (AUTH_OPEN_WINDOW) {
+        openWindow(AUTH_PROXY + '#' + pmid + '~' + type + '~' + href)
+        return
+    }
 
     if (!iframe) {
         iframe = document.createElement('iframe')
@@ -282,8 +290,10 @@ export function popAuth(type) {
         iframe.style.border = 'none'
         document.body.appendChild(iframe)
     }
-    
-    iframe.src = AUTH_IFRAME + pmpage + '#' + pmid + '~' + type + '~' + href
+    // always load
+    pmpage = pmpage ? '' : type + '.html'
+
+    iframe.src = AUTH_PROXY + pmpage + '#' + pmid + '~' + type + '~' + href
 }
 
 function onAuth(e) {
