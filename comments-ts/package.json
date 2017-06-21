@@ -2,7 +2,7 @@
   "name": "dyu-comments",
   "description": "standalone binaries for a real-time comment engine with support for anonymous or authenticated posts",
   "author": "dyu",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

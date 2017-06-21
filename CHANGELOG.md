@@ -1,3 +1,7 @@
+## 0.5.2 (2017-06-21)
+
+* provide fallback for the nameless oauth user (github somehow allows that)
+
 ## 0.5.1 (2017-06-21)
 
 * refresh individual replies via the timeago button
