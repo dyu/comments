@@ -16,7 +16,16 @@
         id = hash.substring(1, t1),
         type = hash.substring(t1 + 1, t2),
         host_or_target = hash.substring(t2 + 1),
+        fnEvent = window.addEventListener || window.attachEvent,
+        keyEvent = !window.addEventListener ? 'onmessage' : 'message',
+        x = window.innerWidth/2 - (450/2),
+        y = window.innerHeight/2 - (500/2),
+        uri = '/login-' + type + '?state=' + encodeURIComponent(window.location.href),
         pm_target
+    function onPostMsg(e) {
+        var j = e.data
+        parent.postMessage(j.substring(0, j.length -1) + ',"' + id + '"]', pm_target)
+    }
     if (64 === host_or_target.charCodeAt(0)) {
         // auth_host
         t1 = host_or_target.indexOf('~')
@@ -25,7 +34,8 @@
     } else {
         pm_target = host_or_target
     }
-    window.location.assign(auth_host + '/login-' + type + '?state=-' + id + '-' + encodeURIComponent(pm_target))
+    fnEvent(keyEvent, onPostMsg, false)
+    window.open(auth_host + uri, 'Login', 'width=450,height=500,location=1,status=1,resizable=yes').moveTo(x, y)
     })();</script>
   </body>
 </html>
