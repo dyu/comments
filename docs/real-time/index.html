@@ -10,12 +10,15 @@
     <title>real-time authenticated comments</title>
   </head>
   <body>
+    <a style="position:absolute;top:0;right:0" href="https://github.com/dyu/comments"><img src="/dist/gh.png" /></a>
+    <h3><a href="/">anonymous</a> | real-time authenticated comments</h3>
     <div id="comments"></div>
     <script>
     window.comments_config = {
       collapse_depth: 7,
       limit_depth: 10,
       auth_host: 'https://api.dyuproject.com',
+      auth_iframe: '/login/', // self-hosted
       auth_flags: 0x77,
       ws_enabled: true,
       ws_host: 'wss://api.dyuproject.com/sub',
