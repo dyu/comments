@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+  </head>
+  <body>
+    <script>(function(){
+    var auth_host = 'https://api.dyuproject.com',
+        hash = window.location.hash,
+        t1 = hash.indexOf('~', 1),
+        t2 = hash.indexOf('~', t1 + 1),
+        id = hash.substring(1, t1),
+        type = hash.substring(t1 + 1, t2),
+        host_or_target = hash.substring(t2 + 1),
+        pm_target
+    if (64 === host_or_target.charCodeAt(0)) {
+        // auth_host
+        t1 = host_or_target.indexOf('~')
+        auth_host = host_or_target.substring(1, t1)
+        pm_target = host_or_target.substring(t1 + 1)
+    } else {
+        pm_target = host_or_target
+    }
+    window.location.assign(auth_host + '/login-' + type + '?state=-' + id + '-' + encodeURIComponent(pm_target))
+    })();</script>
+  </body>
+</html>
