@@ -164,23 +164,24 @@ function gitlabHtml(user, info) {
 function resolveNick(session, m) {
     let auth_data = session.auth_data,
         info = auth_data.info,
+        es_user = auth_data.es_user,
         user
     
     switch (auth_data.type) {
         case 1: // google
-            user = info.name
+            user = info.name || es_user
             m.user_html = !(AUTH_GOOGLE & (AUTH_FLAGS >>> 4)) ? user : googleHtml(user, info)
             break
         case 2: // github
-            user = !(AUTH_FLAGS & 8) ? info.name : info.login
+            user = !(AUTH_FLAGS & 8) ? (info.name || es_user) : info.login
             m.user_html = !(AUTH_GITHUB & (AUTH_FLAGS >>> 4)) ? user : githubHtml(user, info)
             break
         case 3: // gitlab
-            user = !(AUTH_FLAGS & 8) ? info.name : info.username
+            user = !(AUTH_FLAGS & 8) ? (info.name || es_user) : info.username
             m.user_html = !(AUTH_GITLAB & (AUTH_FLAGS >>> 4)) ? user : gitlabHtml(user, info)
             break
         default:
-            m.user_html = user = auth_data.es_user
+            m.user_html = user = es_user
     }
     
     return user
