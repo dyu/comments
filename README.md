@@ -4,7 +4,7 @@ A real-time comment engine with support for anonymous or authenticated posts
 ### Quickstart
 ```sh
 mkdir -p target/standalone && cd target/standalone
-wget https://unpkg.com/dyu-comments@0.5.2/bin/comments-linux-standalone-x64.tar.gz
+wget https://unpkg.com/dyu-comments@0.5.3/bin/comments-linux-standalone-x64.tar.gz
 tar -xzf comments-linux-standalone-x64.tar.gz
 ./start.sh
 ```
