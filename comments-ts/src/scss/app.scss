@@ -50,7 +50,7 @@ div.inline {
   > div.ib {
     font-size: 0.9em;
     max-width: 55%;
-    margin-bottom: 1.1em;
+    margin-bottom: 1.3em;
     word-wrap: break-word;
   }
 }
@@ -74,6 +74,7 @@ div.inline {
   display: block;
   background-color: $error-bg-color;
   color: $error-color;
+  margin-bottom: 0.5em;
 }
 
 > div.controls {
@@ -82,8 +83,9 @@ div.inline {
     color: $medium-gray;
   }
   > button.outlined {
-    padding: 0 0.5em;
-    margin: 0 0 0 0.25em;
+    font-size: 0.9em;
+    padding: 0 0.4em;
+    margin: 0 0.15em 0 0;
     color: lighten($primary-color, 15%);
     border-color: lighten($primary-color, 10%);
     &:hover {
@@ -94,21 +96,23 @@ div.inline {
   > span {
     color: $medium-gray;
   }
-  > div.legend {
-    float: right;
-    margin-top: 0.25em;
-    font-size: 0.95em;
-    > button {
-      color: $alt-color;
-    }
-    > button.stripped {
-      font-style: italic;
-    }
-  }
   > span.count {
     color: $hard-gray;
     font-weight: bold;
     font-size: 1.1em;
+
+    + span { font-size: 0.9em; }
+  }
+}
+div.legend {
+  float: right;
+  margin-top: 0.4em;
+  font-size: 0.95em;
+  > button {
+    color: $alt-color;
+  }
+  > button.stripped {
+    font-style: italic;
   }
 }
 span.symbol {

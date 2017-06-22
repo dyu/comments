@@ -2,33 +2,43 @@
   <b on:click="set({ errmsg: '' })">x</b>
   <span>{{ errmsg }}</span>
 </div>
-<div class="ta">
-  <div class="v-btns bottom" title="preview">
-    <button tabindex="-1" type="button" on:click="preview('comment_preview', 'comment_content')">p</button>
+<div ref:comment_form>
+  {{#if form_at_bottom }}
+  <div class="{{ !comment_errmsg ? 'hide' : 'msg error' }}">
+    <b on:click="set({ comment_errmsg: '' })">x</b>
+    <span>{{ comment_errmsg }}</span>
   </div>
-  <textarea ref:comment_content class="{{ !comment_content_err ? '' : 'error' }}"></textarea>
-  <div ref:comment_preview class="{{ comment_preview ? 'preview' : 'hide' }}"></div>
-</div>
-<div class="inline">
-  {{#if with_auth }}
-  <div class="{{ !comment_name_err ? 'ib' : 'ib error' }}">
-    <span>{{ user_nick || 'via ' }}</span>
-    <div class="{{ user_nick ? 'hide' : 'ib' }}">
-      <button class="{{ !(auth_flags & 1) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
-      <button class="{{ !(auth_flags & 2) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
-      <button class="{{ !(auth_flags & 4) ? 'hide' : 'stripped' }}" on:click="pop('gitlab')">gitlab</button>
-    </div>
-    <button tabindex="-1" class="{{ user_nick ? 'stripped' : 'hide' }}" on:click="logout()">x</button>
-    <input ref:comment_name type="hidden" />
-  </div>
-  {{else}}
-  <input ref:comment_name type="text" class="{{ !comment_name_err ? '' : 'error' }}" placeholder="Name" />
   {{/if}}
-  <button ref:comment_btn type="button" class="primary" on:click="comment$$()" >Post comment</button>
-</div>
-<div class="{{ !comment_errmsg ? 'hide' : 'msg error' }}">
-  <b on:click="set({ comment_errmsg: '' })">x</b>
-  <span>{{ comment_errmsg }}</span>
+  <div class="ta">
+    <div class="v-btns bottom" title="preview">
+      <button tabindex="-1" type="button" on:click="preview('comment_preview', 'comment_content')">p</button>
+    </div>
+    <textarea ref:comment_content class="{{ !comment_content_err ? '' : 'error' }}"></textarea>
+    <div ref:comment_preview class="{{ comment_preview ? 'preview' : 'hide' }}"></div>
+  </div>
+  <div class="inline">
+    {{#if with_auth }}
+    <div class="{{ !comment_name_err ? 'ib' : 'ib error' }}">
+      <span>{{ user_nick || 'via ' }}</span>
+      <div class="{{ user_nick ? 'hide' : 'ib' }}">
+        <button class="{{ !(auth_flags & 1) ? 'hide' : 'stripped' }}" on:click="pop('google')">google</button>
+        <button class="{{ !(auth_flags & 2) ? 'hide' : 'stripped' }}" on:click="pop('github')">github</button>
+        <button class="{{ !(auth_flags & 4) ? 'hide' : 'stripped' }}" on:click="pop('gitlab')">gitlab</button>
+      </div>
+      <button tabindex="-1" class="{{ user_nick ? 'stripped' : 'hide' }}" on:click="logout()">x</button>
+      <input ref:comment_name type="hidden" />
+    </div>
+    {{else}}
+    <input ref:comment_name type="text" class="{{ !comment_name_err ? '' : 'error' }}" placeholder="Name" />
+    {{/if}}
+    <button ref:comment_btn type="button" class="primary" on:click="comment$$()" >Post comment</button>
+  </div>
+  {{#if !form_at_bottom }}
+  <div class="{{ !comment_errmsg ? 'hide' : 'msg error' }}">
+    <b on:click="set({ comment_errmsg: '' })">x</b>
+    <span>{{ comment_errmsg }}</span>
+  </div>
+  {{/if}}
 </div>
 <div style="display:none">
   <div ref:reply_form class="reply-form ta">
@@ -67,13 +77,14 @@
   <button type="button" class="{{ !items.length ? 'hide' : 'stripped' }}" on:click="collapse_all(collapsed, items)">
     [ {{ plus_minus(collapsed, items.length) }} ]
   </button>
+  {{#if form_at_bottom }}
+  <button type="button" class="{{ !total_count ? 'hide' : 'outlined' }}" on:click="focus('comment_content')">add comment</button>
+  {{/if}}
   <button type="button" class="{{ !total_count || !skip_refresh ? 'outlined' : 'hide' }}" disabled="{{ loading }}" on:click="load(false)">
     refresh
   </button>
   {{#if !skip_load_more }}
-  <button type="button" class="{{ !total_count ? 'hide' : 'outlined' }}" disabled="{{ loading }}" on:click="load(true)">
-    load more
-  </button>
+  <button type="button" class="{{ !total_count ? 'hide' : 'outlined' }}" disabled="{{ loading }}" on:click="load(true)">load more</button>
   {{/if}}
   <div class="legend btns">
     <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">*</span>
@@ -90,6 +101,21 @@
   <Comment item="{{ item }}" />
 {{/each}}
 </dl>
+<br />
+<div ref:bottom class="{{ !total_count || !errmsg ? 'hide' : 'msg bottom error' }}">
+  <b on:click="set({ errmsg: '' })">x</b>
+  <span>{{ errmsg }}</span>
+</div>
+{{#if form_at_bottom }}
+<div class="legend btns">
+  <span class="{{ connected ? 'symbol' : 'hide' }}" title="connected">*</span>
+  <button class="stripped" disabled>Press</button>
+  <button class="outlined" disabled>ctrl</button>
+  <button class="stripped" disabled>+</button>
+  <button class="outlined" disabled>space</button>
+  <button class="stripped" disabled>to toggle markdown preview</button>
+</div>
+{{/if}}
 <script>
 import {
     CONFIG, POST_ID, UI_FLAGS, CONTENT_LIMIT, CONTENT_ERRMSG, NAME_ERRMSG, context, extractMsg,
@@ -191,6 +217,10 @@ function postComment(url, payload, m) {
     return rpc.post(!WITH_AUTH ? url : `${url}?access_token=${m.session.auth_data.es_token}`, payload)
 }
 
+const UI_SKIP_REFRESH = 1,
+    UI_SKIP_LOAD_MORE = 2,
+    UI_FORM_AT_BOTTOM = 4
+
 export default {
     data: () => ({
         loading: true, // fetch after this component is created
@@ -210,8 +240,9 @@ export default {
 
         collapsed: false,
 
-        skip_refresh: 1 === (1 & UI_FLAGS),
-        skip_load_more: 2 === (2 & UI_FLAGS),
+        skip_refresh: 0 !== (UI_FLAGS & UI_SKIP_REFRESH),
+        skip_load_more: 0 !== (UI_FLAGS & UI_SKIP_LOAD_MORE),
+        form_at_bottom: 0 !== (UI_FLAGS & UI_FORM_AT_BOTTOM),
 
         // auth
         with_auth: WITH_AUTH,
@@ -284,10 +315,14 @@ export default {
             this.set({ user_nick: resolveNick(session, this.m) })
         }
         
+        if (0 !== (UI_FLAGS & UI_FORM_AT_BOTTOM))
+            refs.bottom.parentNode.insertBefore(refs.comment_form, refs.bottom)
+
         disable(true, refs.comment_content, refs.comment_name, refs.comment_btn)
         this.fetch$$(true)
     },
     methods: {
+        focus(ref_key) { this.refs[ref_key].focus() },
         collapse_all(collapsed, items) {
             for (var i = 0, len = items.length; i < len; i++) {
                 items[i].collapsed = !collapsed

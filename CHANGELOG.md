@@ -1,3 +1,7 @@
+## 0.5.3 (2017-06-22)
+
+* option ```ui_flags: 4``` moves the comment form to the bottom
+
 ## 0.5.2 (2017-06-21)
 
 * provide fallback for the nameless oauth user (github somehow allows that)
