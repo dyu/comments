@@ -297,7 +297,8 @@ export function popAuth(type) {
 }
 
 function onAuth(e) {
-    var array = JSON.parse(e.data)
+    var msg = e.data,
+        array = typeof msg === 'string' ? JSON.parse(msg) : msg
     if (!Array.isArray(array) || array.length !== 3 || array[2] !== pmid) return
     
     var type = array[0], data = array[1]
