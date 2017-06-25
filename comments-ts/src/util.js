@@ -280,7 +280,7 @@ var pmpage, pmid, iframe
 export function popAuth(type) {
     pmid = randomText(10)
     if (AUTH_OPEN_WINDOW) {
-        openWindow(AUTH_PROXY + '#' + pmid + '~' + type + '~' + href)
+        openWindow(AUTH_PROXY + '#' + pmid + '~' + type + '~' + AUTH_HOST + '~' + href)
         return
     }
 
