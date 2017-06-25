@@ -9,22 +9,14 @@
   </head>
   <body>
     <script>(function(){
-    var auth_host = 'https://api.dyuproject.com',
-        hash = window.location.hash,
+    var hash = window.location.hash,
         t1 = hash.indexOf('~', 1),
         t2 = hash.indexOf('~', t1 + 1),
+        t3 = hash.indexOf('~', t2 + 1),
         id = hash.substring(1, t1),
         type = hash.substring(t1 + 1, t2),
-        host_or_target = hash.substring(t2 + 1),
-        pm_target
-    if (64 === host_or_target.charCodeAt(0)) {
-        // auth_host
-        t1 = host_or_target.indexOf('~')
-        auth_host = host_or_target.substring(1, t1)
-        pm_target = host_or_target.substring(t1 + 1)
-    } else {
-        pm_target = host_or_target
-    }
+        auth_host = hash.substring(t2 + 1, t3),
+        pm_target = hash.substring(t3 + 1)
     window.location.assign(auth_host + '/login-' + type + '?state=-' + id + '-' + encodeURIComponent(pm_target))
     })();</script>
   </body>
