@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dyu/bookmarks.git"
+    "url": "https://github.com/dyu/comments.git"
   },
   "files": ["dist", "bin"],
   "scripts": {
