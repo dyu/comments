@@ -39,10 +39,10 @@ message Comment {
     @Min(value = 1)
     required int64 post_id = 1;
     
-    @Key(kind = Comment)
+    @Key(entity = Comment)
     optional bytes last_seen_key = 2;
     
-    @Key(kind = Comment)
+    @Key(entity = Comment)
     optional bytes parent_key = 3;
   }
 
