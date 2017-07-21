@@ -4,7 +4,7 @@ package comments.user;
 
 import static com.dyuproject.protostuffdb.EntityMetadata.ZERO_KEY;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.asInt64;
-import static com.dyuproject.protostuffdb.SerializedValueUtil.readByteArrayOffsetWithTypeAsSize;
+import static com.dyuproject.protostuffdb.SerializedValueUtil.readBAO$len;
 import static protostuffdb.Jni.TOKEN_AS_USER;
 import static protostuffdb.Jni.WITH_PUBSUB;
 
@@ -56,8 +56,8 @@ public final class CommentOps
         if (param.postId.longValue() != asInt64(Comment.VO_POST_ID, parentValue))
             return res.fail("Invalid post id.");
         
-        int offset = readByteArrayOffsetWithTypeAsSize(Comment.FN_KEY_CHAIN, parentValue, context),
-                size = context.type,
+        int offset = readBAO$len(Comment.FN_KEY_CHAIN, parentValue, context),
+                size = context.$len,
                 depth = size / 9;
         
         if (depth > 127)

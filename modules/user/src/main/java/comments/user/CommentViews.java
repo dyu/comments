@@ -16,7 +16,7 @@ package comments.user;
 
 import static com.dyuproject.protostuffdb.EntityMetadata.ZERO_KEY;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.asInt64;
-import static com.dyuproject.protostuffdb.SerializedValueUtil.readByteArrayOffsetWithTypeAsSize;
+import static com.dyuproject.protostuffdb.SerializedValueUtil.readBAO$len;
 
 import java.io.IOException;
 
@@ -27,7 +27,6 @@ import com.dyuproject.protostuff.Output;
 import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
-import com.dyuproject.protostuff.RpcRuntimeExceptions;
 import com.dyuproject.protostuff.ds.ParamRangeKey;
 import com.dyuproject.protostuffdb.Datastore;
 import com.dyuproject.protostuffdb.ProtostuffPipe;
@@ -93,18 +92,8 @@ public final class CommentViews
                 byte[] v, int voffset, int vlen, 
                 RpcResponse res, int index)
         {
-            final ProtostuffPipe pipe = res.context.pipe.set(key, v, voffset, vlen);
-            try
-            {
-                res.writeRawNested(pipe.fieldNumber(), 
-                        pipe, pipe.schema(), pipe.repeated());
-            }
-            catch (IOException e)
-            {
-                throw RpcRuntimeExceptions.pipe(e);
-            }
-            
-            return res.output instanceof JsonXOutput && 
+            return !RpcResponse.PIPED_VISITOR.visit(key, v, voffset, vlen, res, index) && 
+                    res.output instanceof JsonXOutput && 
                     ((JsonXOutput)res.output).getSize() >= MAX_RESPONSE_LIMIT;
         }
     };
@@ -175,8 +164,8 @@ public final class CommentViews
         if (postId != asInt64(Comment.VO_POST_ID, parentValue))
             return res.fail("Invalid post id.");
         
-        final int offset = readByteArrayOffsetWithTypeAsSize(Comment.FN_KEY_CHAIN, parentValue, context),
-                size = context.type;
+        final int offset = readBAO$len(Comment.FN_KEY_CHAIN, parentValue, context),
+                size = context.$len;
         
         final KeyBuilder kb = context.kb()
                 .begin(Comment.IDX_POST_ID__KEY_CHAIN, Comment.EM)
