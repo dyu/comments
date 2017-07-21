@@ -94,7 +94,7 @@ public final class CommentViews
         {
             return !RpcResponse.PIPED_VISITOR.visit(key, v, voffset, vlen, res, index) && 
                     res.output instanceof JsonXOutput && 
-                    ((JsonXOutput)res.output).getSize() >= MAX_RESPONSE_LIMIT;
+                    ((JsonXOutput)res.output).getSize() > MAX_RESPONSE_LIMIT;
         }
     };
     
