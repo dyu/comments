@@ -78,8 +78,7 @@ cd comments-ts
 yarn run dev
 ```
 
-If your dev machine is a MacOS, **protostuffdb** currently does not have binary distributions for it yet.
-It is because the author does not have a MacOS machine to test/build against.
+If your dev machine is a MacOS, **protostuffdb** currently does not have binary distributions for it (no MacOS machine to test/build against).
 
 On the other hand, you can still do development on the client-side part with this temporary workaround:
 1. Edit ```comments-ts/index.html```
