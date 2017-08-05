@@ -1,3 +1,7 @@
+## 0.6.0 (2017-08-05)
+
+* use protostuffdb 0.13.1
+
 ## 0.5.3 (2017-06-22)
 
 * option ```ui_flags: 4``` moves the comment form to the bottom
