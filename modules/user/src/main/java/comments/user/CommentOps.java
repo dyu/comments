@@ -4,6 +4,7 @@ package comments.user;
 
 import static com.dyuproject.protostuffdb.EntityMetadata.ZERO_KEY;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.asInt64;
+import static com.dyuproject.protostuffdb.SerializedValueUtil.asInt8;
 import static com.dyuproject.protostuffdb.SerializedValueUtil.readBAO$len;
 import static protostuffdb.Jni.TOKEN_AS_USER;
 import static protostuffdb.Jni.WITH_PUBSUB;
@@ -18,7 +19,6 @@ import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
 import com.dyuproject.protostuffdb.Datastore;
-import com.dyuproject.protostuffdb.SerializedValueUtil;
 import com.dyuproject.protostuffdb.WriteContext;
 
 /**
@@ -158,7 +158,7 @@ public final class CommentOps
     {
         output.writeByteRange(false, Comment.FN_KEY, k, koffset, 9, false);
         
-        final int depth = SerializedValueUtil.asInt8(Comment.VO_DEPTH, v, voffset, vlen);
+        final int depth = asInt8(Comment.VO_DEPTH, v, voffset, vlen);
         int offset, len = 0;
         if (depth != 0)
         {
