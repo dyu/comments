@@ -18,6 +18,7 @@ import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
 import com.dyuproject.protostuffdb.Datastore;
+import com.dyuproject.protostuffdb.SerializedValueUtil;
 import com.dyuproject.protostuffdb.WriteContext;
 
 /**
@@ -137,14 +138,45 @@ public final class CommentOps
         public void writeTo(Output output, Comment message) throws IOException
         {
             output.writeByteArray(Comment.FN_KEY, message.key, false);
-            output.writeFixed64(Comment.FN_POST_ID, message.postId, false);
-            output.writeString(Comment.FN_NAME, message.name, false);
-            if (message.depth == 0)
-                return;
             
-            // start at the parent key
-            output.writeByteRange(false, Comment.FN_KEY_CHAIN, 
-                    message.keyChain, 9, message.keyChain.length - 9, false);
+            if (message.depth != 0)
+            {
+                output.writeByteRange(false, Comment.FN_KEY_CHAIN, 
+                        // start at the parent key
+                        message.keyChain, 9, message.keyChain.length - 9, false);
+            }
+            
+            output.writeString(Comment.FN_NAME, message.name, false);
+            
+            output.writeFixed64(Comment.FN_POST_ID, message.postId, false);
         }
     };
+    
+    static void pubTo(Output output, WriteContext context, 
+            byte[] k, final int koffset, 
+            byte[] v, final int voffset, final int vlen) throws IOException
+    {
+        output.writeByteRange(false, Comment.FN_KEY, k, koffset, 9, false);
+        
+        final int depth = SerializedValueUtil.asInt8(Comment.VO_DEPTH, v, voffset, vlen);
+        int offset, len = 0;
+        if (depth != 0)
+        {
+            offset = readBAO$len(Comment.FN_KEY_CHAIN, v, voffset, vlen, context);
+            len = context.$len;
+            
+            output.writeByteRange(false, Comment.FN_KEY_CHAIN, 
+                    // start at the parent key
+                    v, offset + 9, len - 9, false);
+            
+            // goto next field
+            len += (offset - voffset);
+        }
+        
+        offset = readBAO$len(Comment.FN_NAME, v, voffset + len, vlen - len, context);
+        output.writeByteRange(true, Comment.FN_NAME, v, offset, context.$len, false);
+        
+        output.writeFixed64(Comment.FN_POST_ID, 
+                asInt64(Comment.VO_POST_ID, v, voffset, vlen), false);
+    }
 }
