@@ -8,8 +8,11 @@ OUT_DIR=target/bin
 
 TAR_FILE=$OUT_DIR/comments-linux-standalone-x64.tar.gz
 
+TAR_ARGS='target/hprotostuffdb-rjre target/jre/*/'
+[ "$1" != "" ] && TAR_ARGS=$1
+
 echo "========== tar.gz"
 rm -f $TAR_FILE
 echo '#!/bin/sh' > start.sh && tail --lines=+4 scripts/s-start.sh >> start.sh && chmod +x start.sh && \
-    tar -cvzf $TAR_FILE start.sh target/hprotostuffdb-rjre target/jre/*/ -T scripts/files.txt
+    tar -cvzf $TAR_FILE start.sh $TAR_ARGS -T scripts/files.txt
 rm start.sh
