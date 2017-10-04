@@ -24,11 +24,14 @@ echo '#!/bin/sh' > start.sh && \
     chmod +x start.sh && \
     tar -cvzf $RMASTER_FILE start.sh target/hprotostuffdb-rmaster-rjre $TAR_ARGS -T scripts/files.txt
 
-echo '#!/bin/sh' > start.sh && \
-    printf '[ ! -n "$1" ] && echo "1st arg (ip:port of master) is required." && exit 1\nBIN=target/hprotostuffdb-rslave-rjre\nARGS_TXT=$(cat ARGS.txt)\nARGS="$ARGS_TXT -Dprotostuffdb.master=ws://$1"\n' >> start.sh && \
+head --lines=11 comments-ts/rslave.html > comments-ts/index.html && \
+    printf '    <script src="master_ip_port.js"></script>\n' >> comments-ts/index.html && \
+    tail --lines=+12 comments-ts/rslave.html >> comments-ts/index.html && \
+    echo '#!/bin/sh' > start.sh && \
+    printf '[ ! -n "$1" ] && echo "1st arg (ip:port of master) is required." && exit 1\necho "window.master_ip_port = \"$1\"" > comments-ts/master_ip_port.js\nBIN=target/hprotostuffdb-rslave-rjre\nARGS_TXT=$(cat ARGS.txt)\nARGS="$ARGS_TXT -Dprotostuffdb.master=ws://$1"\n' >> start.sh && \
     tail --lines=+7 scripts/s-start.sh >> start.sh && \
     chmod +x start.sh && \
     tar -cvzf $RSLAVE_FILE start.sh target/hprotostuffdb-rslave-rjre $TAR_ARGS -T scripts/files.txt
 
-rm -f start.sh
+rm -f start.sh comments-ts/master_ip_port.js
 mv /tmp/index.html comments-ts/
