@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>comments</title>
+  </head>
+  <body>
+    <div id="comments"></div>
+    <script>
+    window.comments_config = {
+        //limit_depth: 10,
+        //collapse_depth: 7,
+        //content_limit: 2048,
+        ui_flags: 5,
+        //auth_host: 'https://api.dyuproject.com',
+        //auth_flags: 0x77,
+        ws_enabled: true,
+        ws_reconnect_secs: 5,
+        rpc_host: 'http://' + window.location.hostname + ':5020',
+        post_id: 1
+    }
+    </script><script src="/dist/build.js"></script>
+    <link rel="stylesheet" href="/dist/build.css" />
+  </body>
+</html>
