@@ -1,6 +1,8 @@
 #!/bin/sh
 
-if [ -e /opt/protostuffdb/bin/protostuffdb ]; then
+if [ "$1" = "m" ]; then
+    BIN=/opt/protostuffdb/bin/hprotostuffdb-rmaster
+elif [ -e /opt/protostuffdb/bin/protostuffdb ]; then
     BIN=/opt/protostuffdb/bin/protostuffdb
 elif [ -e target/protostuffdb ]; then
     BIN=./target/protostuffdb
