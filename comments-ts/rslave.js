@@ -7,9 +7,9 @@
     var protocol = window.location.protocol,
         http = 0 === protocol.indexOf('http'),
         hostname = http ? window.location.hostname : '127.0.0.1',
-        master_ip = window.master_ip,
-        master_prefix = '//' + (master_ip || hostname) + ':5020',
-        slave_prefix = '//' + hostname + (master_ip ? ':5020' : ':5025'),
+        master_ip_port = window.master_ip_port,
+        master_prefix = '//' + (master_ip_port || (hostname + ':5020')),
+        slave_prefix = '//' + hostname + ':5020',
         rpc_config_d,
         uri_w_map
     
