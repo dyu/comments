@@ -3,14 +3,14 @@
 [ -e target/jre ] || { echo 'The target/jre dir is missing.'; exit 1; }
 
 BIN=target/hprotostuffdb-rjre
+ARGS=$(cat ARGS.txt)
+PORT=$(cat PORT.txt)
 DATA_DIR=target/data/main
 JAR=comments-all/target/comments-all-jarjar.jar
 ASSETS='-Dprotostuffdb.assets_dir=comments-ts/'
 # serve root index.html when uri not found
 RT_FLAGS='-Dprotostuffdb.rt_flags=1'
 PUBSUB='-Dprotostuffdb.with_pubsub=true'
-ARGS=$(cat ARGS.txt)
-PORT=$(cat PORT.txt)
 
 echo "The app is available at http://127.0.0.1:$PORT"
 $BIN $PORT comments-ts/g/user/UserServices.json $ARGS $PUBSUB $ASSETS $RT_FLAGS -Djava.class.path=$JAR comments.all.Main
