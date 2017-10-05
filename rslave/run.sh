@@ -20,17 +20,23 @@ jarjar() {
   cd - > /dev/null
 }
 
-MASTER_PORT=$1
-[ "$MASTER_PORT" = "" ] && MASTER_PORT=$(cat ../PORT.txt)
+if [ ! -n "$MASTER_IP_PORT" ]; then
+    [ -n "$MASTER_IP" ] || MASTER_IP=127.0.0.1
+    [ -n "$MASTER_PORT" ] || MASTER_PORT=$(cat ../PORT.txt)
+    
+    MASTER_IP_PORT="$MASTER_IP:$MASTER_PORT"
+fi
 
 ARGS_TXT=$(cat ../ARGS.txt)
 
 BIN=/opt/protostuffdb/bin/hprotostuffdb-rslave
-ARGS="$ARGS_TXT -Dprotostuffdb.with_backup=true -Dprotostuffdb.master=ws://127.0.0.1:$MASTER_PORT"
+ARGS="$ARGS_TXT -Dprotostuffdb.with_backup=true -Dprotostuffdb.master=ws://$MASTER_IP_PORT"
 
 DATA_DIR=target/data/main
 JAR=../comments-all/target/comments-all-jarjar.jar
-PORT=$(cat PORT.txt)
+PORT=$1
+
+[ -n "$PORT" ] || PORT=$(cat PORT.txt)
 
 [ -e $JAR ] || jarjar
 
