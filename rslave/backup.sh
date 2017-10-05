@@ -29,4 +29,4 @@ if [ ! -n "$BACKUP_NAME" ]; then
     BACKUP_NAME=$(date -d "$DATE" +%Y-%m-%d_%H-%M-%S)
 fi
 
-$BIN $CONNECT_URL $BACKUP_NAME $@
+$BIN $CONNECT_URL $BACKUP_NAME $@ && echo $BACKUP_NAME

@@ -36,7 +36,7 @@ mkdir -p $RSYNC_DEST_DIR
 PEM_FILE=$HOME/.ssh/rsync.pem
 rsync -Phave "ssh -i $PEM_FILE" rsync@$MASTER_IP:$RSYNC_SRC_DIR $RSYNC_DEST_DIR/ || { echo "Rsync failed."; exit 1; }
 
-[ "$3" != "1" ] && echo $BACKUP_NAME && exit 0
+[ "$3" != "1" ] && exit 0
 
 # stop server
 RUN_PID=$(cat target/run.pid)
