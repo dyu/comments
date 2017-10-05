@@ -25,6 +25,8 @@ if [ ! -n "$MASTER_IP_PORT" ]; then
     [ -n "$MASTER_PORT" ] || MASTER_PORT=$(cat ../PORT.txt)
     
     MASTER_IP_PORT="$MASTER_IP:$MASTER_PORT"
+else
+    PROVIDED=$2
 fi
 
 ARGS_TXT=$(cat ../ARGS.txt)
@@ -42,5 +44,12 @@ PORT=$1
 
 mkdir -p $DATA_DIR
 
+if [ "$PROVIDED" != "1" ]; then
 $BIN $PORT ../comments-ts/g/user/UserServices.json $ARGS -Djava.class.path=$JAR comments.all.Main
+else
+$BIN $PORT ../comments-ts/g/user/UserServices.json $ARGS -Djava.class.path=$JAR comments.all.Main &
+RUN_PID=$!
+echo $RUN_PID
+echo $RUN_PID > target/run.pid
+fi
 
