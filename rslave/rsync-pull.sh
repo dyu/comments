@@ -19,12 +19,15 @@ MASTER_IP=$1
 MASTER_PORT=$2
 [ -n "$MASTER_PORT" ] || MASTER_PORT=$(cat ../PORT.txt)
 
-# perform backup
 MODULE=user
-DATE=$(date)
-export BACKUP_NAME=$(date -d "$DATE" +%Y-%m-%d_%H-%M-%S)
 export MASTER_IP_PORT="$MASTER_IP:$MASTER_PORT"
-./backup.sh 0 $MODULE || { echo "Backup failed."; exit 1; }
+
+if [ ! -n "$BACKUP_NAME" ]; then
+    # perform backup
+    DATE=$(date)
+    export BACKUP_NAME=$(date -d "$DATE" +%Y-%m-%d_%H-%M-%S)
+    ./backup.sh 0 $MODULE || { echo "Backup failed."; exit 1; }
+fi
 
 RSYNC_SRC_DIR=/home/deploy/tmp/rmaster/target/data/main/$MODULE/backup-live/$BACKUP_NAME
 RSYNC_DEST_DIR=target/data/rsync/$MODULE
