@@ -35,6 +35,15 @@ rsync -Phave "ssh -i $PEM_FILE" rsync@$MASTER_IP:$RSYNC_SRC_DIR $RSYNC_DEST_DIR/
 
 [ "$3" != "1" ] && exit 0
 
-# restart server
+# stop server
+RUN_PID=$(cat target/run.pid)
+[ -n "$RUN_PID" ] && kill -s 0 $RUN_PID 2> /dev/null && kill $RUN_PID && wait $RUN_PID
 
+MAIN_DIR=target/data/main
+PREV_DIR=target/data/prev
+mkdir -p $MAIN_DIR $PREV_DIR/$MODULE
+
+# move dirs
+[ -e $MAIN_DIR/$MODULE ] && mv $MAIN_DIR/$MODULE $PREV_DIR/$MODULE/$BACKUP_NAME
+mv $RSYNC_DEST_DIR/$BACKUP_NAME $MAIN_DIR/$MODULE && ./run.sh $MASTER_PORT $4
 
