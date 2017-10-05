@@ -24,7 +24,9 @@ fi
 
 CONNECT_URL="ws://$MASTER_IP_PORT/comments123456781234567812345678"
 
-DATE=$(date)
-BACKUP_NAME=$(date -d "$DATE" +%Y-%m-%d_%H-%M-%S)
+if [ ! -n "$BACKUP_NAME" ]; then
+    DATE=$(date)
+    BACKUP_NAME=$(date -d "$DATE" +%Y-%m-%d_%H-%M-%S)
+fi
 
 $BIN $CONNECT_URL $BACKUP_NAME $@
