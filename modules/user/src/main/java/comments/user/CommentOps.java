@@ -19,6 +19,7 @@ import com.dyuproject.protostuff.Pipe;
 import com.dyuproject.protostuff.RpcHeader;
 import com.dyuproject.protostuff.RpcResponse;
 import com.dyuproject.protostuffdb.Datastore;
+import com.dyuproject.protostuffdb.KeyUtil;
 import com.dyuproject.protostuffdb.WriteContext;
 
 /**
@@ -88,7 +89,7 @@ public final class CommentOps
         if (!validateAndProvide(req, now, store, context, res))
             return false;
         
-        final byte[] key = new byte[9];
+        final byte[] key = KeyUtil.newEntityKey();
         
         context.fillEntityKey(key, Comment.EM, now);
         
