@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if [ "$1" = "m" ]; then
-    BIN=/opt/protostuffdb/bin/hprotostuffdb-rmaster
+if [ "$1" != "" ] && [ -e "/opt/protostuffdb/bin/$1" ]; then
+    BIN=/opt/protostuffdb/bin/$1
 elif [ -e /opt/protostuffdb/bin/protostuffdb ]; then
     BIN=/opt/protostuffdb/bin/protostuffdb
 elif [ -e target/protostuffdb ]; then
