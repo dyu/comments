@@ -44,11 +44,12 @@ public final class UserProvider extends RpcServiceProvider
         if (kind != Comment.KIND)
             return;
         
-        final JsonXOutput output = worker.context.pubOutput.use(Comment.getSchema());
+        final JsonXOutput output = worker.context.pubOutput;
         try
         {
             DSUtils.writeStartTo(output);
-            CommentOps.pubTo(output, worker.context, k, koffset, v, voffset, vlen);
+            CommentOps.pubTo(output.use(Comment.getSchema()), worker.context, 
+                    k, koffset, v, voffset, vlen);
             DSUtils.writeEndTo(output);
         }
         catch (IOException e)
