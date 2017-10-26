@@ -32,30 +32,23 @@ public final class UserProvider extends RpcServiceProvider
     
     @Override
     public void handleLogUpdates(RpcWorker worker, 
-            byte[] buf, int offset, int len)
+            byte[] buf, int offset, int len) throws IOException
     {
         processLogUpdates(worker, buf, offset, len);
     }
     
     @Override
     protected void processLogEntity(RpcWorker worker, int kind, 
-            byte[] k, int koffset, byte[] v, int voffset, int vlen)
+            byte[] k, int koffset, byte[] v, int voffset, int vlen) throws IOException
     {
         if (kind != Comment.KIND)
             return;
         
         final JsonXOutput output = worker.context.pubOutput;
-        try
-        {
-            DSUtils.writeStartTo(output);
-            CommentOps.pubTo(output.use(Comment.getSchema()), worker.context, 
-                    k, koffset, v, voffset, vlen);
-            DSUtils.writeEndTo(output);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Should not happen.");
-        }
+        DSUtils.writeStartTo(output);
+        CommentOps.pubTo(output.use(Comment.getSchema()), worker.context, 
+                k, koffset, v, voffset, vlen);
+        DSUtils.writeEndTo(output);
     }
     
     public static final UserServices.ForUser FOR_USER = new UserServices.ForUser(){};
