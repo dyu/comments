@@ -14,6 +14,8 @@ import com.dyuproject.protostuffdb.HasKV;
 import com.dyuproject.protostuffdb.ValueUtil;
 import com.dyuproject.protostuffdb.Visitor;
 
+import org.junit.Test;
+
 /**
  * User test.
  */
@@ -54,7 +56,8 @@ public class UserTest extends AbstractStoreTest
     {
         return insert(new Comment(name, content, postId));
     }
-
+    
+    @Test
     public void testComment() throws IOException
     {
         Comment entity = newComment("hello", "world", 1);
@@ -75,6 +78,7 @@ public class UserTest extends AbstractStoreTest
                 .$push().copy()));
     }
     
+    @Test
     public void testCommentReply() throws IOException
     {
         final long postId = 1;

@@ -1,19 +1,27 @@
 #!/bin/sh
 
-if [ "$1" != "" ] && [ -e "/opt/protostuffdb/bin/$1" ]; then
-    BIN=/opt/protostuffdb/bin/$1
-elif [ -e /opt/protostuffdb/bin/protostuffdb ]; then
-    BIN=/opt/protostuffdb/bin/protostuffdb
-elif [ -e target/protostuffdb ]; then
-    BIN=./target/protostuffdb
+BASE_DIR=$PWD
+UNAME=`uname`
+WIN_SUFFIX=""
+[ "$UNAME" != "Linux" ] && [ "$UNAME" != "Darwin" ] && WIN_SUFFIX='.exe'
+TARGET_BIN="target/protostuffdb$WIN_SUFFIX"
+
+#if [ "$1" != "" ] && [ -e "/opt/protostuffdb/bin/$1" ]; then
+#    BIN=/opt/protostuffdb/bin/$1
+if [ -e target/protostuffdb-rjre ]; then
+    BIN=$BASE_DIR/target/protostuffdb-rjre
+elif [ -e "$TARGET_BIN" ]; then
+    BIN=$BASE_DIR/$TARGET_BIN
 else
-    echo 'The target/protostuffdb binary must exist' && exit 1
+    echo "The $TARGET_BIN binary must exist" && exit 1
 fi
 
 DATA_DIR=target/data/main
 JAR=comments-all/target/comments-all-jarjar.jar
 ARGS=$(cat ARGS.txt)
 PORT=$(cat PORT.txt)
+BIND_IP='*'
+[ "$UNAME" != "Linux" ] && BIND_IP='127.0.0.1'
 
 jarjar() {
   cd comments-all
@@ -50,5 +58,10 @@ esac
 
 mkdir -p $DATA_DIR
 
-$BIN $PORT comments-ts/g/user/UserServices.json $ARGS -Dprotostuffdb.with_pubsub=true -Djava.class.path=$JAR comments.all.Main
+if [ -n "$WIN_SUFFIX" ]; then
+[ -e target/jre/bin/server ] || { echo 'Missing windows jre: target/jre'; exit 1; }
+cd target/jre/bin/server
+fi
+
+$BIN $BIND_IP:$PORT $BASE_DIR/comments-ts/g/user/UserServices.json $ARGS -Djava.class.path=$BASE_DIR/$JAR comments.all.Main $BASE_DIR
 

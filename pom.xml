@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>comments</groupId>
   <artifactId>comments</artifactId>
-  <version>0.7.0-SNAPSHOT</version>
+  <version>0.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>comments</name>
   <description>A simple, self-hosted comment engine</description>
@@ -17,8 +17,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.5.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
@@ -46,6 +46,14 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.22.2</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -80,9 +88,10 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <junit-version>3.8.2</junit-version>
-    <protostuffdb-version>0.19.0-SNAPSHOT</protostuffdb-version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    
+    <protostuffdb-version>2.0.0-SNAPSHOT</protostuffdb-version>
   </properties>
 
   <dependencyManagement>
@@ -90,7 +99,14 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>${junit-version}</version>
+        <version>4.13.2</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.vintage</groupId>
+        <artifactId>junit-vintage-engine</artifactId>
+        <version>5.8.1</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
